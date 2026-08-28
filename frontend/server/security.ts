@@ -15,16 +15,6 @@ export class ApiError extends Error {
     this.details = details;
   }
 }
-export function siteUser(request: Request) {
-  const id = request.headers.get("oai-authenticated-user-id")?.trim();
-  if (!id || id.length > 200)
-    throw new ApiError(
-      401,
-      "Sign in with ChatGPT to use saved history and support.",
-      "sign_in_required",
-    );
-  return id;
-}
 export function sameOrigin(request: Request) {
   const origin = request.headers.get("origin");
   if (!origin || origin !== new URL(request.url).origin)

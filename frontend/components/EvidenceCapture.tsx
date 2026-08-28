@@ -61,14 +61,13 @@ export function EvidenceCapture({
   }
   return (
     <fieldset className="product-evidence">
-      <legend>Capture & review the public source</legend>
+      <legend>Capture evidence</legend>
       <p className="product-muted">
-        Validators capture the whole rendered page and its SHA-256 digest. This
-        is a separate, zero-value Studionet transaction. A capture is not a
-        verdict; the source must remain unchanged when the product rechecks it.
+        Capture the full page and digest in a zero-value Studionet transaction.
+        Keep the source unchanged; a capture is not a verdict.
       </p>
       <label className="product-field">
-        <span>Public HTTPS URL to capture</span>
+        <span>Public source URL</span>
         <input
           type="url"
           maxLength={2048}
@@ -82,8 +81,8 @@ export function EvidenceCapture({
         />
       </label>
       <p className="product-muted">
-        The entire captured text is public and immutable. Do not use
-        confidential, personal, paywalled, or signed/private links.
+        Captured text is public and permanent. No confidential content or
+        private links.
       </p>
       <button
         className="product-button"
@@ -97,7 +96,7 @@ export function EvidenceCapture({
         }
         onClick={() => void create()}
       >
-        {working ? "Capturing…" : "Capture with validators"}
+        {working ? "Capturing…" : "Capture source"}
       </button>
       {!protocol.wallet && (
         <p className="product-muted">
@@ -117,7 +116,7 @@ export function EvidenceCapture({
             {new Date(capture.captured_at * 1000).toLocaleString()}
           </p>
           <details open>
-            <summary>Review exactly what validators captured</summary>
+            <summary>Review captured text</summary>
             <pre className="product-source">{capture.text}</pre>
           </details>
           <code className="product-hash">{capture.digest}</code>
@@ -127,10 +126,7 @@ export function EvidenceCapture({
               checked={reviewed}
               onChange={(e) => setReviewed(e.target.checked)}
             />
-            <span>
-              I reviewed this complete public text and it supports the proof I
-              am submitting.
-            </span>
+            <span>I reviewed this public text and it supports my proof.</span>
           </label>
           <p className="product-muted">
             Recovery ID: <code>{capture.request_id}</code>. It is also in

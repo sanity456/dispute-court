@@ -119,7 +119,7 @@ export async function requireOwner(
 export async function logoutOwner(
   db: Database,
   request: Request,
-  userId: string,
+  userId?: string,
 ) {
   const token = (request.headers.get("cookie") ?? "")
     .split(";")
@@ -128,8 +128,11 @@ export async function logoutOwner(
     ?.slice(COOKIE.length + 1);
   if (token)
     await db
-      .prepare("DELETE FROM sessions WHERE token_hash=? AND user_id=?")
-      .bind(await sha256(token), userId)
+      .prepare(
+        "DELETE FROM sessions WHERE token_hash=?" +
+          (userId ? " AND user_id=?" : ""),
+      )
+      .bind(await sha256(token), ...(userId ? [userId] : []))
       .run();
   return (
     COOKIE +

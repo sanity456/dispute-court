@@ -31,7 +31,7 @@ test("The Vercel target cannot change the default Sites build configuration", ()
     const config = JSON.parse(result.stdout);
     if (target === "sites") assert.deepEqual(config.keys, []);
     else {
-      assert.equal(config.provider, "neon");
+      assert.equal(config.provider, "wallet");
       const hosting = JSON.parse(
         readFileSync(new URL("../vercel.json", import.meta.url), "utf8"),
       );

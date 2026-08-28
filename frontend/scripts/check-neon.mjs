@@ -26,6 +26,12 @@ import { cleanExpiredTransientRows } from "../server/maintenance.ts";
 import { reserveIntent, ownIntent, updateIntent } from "../server/journal.ts";
 import { handleProductRequest } from "../server/api.ts";
 import { product } from "../lib/product.ts";
+import {
+  AuthBrowser,
+  alice as loginAlice,
+  bob as loginBob,
+} from "../tests/wallet-auth-helpers.mjs";
+import { getWalletSession, handleWalletAuth } from "../server/wallet-auth.ts";
 
 loadEnvFile(".env.local");
 const expectedProjects = {
@@ -245,6 +251,65 @@ try {
   assert.equal((await response.json()).preferences.timezone, "Europe/London");
   await cleanExpiredTransientRows(db, Date.now() + 120000);
   checks.push("authenticated identity adapter and maintenance");
+
+  const browser = new AuthBrowser(db, "https://verification.example");
+  await browser.login(loginAlice);
+  const firstSession = browser.request("auth/session");
+  assert.ok(await getWalletSession(db, firstSession));
+  assert.equal(
+    (await browser.api("preferences", { timezone: "Asia/Tokyo" })).status,
+    200,
+  );
+  checks.push("real Postgres wallet signature and durable wallet identity");
+
+  const signInChallenge = await browser.challenge(loginAlice);
+  const signInInput = {
+    id: signInChallenge.id,
+    signature: await loginAlice.signMessage({
+      message: signInChallenge.message,
+    }),
+  };
+  const concurrent = await Promise.all([
+    handleWalletAuth(browser.request("auth/verify", signInInput), db),
+    handleWalletAuth(browser.request("auth/verify", signInInput), db),
+  ]);
+  assert.equal(concurrent.filter((r) => r.status === 200).length, 1);
+  assert.ok(concurrent.some((r) => [401, 409].includes(r.status)));
+  browser.accept(concurrent.find((r) => r.status === 200));
+  assert.equal(await getWalletSession(db, firstSession), null);
+  checks.push("atomic concurrent nonce consumption and session rotation");
+
+  const privateSession = browser.request("auth/session");
+  await browser.login(loginBob);
+  assert.equal(await getWalletSession(db, privateSession), null);
+  assert.equal(
+    (await (await browser.api("preferences")).json()).timezone,
+    "UTC",
+  );
+  assert.equal(
+    (
+      await browser.api("preferences", undefined, {
+        "x-product-wallet": loginAlice.address,
+      })
+    ).status,
+    409,
+  );
+  assert.equal((await getPreferences(db, "alice")).timezone, "Europe/London");
+  checks.push(
+    "wallet switching, stale-tab rejection and legacy data preservation",
+  );
+
+  assert.equal((await browser.auth("sign-in/email", {})).status, 410);
+  assert.equal(
+    (await browser.auth("logout", {}, { origin: "https://other.example" }))
+      .status,
+    403,
+  );
+  const beforeLogout = browser.request("auth/session");
+  assert.equal((await browser.auth("logout", {})).status, 200);
+  assert.equal(await getWalletSession(db, beforeLogout), null);
+  assert.equal((await browser.api("session")).status, 401);
+  checks.push("retired email endpoints, CSRF defense and wallet logout");
 } finally {
   if (created) {
     // This schema was created by this invocation and contains verification fixtures only.

@@ -59,7 +59,7 @@ export default defineConfig(async () => {
     resolve: {
       alias: {
         "@product/auth": fileURLToPath(
-          new URL("./server/auth.sites.ts", import.meta.url),
+          new URL("./server/auth.wallet.ts", import.meta.url),
         ),
         "@product/database": fileURLToPath(
           new URL(

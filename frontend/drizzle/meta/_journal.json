@@ -15,6 +15,13 @@
       "when": 1787910857486,
       "tag": "0001_transaction_args",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1787936238389,
+      "tag": "0002_wallet_auth",
+      "breakpoints": true
     }
   ]
 }

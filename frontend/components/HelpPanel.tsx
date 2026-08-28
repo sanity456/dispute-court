@@ -153,9 +153,8 @@ export function HelpPanel({
             <span>Remind me while I am viewing a record</span>
           </label>
           <p className="product-muted">
-            Browser reminders only run while the record is open. Calendar
-            downloads work with your calendar app when this site is closed. No
-            background email or push delivery is claimed.
+            Browser reminders need this page open. Use a calendar download for
+            reminders when it is closed.
           </p>
           <label className="product-check">
             <input
@@ -278,69 +277,53 @@ export function HelpPanel({
         )}
       </section>
       <section className="product-panel product-stack">
-        <h2>Before you use {product.name}</h2>
+        <h2>Quick help</h2>
         <details>
-          <summary>Getting started on Studionet</summary>
+          <summary>Getting started</summary>
           <p className="product-muted">
-            Sign in for saved history, then connect a compatible Ethereum
-            wallet. The app verifies chain 61999 before each write. It can
-            request adding Studionet to your wallet. This is a sandbox using
-            test GEN; never send real assets or share wallet recovery secrets.
-            Creating terms does not move money.
+            Sign in with your wallet on GenLayer Studionet. Use test GEN only.
+            Creating terms moves no funds.
           </p>
         </details>
         <details>
-          <summary>A transaction is stuck or a payout has not arrived</summary>
+          <summary>Pending transaction or payout</summary>
           <p className="product-muted">
-            Open Activity and check the exact hash. Do not resend a pending
-            transaction. A finalized parent withdrawal is not a delivered
-            payout: the app checks the native child transfer, recipient, exact
-            amount and credited flag. If delivery remains unknown, submit a
-            support request with the hash; the operator cannot safely invent
-            credit or override the contract.
+            Check the hash in Activity. Do not resend a pending transaction.
+            Withdrawal execution and payout delivery are separate. If delivery
+            is unconfirmed, contact support with the hash.
           </p>
         </details>
         <details>
-          <summary>Evidence changed or could not be captured</summary>
+          <summary>Evidence issues</summary>
           <p className="product-muted">
-            Use a small, stable public HTTPS page without a login. Capture its
-            full rendered text with validators and review it before committing.
-            Dynamic pages can differ between validators or change after capture.
-            Never upload confidential material. A digest proves a content match,
-            not that the content or AI conclusion is true.
+            Use a stable, public HTTPS page. Review the captured text and keep
+            the source unchanged. Never submit confidential content. A matching
+            digest does not guarantee a correct verdict.
           </p>
         </details>
         <details>
-          <summary>Privacy, ownership & account data</summary>
+          <summary>Privacy & account data</summary>
           <p className="product-muted">
-            Pool/agreement terms, statements, evidence captures and chain
-            transactions are public blockchain data, even when this website is
-            private. Signed-in preferences, your request journal and support
-            messages are stored separately in this product’s database. Support
-            and display moderation require verified owner access. Signing out
-            does not erase on-chain records. Use the privacy category to request
-            account-data help. No third-party behavioral analytics is enabled.
+            Terms, evidence and transactions are public and permanent, even on a
+            private preview. Settings, history and support belong to your wallet
+            account; verified owners can read support. Signing out does not
+            erase chain records. Request data help under Privacy.
           </p>
         </details>
         <details>
-          <summary>What the owner can and cannot do</summary>
+          <summary>Owner permissions</summary>
           <p className="product-muted">
-            The owner can answer support requests, hide abusive entries from
-            this directory, inspect operational queues and schedule future fees
-            within the contract’s limits. They cannot edit accepted terms, pick
-            winners, replace parties, rewrite verdicts or reverse finalized
-            payouts. Hidden records remain accessible by ID and on-chain.
+            Owners manage support, directory visibility and permitted future
+            fees. They cannot change accepted terms, parties, verdicts or
+            finalized payouts. Hidden records remain accessible by ID.
           </p>
         </details>
         <details>
-          <summary>Known sandbox limitations</summary>
+          <summary>Studionet limits</summary>
           <p className="product-muted">
-            Studionet can be unavailable or reset. AI outcomes are not
-            guaranteed correct; submit clear criteria and evidence and
-            understand the accepted fallback. The directory and history have
-            explicit indexing limits. Notification delivery while the site is
-            closed requires a calendar app; unattended operator automation needs
-            separately configured hosting.{" "}
+            Studionet may reset or go offline. AI rulings can be wrong; review
+            the agreed fallback. Index coverage can be partial. Closed-app
+            reminders require a calendar app.{" "}
             {product.id === "dispute-court"
               ? "Dispute Court is not a legal court or legal advice."
               : ""}

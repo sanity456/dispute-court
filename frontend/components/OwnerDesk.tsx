@@ -277,17 +277,15 @@ export function OwnerDesk({
             protocol.wallet.toLowerCase() ===
               String(protocol.config?.owner ?? "").toLowerCase() && (
               <div className="product-panel product-stack">
-                <h2>Actual owner-wallet credit</h2>
+                <h2>Withdrawable credit</h2>
                 <p className="text-xl font-black">
                   {protocol.credit === null
                     ? "Unavailable"
                     : formatGen(protocol.credit) + " GEN"}
                 </p>
                 <p className="product-muted">
-                  This is the connected owner wallet’s withdrawable contract
-                  credit, not lifetime fees accrued. Credits can include any
-                  participant allocations for the same wallet. Delivery is
-                  verified separately in Activity.
+                  Withdrawable credit, not lifetime fees. May include this
+                  wallet’s participant payouts. Check delivery in Activity.
                 </p>
                 <button
                   className="product-button"

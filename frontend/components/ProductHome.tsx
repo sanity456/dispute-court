@@ -18,7 +18,7 @@ import {
   record,
   type Agreement,
 } from "../lib/lifecycle";
-import { errorMessage, useProtocol } from "../lib/useProtocol";
+import { errorMessage, useProtocol, type Protocol } from "../lib/useProtocol";
 import { EvidenceCapture } from "./EvidenceCapture";
 import { ActivityPanel } from "./ActivityPanel";
 import { DirectoryPanel } from "./DirectoryPanel";
@@ -112,6 +112,21 @@ export default function ProductHome({
   initialId?: string;
 }) {
   const protocol = useProtocol("list_agreements");
+  return (
+    <ProductWorkspace
+      key={protocol.session?.wallet ?? "signed-out"}
+      protocol={protocol}
+      initialId={initialId}
+    />
+  );
+}
+function ProductWorkspace({
+  protocol,
+  initialId,
+}: {
+  protocol: Protocol;
+  initialId: string;
+}) {
   const router = useRouter();
   const {
     wallet,
@@ -173,7 +188,8 @@ export default function ProductHome({
       setReviewed(false);
       setSettlementConfirmed(false);
       setDetailError("");
-      if (!agreementId || !isLiveConfigured) return;
+      if (!agreementId || !isLiveConfigured || !protocol.session?.signedIn)
+        return;
       try {
         const value = normalizeAgreement(
           await readContract("get_agreement", [agreementId]),
@@ -196,7 +212,7 @@ export default function ProductHome({
       cancelled = true;
       window.clearTimeout(task);
     };
-  }, [agreementId, detailKey]);
+  }, [agreementId, detailKey, protocol.session?.signedIn]);
   useEffect(() => {
     const task = window.setTimeout(() => {
       setReviewed(false);
@@ -363,7 +379,7 @@ export default function ProductHome({
             disabled={Boolean(busy)}
             onClick={() => void protocol.connect()}
           >
-            {wallet ? shortAddress(wallet) : "Connect wallet"}
+            {wallet ? shortAddress(wallet) : "Sign in with wallet"}
           </button>
         </div>
         <div className={shell + " flex gap-2 overflow-x-auto pb-3 2xl:hidden"}>
@@ -685,15 +701,20 @@ export default function ProductHome({
                       ))}
                     </dl>
                     <div className="mt-6 rounded-2xl border border-[#a17925]/20 bg-[#f6edcf] p-4 text-xs leading-6">
-                      <strong>Know the consequences.</strong> Either party may
-                      open a dispute immediately after funding, even before the
-                      performance deadline. Cooperative release or refund has no
-                      court fee. Adjudicated and no-show outcomes charge the
-                      snapshotted fee. Missing your response deadline allows the
-                      opener to receive the entire net escrow. AI decisions use
-                      0/25/50/75/100% buckets for Party A. The evidence fallback
-                      splits net escrow 50/50 after bounded retries. Percentages
-                      apply after fees.
+                      <strong>Key risks.</strong> Disputes can start immediately
+                      after funding. Missing the response deadline can cost you
+                      the entire net escrow.
+                      <details className="mt-2">
+                        <summary className="cursor-pointer font-bold">
+                          Fees & outcomes
+                        </summary>
+                        <p>
+                          Cooperative release or refund has no court fee.
+                          Rulings and no-shows charge the agreed fee. Party A
+                          receives 0/25/50/75/100% after fees; the evidence
+                          fallback is 50/50 after bounded retries.
+                        </p>
+                      </details>
                     </div>
                     <details className="mt-5 text-xs">
                       <summary className="cursor-pointer font-bold">
@@ -1081,9 +1102,9 @@ export default function ProductHome({
                         protocol={protocol}
                       />
                       <p className="text-xs leading-6 text-[#70817c]">
-                        Do not submit private or authenticated sources. The URL,
-                        note and digest are public. Ten exhibits maximum per
-                        party; new evidence resets your ready flag.
+                        Public evidence only. URLs, notes and digests are
+                        permanent. Ten exhibits per party; adding evidence
+                        resets Ready.
                       </p>
                       <button
                         className="court-primary w-full"
@@ -1355,10 +1376,9 @@ export default function ProductHome({
               <label className="flex items-start gap-3 rounded-2xl bg-[#f6edcf] p-4 text-xs leading-6">
                 <input type="checkbox" required className="mt-1" />
                 <span>
-                  I understand the no-show rule, adjudication fee, public
-                  evidence, fixed payout buckets, and 50/50 fallback after
-                  bounded evidence retries. Both parties will accept these
-                  immutable terms.
+                  I accept the no-show rule, fee, public evidence, payout
+                  buckets and 50/50 fallback after bounded retries. These terms
+                  become fixed once both parties accept.
                 </span>
               </label>
               <button className="court-primary" disabled={disabled}>
@@ -1375,9 +1395,8 @@ export default function ProductHome({
                 Create → Accept → Fund
               </h2>
               <p className="mt-4 text-sm leading-7">
-                There is no automatic debit. Review the exact amount in your
-                wallet. This build is for Studionet test funds; wallet funding
-                and payout delivery require network verification.
+                Funding needs wallet approval. Check the amount and use test GEN
+                only. Verify payout delivery in Activity.
               </p>
             </article>
             <article className="court-surface p-6">

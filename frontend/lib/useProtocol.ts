@@ -1,7 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  connectWallet,
   contractAddress,
   isLiveConfigured,
   readContract,
@@ -9,7 +8,16 @@ import {
 } from "./genlayer";
 import { record } from "./lifecycle";
 import { TransactionError } from "./receipt";
-import { productApi } from "./client";
+import { productApi, setExpectedWallet, SESSION_INVALID_EVENT } from "./client";
+import {
+  loginWithWallet,
+  logoutWallet,
+  isWalletLoginPending,
+  subscribeToWalletSession,
+  walletAuthApi,
+} from "./wallet-auth-client";
+import { assertLoginWallet } from "./wallet-login";
+import type { WalletSession } from "./wallet-auth-policy";
 import { recoverOutbox, saveSubmittedHash, walletRejected } from "./recovery";
 import type { Intent } from "./activity-model";
 export type Notice = {
@@ -26,6 +34,9 @@ export type Preferences = {
 };
 export type ProductSession = {
   signedIn: boolean;
+  wallet: string;
+  authMethod: "wallet";
+  expiresAt?: number;
   ownerVerified: boolean;
   preferences: Preferences;
   coreAddress: string;
@@ -39,7 +50,7 @@ export function useProtocol(listMethod: string) {
   const [stats, setStats] = useState<Record<string, unknown> | null>(null);
   const [config, setConfig] = useState<Record<string, unknown> | null>(null);
   const [credit, setCredit] = useState<string | null>(null);
-  const [loading, setLoading] = useState(isLiveConfigured);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [creditError, setCreditError] = useState("");
   const [notice, setNotice] = useState<Notice>(null);
@@ -49,33 +60,77 @@ export function useProtocol(listMethod: string) {
   const [session, setSession] = useState<ProductSession | null>(null);
   const [sessionError, setSessionError] = useState("");
   const busyRef = useRef(false);
+  const identityEpoch = useRef(0);
   const refresh = useCallback(() => setRevision((value) => value + 1), []);
+  const clearAccount = useCallback(() => {
+    identityEpoch.current++;
+    setExpectedWallet("");
+    setSession(null);
+    setWallet("");
+    setItems([]);
+    setTotal(0);
+    setStats(null);
+    setConfig(null);
+    setCredit(null);
+    setCreditError("");
+    setError("");
+    setLoading(false);
+    setNotice(null);
+  }, []);
   useEffect(() => {
     let cancelled = false;
-    void productApi<ProductSession>("session")
-      .then((value) => {
-        if (cancelled) return;
-        setSession(value);
-        setSessionError("");
-        void recoverOutbox().then((result) => {
-          if (!cancelled && result.pending)
-            setNotice({
-              kind: "info",
-              text: "A transaction hash is saved on this device but has not reached your account history. Keep this page open or check Activity before repeating the action.",
-            });
-        });
-      })
-      .catch((failure) => {
-        if (!cancelled) setSessionError(errorMessage(failure));
+    const epoch = identityEpoch.current;
+    const stale = () => cancelled || epoch !== identityEpoch.current;
+    void (async () => {
+      const auth = await walletAuthApi<WalletSession>("session");
+      if (stale()) return;
+      if (!auth.authenticated || !auth.wallet) {
+        clearAccount();
+        setSessionError("Sign in to continue.");
+        return;
+      }
+      if (window.ethereum) {
+        try {
+          await assertLoginWallet(window.ethereum, auth.wallet);
+        } catch {
+          if (stale()) return;
+          clearAccount();
+          setSessionError(
+            "Your connected wallet changed. Sign in again to continue.",
+          );
+          if (!isWalletLoginPending()) await logoutWallet();
+          return;
+        }
+      }
+      if (stale()) return;
+      setExpectedWallet(auth.wallet);
+      const value = await productApi<ProductSession>("session");
+      if (stale()) return;
+      value.expiresAt = auth.expiresAt;
+      setSession(value);
+      setWallet(window.ethereum ? value.wallet : "");
+      setSessionError("");
+      void recoverOutbox(value.wallet).then((result) => {
+        if (!stale() && result.pending)
+          setNotice({
+            kind: "info",
+            text: "A transaction hash is saved on this device but has not reached your account history. Keep this page open or check Activity before repeating the action.",
+          });
       });
+    })().catch((failure) => {
+      if (!stale()) {
+        clearAccount();
+        setSessionError(errorMessage(failure));
+      }
+    });
     return () => {
       cancelled = true;
     };
-  }, [revision]);
+  }, [revision, clearAccount]);
   useEffect(() => {
     let cancelled = false;
     const task = window.setTimeout(async () => {
-      if (!isLiveConfigured) return;
+      if (!isLiveConfigured || !session?.signedIn) return;
       setLoading(true);
       setError("");
       try {
@@ -100,13 +155,13 @@ export function useProtocol(listMethod: string) {
       cancelled = true;
       window.clearTimeout(task);
     };
-  }, [listMethod, revision]);
+  }, [listMethod, revision, session?.signedIn, session?.wallet]);
   useEffect(() => {
     let cancelled = false;
     const task = window.setTimeout(async () => {
       setCredit(null);
       setCreditError("");
-      if (!wallet || !isLiveConfigured) return;
+      if (!wallet || !isLiveConfigured || session?.wallet !== wallet) return;
       try {
         const result = record(await readContract("get_credit", [wallet]));
         if (!cancelled) setCredit(String(result.credit_wei ?? "0"));
@@ -118,41 +173,38 @@ export function useProtocol(listMethod: string) {
       cancelled = true;
       window.clearTimeout(task);
     };
-  }, [wallet, revision]);
+  }, [wallet, revision, session?.wallet]);
   useEffect(() => {
-    const changed = (...args: unknown[]) => {
-      setWallet(String((args[0] as string[])?.[0] ?? ""));
-      setCredit(null);
+    const changed = () => {
+      clearAccount();
+      setSessionError("Wallet or network changed. Sign in again to continue.");
+      if (!isWalletLoginPending())
+        void logoutWallet().catch((failure) =>
+          setSessionError(
+            "Could not end the old session: " + errorMessage(failure),
+          ),
+        );
     };
-    const chainChanged = () => {
-      setWallet("");
-      setCredit(null);
-      setNotice({
-        kind: "info",
-        text: "Network changed. Reconnect to confirm your Studionet account.",
-      });
+    const invalid = () => {
+      clearAccount();
+      setSessionError(
+        "Your wallet session ended or changed. Sign in again to continue.",
+      );
     };
+    const updated = () => {
+      clearAccount();
+      refresh();
+    };
+    const unsubscribe = subscribeToWalletSession(updated);
+    window.addEventListener(SESSION_INVALID_EVENT, invalid);
+    const focused = () => {
+      if (!isWalletLoginPending()) refresh();
+    };
+    window.addEventListener("focus", focused);
     const provider = window.ethereum;
     provider?.on?.("accountsChanged", changed);
-    provider?.on?.("chainChanged", chainChanged);
-    let cancelled = false;
-    if (provider)
-      void Promise.all([
-        provider.request({ method: "eth_accounts" }),
-        provider.request({ method: "eth_chainId" }),
-      ])
-        .then(([accounts, chain]) => {
-          const account = String((accounts as string[])?.[0] ?? "");
-          if (
-            !cancelled &&
-            Number.parseInt(String(chain), 16) === 61999 &&
-            /^0x[0-9a-fA-F]{40}$/.test(account)
-          )
-            setWallet(account);
-        })
-        .catch(() => {
-          /* No permission prompt for restoring an existing connection. */
-        });
+    provider?.on?.("chainChanged", changed);
+    provider?.on?.("disconnect", changed);
     const timer = window.setInterval(
       () => setNow(Math.floor(Date.now() / 1000)),
       15000,
@@ -162,19 +214,36 @@ export function useProtocol(listMethod: string) {
       0,
     );
     return () => {
-      cancelled = true;
+      unsubscribe();
+      window.removeEventListener(SESSION_INVALID_EVENT, invalid);
+      window.removeEventListener("focus", focused);
       provider?.removeListener?.("accountsChanged", changed);
-      provider?.removeListener?.("chainChanged", chainChanged);
+      provider?.removeListener?.("chainChanged", changed);
+      provider?.removeListener?.("disconnect", changed);
       window.clearInterval(timer);
       window.clearTimeout(initial);
     };
-  }, []);
+  }, [clearAccount, refresh]);
+  useEffect(() => {
+    if (!session?.expiresAt) return;
+    const timer = window.setTimeout(
+      () => {
+        clearAccount();
+        setSessionError(
+          "Your wallet session expired. Sign in again to continue.",
+        );
+      },
+      Math.max(0, session.expiresAt - Date.now()),
+    );
+    return () => window.clearTimeout(timer);
+  }, [session?.expiresAt, clearAccount]);
   async function connect() {
     if (busyRef.current) return;
     busyRef.current = true;
-    setBusy("Connect wallet");
+    setBusy("Sign in with wallet");
     try {
-      setWallet(await connectWallet());
+      await loginWithWallet();
+      refresh();
     } catch (failure) {
       setNotice({ kind: "error", text: errorMessage(failure) });
     } finally {
@@ -184,18 +253,20 @@ export function useProtocol(listMethod: string) {
   }
   async function more() {
     if (loading || items.length >= total) return;
+    const epoch = identityEpoch.current;
     setLoading(true);
     try {
       const result = record(await readContract(listMethod, [items.length, 50]));
+      if (epoch !== identityEpoch.current) return;
       setItems((previous) => [
         ...previous,
         ...(Array.isArray(result.items) ? result.items : []),
       ]);
       setTotal(Number(result.total ?? total));
     } catch (failure) {
-      setError(errorMessage(failure));
+      if (epoch === identityEpoch.current) setError(errorMessage(failure));
     } finally {
-      setLoading(false);
+      if (epoch === identityEpoch.current) setLoading(false);
     }
   }
   async function transact(
@@ -210,9 +281,25 @@ export function useProtocol(listMethod: string) {
     setBusy(title);
     let intent: Intent | undefined;
     let submittedHash = "";
+    const epoch = identityEpoch.current;
+    const current = () => epoch === identityEpoch.current;
     try {
-      const account = wallet || (await connectWallet());
-      setWallet(account);
+      const account = wallet;
+      if (
+        !session?.signedIn ||
+        !account ||
+        account !== session.wallet ||
+        !window.ethereum
+      )
+        throw new Error(
+          "Sign in with your wallet before submitting this action.",
+        );
+      await assertLoginWallet(window.ethereum, account);
+      await productApi<ProductSession>("session");
+      if (!current())
+        throw new Error(
+          "Your wallet changed. Sign in again before submitting.",
+        );
       intent = await productApi<Intent>("intents", {
         wallet: account,
         target,
@@ -222,6 +309,10 @@ export function useProtocol(listMethod: string) {
         title,
       });
       const intentId = intent.id;
+      if (!current())
+        throw new Error(
+          "Your wallet changed before approval. Review the saved request before retrying.",
+        );
       setNotice({
         kind: "info",
         text:
@@ -234,6 +325,7 @@ export function useProtocol(listMethod: string) {
         args,
         value,
         (progress) =>
+          current() &&
           setNotice({
             kind: "info",
             text:
@@ -247,7 +339,7 @@ export function useProtocol(listMethod: string) {
           target,
           onSubmitted: async (hash) => {
             submittedHash = hash;
-            await saveSubmittedHash(intentId, hash);
+            await saveSubmittedHash(intentId, hash, account);
           },
         },
       );
@@ -256,18 +348,19 @@ export function useProtocol(listMethod: string) {
         {},
       );
       const delivered = result.transaction?.payout_state === "delivered";
-      setNotice({
-        kind: "success",
-        hash,
-        text:
-          method === "withdraw"
-            ? delivered
-              ? "Payout delivered: the exact amount and recipient were verified in the finalized native transfer."
-              : "Withdrawal executed and finalized. Activity will separately verify delivery; do not assume the transfer has arrived."
-            : title + " executed successfully and finalized on Studionet.",
-      });
-      if (method !== "capture") refresh();
-      return true;
+      if (current())
+        setNotice({
+          kind: "success",
+          hash,
+          text:
+            method === "withdraw"
+              ? delivered
+                ? "Payout delivered: the exact amount and recipient were verified in the finalized native transfer."
+                : "Withdrawal executed and finalized. Activity will separately verify delivery; do not assume the transfer has arrived."
+              : title + " executed successfully and finalized on Studionet.",
+        });
+      if (current() && method !== "capture") refresh();
+      return current();
     } catch (failure) {
       const hash =
         submittedHash ||
@@ -275,7 +368,7 @@ export function useProtocol(listMethod: string) {
       if (intent) {
         if (hash) {
           try {
-            await saveSubmittedHash(intent.id, hash);
+            await saveSubmittedHash(intent.id, hash, intent.wallet);
           } catch {
             /* Recovery outbox retains the hash. */
           }
@@ -292,16 +385,17 @@ export function useProtocol(listMethod: string) {
           }
         }
       }
-      setNotice({
-        kind: "error",
-        text:
-          errorMessage(failure) +
-          (intent
-            ? " Open Activity to review the saved request before submitting again."
-            : ""),
-        hash,
-      });
-      if (method !== "capture") refresh();
+      if (current())
+        setNotice({
+          kind: "error",
+          text:
+            errorMessage(failure) +
+            (intent
+              ? " Open Activity to review the saved request before submitting again."
+              : ""),
+          hash,
+        });
+      if (current() && method !== "capture") refresh();
       return false;
     } finally {
       busyRef.current = false;
@@ -332,6 +426,7 @@ export function useProtocol(listMethod: string) {
     ready:
       isLiveConfigured &&
       Boolean(session?.signedIn) &&
+      Boolean(wallet && wallet === session?.wallet) &&
       Boolean(config) &&
       !error &&
       !loading,

@@ -147,7 +147,9 @@ export function ActivityPanel({
           disabled={Boolean(working)}
           onClick={() =>
             void action("refresh", async () => {
-              const result = await recoverOutbox();
+              const result = await recoverOutbox(
+                protocol.session?.wallet ?? "",
+              );
               await load();
               setMessage(
                 result.pending

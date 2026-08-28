@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 const nextConfig: NextConfig = {
   distDir: ".next-vercel",
   env: {
-    NEXT_PUBLIC_AUTH_PROVIDER: "neon",
+    NEXT_PUBLIC_AUTH_PROVIDER: "wallet",
     NEXT_PUBLIC_SITE_ORIGIN:
       process.env.NEXT_PUBLIC_SITE_ORIGIN ||
       (process.env.VERCEL_URL
@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
     );
     config.resolve.alias["@product/auth"] = resolve(
       process.cwd(),
-      "server/auth.neon.ts",
+      "server/auth.wallet.ts",
     );
     config.module.rules.push({
       test: /\.sql$/,
@@ -29,8 +29,8 @@ const nextConfig: NextConfig = {
     return config;
   },
 };
-// Vinext also reads this file. Opt in explicitly so Sites never receives Neon
-// identity, Vercel origins, or Node-specific build configuration.
+// Vinext also reads this file. Keep Vercel origins and Node-specific build
+// configuration opt-in; wallet authentication is used on both targets.
 export default process.env.PRODUCT_HOSTING_TARGET === "vercel"
   ? nextConfig
   : {};

@@ -154,3 +154,31 @@ export const rateBuckets = sqliteTable("rate_buckets", {
   count: integer("count").notNull(),
   expiresAt: integer("expires_at").notNull(),
 });
+
+export const walletChallenges = sqliteTable(
+  "wallet_challenges",
+  {
+    id: text("id").primaryKey(),
+    browserHash: text("browser_hash").notNull(),
+    address: text("address").notNull(),
+    origin: text("origin").notNull(),
+    message: text("message").notNull(),
+    issuedAt: integer("issued_at").notNull(),
+    expiresAt: integer("expires_at").notNull(),
+    used: integer("used").notNull().default(0),
+    attempts: integer("attempts").notNull().default(0),
+  },
+  (t) => [index("idx_wallet_challenges_expiry").on(t.expiresAt)],
+);
+export const walletSessions = sqliteTable(
+  "wallet_sessions",
+  {
+    tokenHash: text("token_hash").primaryKey(),
+    userId: text("user_id").notNull(),
+    address: text("address").notNull(),
+    origin: text("origin").notNull(),
+    createdAt: integer("created_at").notNull(),
+    expiresAt: integer("expires_at").notNull(),
+  },
+  (t) => [index("idx_wallet_sessions_expiry").on(t.expiresAt)],
+);

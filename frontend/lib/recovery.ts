@@ -1,10 +1,14 @@
 import { product } from "./product.ts";
 import { productApi } from "./client.ts";
-const key = product.id + ":emergency-hash-outbox:v1";
 type Entry = { intentId: string; hash: string; at: number };
-function entries(): Entry[] {
+function storageKey(wallet: string) {
+  if (!/^0x[0-9a-fA-F]{40}$/.test(wallet))
+    throw new Error("Sign in with your wallet before recovering activity.");
+  return product.id + ":emergency-hash-outbox:v2:" + wallet.toLowerCase();
+}
+function entries(wallet: string): Entry[] {
   try {
-    const parsed = JSON.parse(localStorage.getItem(key) ?? "[]");
+    const parsed = JSON.parse(localStorage.getItem(storageKey(wallet)) ?? "[]");
     return Array.isArray(parsed)
       ? parsed
           .filter(
@@ -18,42 +22,47 @@ function entries(): Entry[] {
     return [];
   }
 }
-export function rememberHash(intentId: string, hash: string) {
-  // Device-local emergency outbox only. D1 is the authoritative journal.
-  const list = entries().filter((e) => e.intentId !== intentId);
+export function rememberHash(intentId: string, hash: string, wallet: string) {
+  // Only an emergency outbox. The authenticated server journal remains authoritative.
+  // Legacy v1 entries are left untouched; their former account identity is not inferred.
+  const list = entries(wallet).filter((e) => e.intentId !== intentId);
   list.push({ intentId, hash, at: Date.now() });
   try {
-    localStorage.setItem(key, JSON.stringify(list));
+    localStorage.setItem(storageKey(wallet), JSON.stringify(list));
   } catch {
-    /* Hash remains visible in the pending notice. */
+    /* The transaction hash is also returned by the wallet. */
   }
 }
-function forgetHash(intentId: string) {
+function forgetHash(intentId: string, wallet: string) {
   try {
     localStorage.setItem(
-      key,
-      JSON.stringify(entries().filter((e) => e.intentId !== intentId)),
+      storageKey(wallet),
+      JSON.stringify(entries(wallet).filter((e) => e.intentId !== intentId)),
     );
   } catch {
     /* Retry is idempotent. */
   }
 }
-export async function saveSubmittedHash(intentId: string, hash: string) {
-  rememberHash(intentId, hash);
+export async function saveSubmittedHash(
+  intentId: string,
+  hash: string,
+  wallet: string,
+) {
+  rememberHash(intentId, hash, wallet);
   await productApi("intents/" + encodeURIComponent(intentId), { hash });
-  forgetHash(intentId);
+  forgetHash(intentId, wallet);
 }
-export async function recoverOutbox() {
+export async function recoverOutbox(wallet: string) {
   let recovered = 0;
-  for (const entry of entries()) {
+  for (const entry of entries(wallet)) {
     try {
-      await saveSubmittedHash(entry.intentId, entry.hash);
+      await saveSubmittedHash(entry.intentId, entry.hash, wallet);
       recovered++;
     } catch {
-      /* Never resend a transaction or attach a hash to another account's journal. */
+      /* Never resend a transaction or attach a hash to a different wallet's journal. */
     }
   }
-  return { recovered, pending: entries().length };
+  return { recovered, pending: entries(wallet).length };
 }
 export function walletRejected(error: unknown): boolean {
   let value = error;

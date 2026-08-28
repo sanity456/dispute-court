@@ -1,30 +1,38 @@
-# Dispute Court — repository and test release
+# Dispute Court — wallet-only test release
 
 Updated: 2026-08-28
 
-This is the complete, standalone Dispute Court product: `contracts/` contains the intelligent contracts, `tests/` contains their tests, and `frontend/` contains the web app, server, database schemas, application tests and operations scripts. Commitment Pools is a separate repository and product.
+Dispute Court remains a standalone Studionet product. Commitment Pools is separate. This repository includes the contracts, contract tests, frontend, server, database schemas and operations scripts.
 
-## Test deployment
+## Current test build
 
-[Open the private Vercel test deployment](https://dispute-court-studionet-m6davwc1k-sanity3.vercel.app) using the authorized Vercel account `sanity456`. This exact origin is registered with this product's separate Neon Auth project. Other preview aliases are not approved login origins. Studionet only; use test GEN, never real funds.
+[Open Dispute Court](https://dispute-court-studionet-ngjkyl6s6-sanity3.vercel.app) while signed into the authorized Vercel account `sanity456`. Then choose **Sign in with wallet**. Use Studionet and test GEN only.
 
-The current build uses email/password authentication for saved account history, reminders and support. The wallet separately authorizes on-chain actions, and owner tools additionally verify an expiring owner-wallet proof. No private key is stored in the app or exported by the release workflow. Owner moderation cannot change agreed terms, erase chain evidence, choose a ruling or reverse a transfer.
+Email/password forms, provider adapters and provider-session acceptance are removed from this build. First-time and returning wallets use the same verified-signature login. Connecting a wallet alone does not authenticate it. Owner tools retain a separate expiring owner-wallet proof.
 
-## Building from this repository
+UI copy is shorter, with optional help collapsed. Essential test-network, public-evidence and loss/no-show warnings remain visible where relevant.
 
-Use Node.js 24 and pnpm 11.19.0. Work in `frontend/`; configure environment values from `frontend/.env.example` in an ignored local environment file or the hosting provider. Never commit working credentials.
+The automatic short production aliases were removed after anonymous checks found they were public. They now return 404; the exact deployment link above still redirects anonymous visitors to Vercel Authentication. The aliases can be reassigned deliberately; no deployment or database was deleted. Future private tests should use preview deployments, not automatic production aliases.
 
-For a Vercel Git import, set **Root Directory** to `frontend` and follow [the Vercel setup guide](frontend/docs/VERCEL.md). The existing deployment was uploaded directly; pushing to GitHub does not itself connect or redeploy it. The original Sites target remains available through the default scripts and was not republished by the Vercel migration.
+## Verification
 
-## Evidence and limits
+- 78 application tests passed, including 20 wallet-authentication/client tests.
+- Type checks, zero-warning lint, native Next.js and Sites/Vinext builds passed.
+- Vercel's frozen install and production build passed.
+- 13 isolated live Neon database check groups passed; only their disposable schemas were removed.
+- 26 local wallet HTTP checks and 36 hosted checks passed. Hosted coverage includes 26 wallet checks, signed-session restoration, replay rejection, logout, retired email endpoints and owner isolation.
+- 44 compiled client assets were scanned against 10 private configuration values; no matches or retired authentication-provider code were found.
 
-- 58 application tests passed, including 8 hosting-portability tests.
-- Native Next.js and existing Sites/Vinext builds passed; type checks and zero-warning lint passed.
-- 9 isolated live Neon database check groups passed.
-- All 15 hosted checks passed after exact-domain registration. Invalid credentials reach managed authentication and return `401 INVALID_EMAIL_OR_PASSWORD`; cross-origin authentication and forged identities remain denied.
-- Homepage, sign-in and sign-up navigation was checked in the authenticated Vercel browser. No real product account or wallet journey was created by those hosted checks.
-- Earlier live contract and payout evidence is retained in [the Studionet verification record](frontend/verification/release-2026-08-28.md).
+These checks use synthetic test wallets, not a real-user browser-wallet session. No on-chain action was performed for this authentication/UI release. Existing contracts and [earlier live Studionet receipts](frontend/verification/release-2026-08-28.md) are unchanged.
 
-Before calling this a dependable beta, complete real-user sign-up/sign-in and email-policy testing, two-person wallet/device and mobile acceptance, approved tester access, independent adversarial review, and operational ownership for support, backups and key custody. Any always-on operator or closed-app notifications require a separately approved service and signer/provider. This is not an independent security certification or mainnet-ready release.
+## Data and release boundaries
 
-Dispute Court is a Studionet experiment, not a legal court or a guarantee of a correct AI ruling. Evidence is public and immutable. See [the operations runbook](frontend/docs/OPERATIONS.md) for recovery and operator boundaries. The existing `image-size` development dependency has a reproducible security patch and regression tests; do not remove it or misrepresent an audit as independent certification.
+Wallet identities are product- and chain-scoped. Additive migrations preserve prior user records. Old account data is not silently reassigned to a wallet; legacy provider users are retained but their sessions are not accepted. Existing published Sites versions were not republished.
+
+Human wallet/mobile acceptance, a two-person trial, approved tester access, independent adversarial review, and operational ownership remain beta gates. The known `image-size` development-tool advisories remain documented with a reproducible patch and regression tests; this is not an independent security certification. Dispute Court is an experiment, not a legal court or a guarantee of a correct AI ruling.
+
+## Build and operate
+
+Use Node.js 24 and pnpm 11.19.0 from `frontend/`. Follow [Vercel setup](frontend/docs/VERCEL.md), [wallet authentication](frontend/docs/WALLET_AUTH.md), and [operations](frontend/docs/OPERATIONS.md). For a Vercel Git import, use `frontend` as Root Directory. The current deployment was uploaded directly; a GitHub push does not redeploy it.
+
+[Wallet release evidence](frontend/verification/wallet-only-2026-08-28.md) records the exact deployment and remaining acceptance work. Never commit working credentials, export user keys, or enable unattended signing without approval.

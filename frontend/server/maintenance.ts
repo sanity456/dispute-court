@@ -7,7 +7,7 @@ export async function cleanExpiredTransientRows(
     .prepare(
       "INSERT INTO system_state(key,json,updated_at) VALUES('transient_cleanup','{}',?) ON CONFLICT(key) DO UPDATE SET updated_at=excluded.updated_at WHERE system_state.updated_at < ? RETURNING key",
     )
-    .bind(now, now - 3600000)
+    .bind(now, now - 300000)
     .first();
   if (!lease) return;
   // Only expired, replaceable cache/auth/rate-limit rows. Never user journals, preferences or support.
@@ -16,6 +16,8 @@ export async function cleanExpiredTransientRows(
     ["read_cache", "key"],
     ["sessions", "token_hash"],
     ["challenges", "id"],
+    ["wallet_challenges", "id"],
+    ["wallet_sessions", "token_hash"],
   ];
   await db.batch(
     targets.map(([table, key]) =>

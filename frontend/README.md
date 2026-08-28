@@ -12,7 +12,7 @@ $env:CODEX_LOCAL_PREVIEW = '1'
 pnpm dev --host 127.0.0.1 --port 4174
 ```
 
-The local sign-in is the Sites development fixture, not production OAuth. Local SQLite persists in ignored `.local-data/`. Do not seed production with that test data.
+Local preview uses the same signed-wallet login as the hosted app. SQLite persists in ignored `.local-data/`; never seed hosted databases with test data. For the native Next.js preview, use `http://localhost:<port>` so its request origin matches the browser.
 
 ```text
 pnpm test
@@ -48,4 +48,4 @@ The evidence helper's canonical Python source lives at `../contracts/evidence_ca
 
 Current implementation is a Studionet beta candidate, not a real-money release or an independently audited system. Human wallet/mobile acceptance, approved tester access, independent review and any always-on provider/signing setup remain explicit release gates. See the workspace `PRODUCT_COMPLETION_CHECKLIST.md`.
 
-No GitHub push is part of this workflow.
+Source is maintained in the separate private `sanity456/dispute-court` repository. A push does not automatically redeploy Vercel or Sites. See [wallet authentication](docs/WALLET_AUTH.md) and [Vercel hosting](docs/VERCEL.md).

@@ -2,16 +2,16 @@
 
 ## Service boundaries
 
-This product has its own Sites project, D1 database, contract addresses, account journal and owner session. Do not point it at the other product's database or contract. The core v2 contract is the authority for balances, parties, deadlines, eligibility and decisions.
+This product has its own hosting projects, database (Neon on Vercel; D1 on Sites), contract addresses, wallet account journal and owner session. Do not point it at the other product's database or contract. The core v2 contract is the authority for balances, parties, deadlines, eligibility and decisions.
 
-The owner desk requires the signed-in Sites account plus a one-time owner-wallet message signature. This grants an eight-hour HTTP-only session, not transaction authority. Never request a seed phrase/private key in support; every on-chain write still needs its own wallet confirmation.
+The owner desk requires a verified wallet login plus a separate one-time owner-wallet message signature. Each grants an eight-hour HTTP-only session, not transaction authority. Normal wallet login cannot be reused as owner proof. Never request a seed phrase/private key in support; every on-chain write still needs its own wallet confirmation.
 
 ## Normal operation
 
 - Read the private owner dashboard for partial index coverage, failed RPC calls, stale stages, open tickets and uncertain payout deliveries.
 - Run one bounded index refresh when coverage is partial. It walks 50 summaries and at most two full records per pass, with a 60-second refresh age for active details. A pool may require two participant pages, bounded by its 100-person contract maximum.
 - Open and refresh a record before taking its displayed next action. Queue entries are observations, not guarantees that the current contract still accepts the action.
-- Use My work for the connected wallet; account history belongs to the signed-in account and remains separate from wallet identity.
+- Use My work and Activity for the signed-in wallet. Switching wallets clears private views, drafts and owner controls; sign in again to use the new wallet's account.
 - Moderation only controls public-directory visibility and requires a reason. Direct links and all on-chain data remain unchanged.
 - Saved support responses appear in the requester's Help section. There is no external email/SMS notification service yet.
 
@@ -24,7 +24,7 @@ The owner desk requires the signed-in Sites account plus a one-time owner-wallet
 5. A successful withdrawal can still have a pending/unknown child transfer. Verify the finalized native child's sender, recipient, exact wei, transfer type and credited flag. Never recredit or send another payment solely because a child has not appeared.
 6. Escalate a genuine failed/missing transfer to the Studionet operator with public identifiers, not secrets. The application cannot reverse network transfers or reconstruct an unproven balance.
 
-The browser emergency outbox contains only request ID/hash/time on that device, to bridge a temporary account-journal outage. D1 is the durable history. If storage writes fail, the app must not pretend the request is safely saved.
+The browser emergency outbox contains only request ID/hash/time, scoped to this product and wallet, to bridge a temporary journal outage. The server database is the durable history. Unattributed legacy outbox entries are retained but never silently assigned to a new wallet. If storage writes fail, do not assume the request is safely saved.
 
 ## Evidence problems
 
@@ -52,20 +52,20 @@ Its durable `.local-data/operator.sqlite` records the intent before signing. Any
 
 ## Data, privacy and retention
 
-- D1 retains the signed-in account's requests, preferences and support; the product also caches public records and independently verified receipts.
+- The server database retains each wallet account's requests, preferences and support; the product also caches public records and independently verified receipts. Legacy provider-account records are preserved, not automatically merged into wallet accounts.
 - Evidence text and verdicts live on the public chain. Support content is private to its account and the verified operator. Never put secrets or sensitive personal data into either.
 - There is no third-party behavioral analytics SDK. RPC counters and indexed lifecycle-stage counts are operational observations, include test fixtures, and are not user-adoption metrics.
-- Expired cache, rate-limit, nonce and owner-session rows are cleaned in bounded batches. Requests, tickets, observations and authoritative receipt records are not automatically purged.
+- Expired cache, rate-limit, wallet-login nonce/session and owner-session rows are cleaned in bounded batches. Requests, tickets, observations and authoritative receipt records are not automatically purged.
 - Agree a retention/deletion process and a secure backup destination before onboarding testers. Clearing a database cannot erase chain history.
-- Use built-in record, history and owner-report exports for portable snapshots. They are not a substitute for an encrypted full D1 backup and a tested restore procedure.
+- Use built-in record, history and owner-report exports for portable snapshots. They are not a substitute for an encrypted database backup and a tested restore procedure.
 
 ## Release and rollback
 
-Use the exact lockfile, dependency patch and root `drizzle/` migrations. The production bundle requires the Sites D1 binding `DB` and fails closed without it. The Node SQLite adapter is for local preview only.
+Use the exact lockfile, dependency patch and `drizzle/` migrations, including additive wallet-auth migration 0002. Sites requires its D1 binding `DB`; Vercel requires its own Neon `DATABASE_URL`. Missing storage/auth fails closed. The Node SQLite adapter is for local preview only. See [wallet authentication](WALLET_AUTH.md).
 
 Do not copy `.local-data`, secrets, wallet state or synthetic local support tickets into production. Packaging must include generated migrations; hosting metadata contains only the project ID and logical bindings.
 
-Keep access owner-only until explicitly approved. A rollback must select an already validated app version compatible with the current additive database schema; never roll back a deployed intelligent contract or delete user rows as an application rollback. Preserve public deployment receipts and saved source. GitHub publication is not authorized.
+Keep access owner-only until explicitly approved. A rollback must select an already validated wallet-only app version compatible with the current additive database schema; never re-enable retired credential authentication, roll back a deployed intelligent contract, or delete user rows as an application rollback. Preserve public deployment receipts and saved source. GitHub pushes are authorized only to this product's existing private sanity456 repository; pushing does not itself redeploy the site.
 
 ## Incident notes to collect
 

@@ -1,6 +1,7 @@
 import { binding } from "@product/database";
 import migration from "../drizzle/0000_product_base.sql?raw";
 import argsMigration from "../drizzle/0001_transaction_args.sql?raw";
+import walletMigration from "../drizzle/0002_wallet_auth.sql?raw";
 import { schemaStatements } from "./schema-statements.ts";
 import type { Database } from "./database-types";
 let initialized: Promise<Database> | undefined;
@@ -23,6 +24,11 @@ export async function getDb(): Promise<Database> {
           db.prepare(statement),
         ),
       );
+    await db.batch(
+      schemaStatements(walletMigration).map((statement) =>
+        db.prepare(statement),
+      ),
+    );
     return db;
   })().catch((error) => {
     initialized = undefined;

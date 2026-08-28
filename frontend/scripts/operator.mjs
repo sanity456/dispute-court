@@ -38,7 +38,11 @@ const output = (event, details = {}) =>
     ),
   );
 try {
-  for (const file of ["0000_product_base.sql", "0001_transaction_args.sql"]) {
+  for (const file of [
+    "0000_product_base.sql",
+    "0001_transaction_args.sql",
+    "0002_wallet_auth.sql",
+  ]) {
     const sql = readFileSync(join(root, "drizzle", file), "utf8");
     if (
       file.startsWith("0001") &&

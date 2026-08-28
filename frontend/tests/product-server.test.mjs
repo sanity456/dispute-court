@@ -11,9 +11,20 @@ import {
   importTransaction,
 } from "../server/journal.ts";
 import { handleProductRequest as productRequest } from "../server/api.ts";
-import { siteUser } from "../server/security.ts";
+import { ApiError } from "../server/security.ts";
+// Explicit test-only identity injection. Production uses a verified wallet cookie.
+function fixtureUser(request) {
+  const id = request.headers.get("oai-authenticated-user-id");
+  if (!id)
+    throw new ApiError(
+      401,
+      "Test fixture requires a user.",
+      "sign_in_required",
+    );
+  return id;
+}
 const handleProductRequest = (request, db, network) =>
-  productRequest(request, db, network, siteUser);
+  productRequest(request, db, network, fixtureUser);
 import {
   observeTransaction,
   transactionCall,
@@ -65,7 +76,11 @@ const wallet = "0x" + "11".repeat(20),
 const pay = product.id === "commitment-pools" ? "join" : "fund_agreement";
 async function database(t) {
   const db = createLocalDatabase(":memory:");
-  for (const file of ["0000_product_base.sql", "0001_transaction_args.sql"]) {
+  for (const file of [
+    "0000_product_base.sql",
+    "0001_transaction_args.sql",
+    "0002_wallet_auth.sql",
+  ]) {
     const sql = readFileSync(
       new URL("../drizzle/" + file, import.meta.url),
       "utf8",

@@ -44,6 +44,7 @@ import {
 } from "./owner-auth.ts";
 import { ownerOverview } from "./operations.ts";
 import { cleanExpiredTransientRows } from "./maintenance.ts";
+import { walletFromUserId } from "../lib/wallet-auth-policy.ts";
 export async function handleProductRequest(
   request: Request,
   db: Database,
@@ -59,6 +60,14 @@ export async function handleProductRequest(
       );
     const userId = await authenticate(request),
       url = new URL(request.url);
+    const wallet = walletFromUserId(userId);
+    const expectedWallet = request.headers.get("x-product-wallet");
+    if (expectedWallet && expectedWallet.toLowerCase() !== wallet)
+      throw new ApiError(
+        409,
+        "The signed-in wallet changed. Sign in again before continuing.",
+        "wallet_session_changed",
+      );
     const path = url.pathname
       .replace(/^\/api\/product\/?/, "")
       .replace(/\/$/, "");
@@ -73,6 +82,8 @@ export async function handleProductRequest(
     if (path === "session" && !post)
       return jsonResponse({
         signedIn: true,
+        wallet,
+        authMethod: wallet ? "wallet" : undefined,
         ownerVerified: await ownerSession(
           db,
           request,
@@ -101,6 +112,12 @@ export async function handleProductRequest(
       });
     }
     if (path === "intents" && post) {
+      if (wallet && address(input.wallet) !== wallet)
+        throw new ApiError(
+          403,
+          "Sign in with the wallet used for this action.",
+          "wallet_mismatch",
+        );
       await rateLimit(db, "reserve:" + userId, 15);
       return jsonResponse(await reserveIntent(db, network, userId, input), 201);
     }
@@ -200,6 +217,12 @@ export async function handleProductRequest(
       return jsonResponse({ items: await supportList(db, userId) });
     }
     if (path === "owner/challenge" && post) {
+      if (wallet && address(input.wallet) !== wallet)
+        throw new ApiError(
+          403,
+          "Sign in with the owner wallet first.",
+          "wallet_mismatch",
+        );
       await rateLimit(db, "owner-challenge:" + userId, 5);
       return jsonResponse(
         await ownerChallenge(

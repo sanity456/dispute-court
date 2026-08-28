@@ -128,3 +128,28 @@ CREATE INDEX "idx_transactions_record_created" ON "transactions" ("record_id","c
 CREATE INDEX "idx_transactions_payout_updated" ON "transactions" ("payout_state","updated_at");
 --> statement-breakpoint
 ALTER TABLE transactions ADD COLUMN IF NOT EXISTS args_json text DEFAULT '[]' NOT NULL;
+--> statement-breakpoint
+CREATE TABLE wallet_challenges (
+  id text PRIMARY KEY NOT NULL,
+  browser_hash text NOT NULL,
+  address text NOT NULL,
+  origin text NOT NULL,
+  message text NOT NULL,
+  issued_at bigint NOT NULL,
+  expires_at bigint NOT NULL,
+  used bigint DEFAULT 0 NOT NULL,
+  attempts bigint DEFAULT 0 NOT NULL
+);
+--> statement-breakpoint
+CREATE INDEX idx_wallet_challenges_expiry ON wallet_challenges (expires_at);
+--> statement-breakpoint
+CREATE TABLE wallet_sessions (
+  token_hash text PRIMARY KEY NOT NULL,
+  user_id text NOT NULL,
+  address text NOT NULL,
+  origin text NOT NULL,
+  created_at bigint NOT NULL,
+  expires_at bigint NOT NULL
+);
+--> statement-breakpoint
+CREATE INDEX idx_wallet_sessions_expiry ON wallet_sessions (expires_at);

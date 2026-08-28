@@ -1,9 +1,9 @@
 "use client";
-import { signInPath, signOutPath, usesNeonAuth } from "../lib/auth-mode";
+import { signOutPath } from "../lib/auth-mode";
 import { useEffect, useRef, useState } from "react";
 import { productApi } from "../lib/client";
 import { product } from "../lib/product";
-import { readContract } from "../lib/genlayer";
+import { readContract, shortAddress } from "../lib/genlayer";
 import { errorMessage, type Protocol } from "../lib/useProtocol";
 import { calendarFile, formatDeadline, nextStep } from "../lib/reminders";
 import { downloadFile, exportJson } from "../lib/export";
@@ -220,9 +220,8 @@ export function RecordTools({
       <details>
         <summary>Record history & proof attempts</summary>
         <p className="product-muted">
-          State observations begin when this service sees the record. Older
-          chain actions can be imported in Activity; missing history is not
-          evidence that nothing happened.
+          History starts when this service indexes a record. Import older
+          transaction hashes in Activity.
         </p>
         <button
           className="product-button-secondary"
@@ -346,19 +345,20 @@ export function SessionStrip({ protocol }: { protocol: Protocol }) {
   if (protocol.session?.signedIn)
     return (
       <div className="product-session">
-        <span>Account history is saved independently of your wallet.</span>
+        <span>Signed in · {shortAddress(protocol.session.wallet)}</span>
         <a href={signOutPath}>Sign out</a>
       </div>
     );
   return (
     <div className="product-session">
-      <span>
-        {protocol.sessionError || "Checking account access…"} Sign in to use
-        durable history and actions.
-      </span>
-      <a href={signInPath}>
-        {usesNeonAuth ? "Sign in / Create account →" : "Sign in with ChatGPT →"}
-      </a>
+      <span>{protocol.sessionError || "Checking wallet session…"}</span>
+      <button
+        type="button"
+        disabled={Boolean(protocol.busy)}
+        onClick={() => void protocol.connect()}
+      >
+        Sign in with wallet →
+      </button>
     </div>
   );
 }
