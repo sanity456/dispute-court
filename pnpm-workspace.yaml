@@ -3,3 +3,11 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
   workerd: true
+
+packages:
+  - .
+
+# Security patches for transitive packages; preserve the existing toolchain.
+overrides:
+  postcss: 8.5.23
+  sharp: 0.35.0
