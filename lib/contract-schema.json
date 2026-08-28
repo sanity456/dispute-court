@@ -1,21 +1,11 @@
 {
   "ctor": {
-    "params": [
-      [
-        "initial_fee_bps",
-        "int"
-      ]
-    ],
+    "params": [["initial_fee_bps", "int"]],
     "kwparams": {}
   },
   "methods": {
     "accept_agreement": {
-      "params": [
-        [
-          "agreement_id",
-          "string"
-        ]
-      ],
+      "params": [["agreement_id", "string"]],
       "kwparams": {},
       "readonly": false,
       "ret": "dict",
@@ -29,24 +19,14 @@
       "payable": false
     },
     "cancel_expired_agreement": {
-      "params": [
-        [
-          "agreement_id",
-          "string"
-        ]
-      ],
+      "params": [["agreement_id", "string"]],
       "kwparams": {},
       "readonly": false,
       "ret": "dict",
       "payable": false
     },
     "close_evidence": {
-      "params": [
-        [
-          "agreement_id",
-          "string"
-        ]
-      ],
+      "params": [["agreement_id", "string"]],
       "kwparams": {},
       "readonly": false,
       "ret": "dict",
@@ -54,50 +34,17 @@
     },
     "create_agreement": {
       "params": [
-        [
-          "agreement_id",
-          "string"
-        ],
-        [
-          "party_b",
-          "string"
-        ],
-        [
-          "title",
-          "string"
-        ],
-        [
-          "summary",
-          "string"
-        ],
-        [
-          "criteria",
-          "string"
-        ],
-        [
-          "amount_wei",
-          "int"
-        ],
-        [
-          "acceptance_window_seconds",
-          "int"
-        ],
-        [
-          "funding_window_seconds",
-          "int"
-        ],
-        [
-          "performance_window_seconds",
-          "int"
-        ],
-        [
-          "response_window_seconds",
-          "int"
-        ],
-        [
-          "evidence_window_seconds",
-          "int"
-        ]
+        ["agreement_id", "string"],
+        ["party_b", "string"],
+        ["title", "string"],
+        ["summary", "string"],
+        ["criteria", "string"],
+        ["amount_wei", "int"],
+        ["acceptance_window_seconds", "int"],
+        ["funding_window_seconds", "int"],
+        ["performance_window_seconds", "int"],
+        ["response_window_seconds", "int"],
+        ["evidence_window_seconds", "int"]
       ],
       "kwparams": {},
       "readonly": false,
@@ -105,24 +52,14 @@
       "payable": false
     },
     "fund_agreement": {
-      "params": [
-        [
-          "agreement_id",
-          "string"
-        ]
-      ],
+      "params": [["agreement_id", "string"]],
       "kwparams": {},
       "readonly": false,
       "ret": "dict",
       "payable": true
     },
     "get_agreement": {
-      "params": [
-        [
-          "agreement_id",
-          "string"
-        ]
-      ],
+      "params": [["agreement_id", "string"]],
       "kwparams": {},
       "readonly": true,
       "ret": "dict"
@@ -134,37 +71,21 @@
       "ret": "dict"
     },
     "get_credit": {
-      "params": [
-        [
-          "account",
-          "string"
-        ]
-      ],
+      "params": [["account", "string"]],
       "kwparams": {},
       "readonly": true,
       "ret": "dict"
     },
     "get_payout": {
-      "params": [
-        [
-          "payout_id",
-          "string"
-        ]
-      ],
+      "params": [["payout_id", "string"]],
       "kwparams": {},
       "readonly": true,
       "ret": "dict"
     },
     "get_resolution_attempt": {
       "params": [
-        [
-          "agreement_id",
-          "string"
-        ],
-        [
-          "attempt_number",
-          "int"
-        ]
+        ["agreement_id", "string"],
+        ["attempt_number", "int"]
       ],
       "kwparams": {},
       "readonly": true,
@@ -178,14 +99,8 @@
     },
     "list_agreements": {
       "params": [
-        [
-          "offset",
-          "int"
-        ],
-        [
-          "limit",
-          "int"
-        ]
+        ["offset", "int"],
+        ["limit", "int"]
       ],
       "kwparams": {},
       "readonly": true,
@@ -193,30 +108,16 @@
     },
     "list_my_agreements": {
       "params": [
-        [
-          "account",
-          "string"
-        ],
-        [
-          "offset",
-          "int"
-        ],
-        [
-          "limit",
-          "int"
-        ]
+        ["account", "string"],
+        ["offset", "int"],
+        ["limit", "int"]
       ],
       "kwparams": {},
       "readonly": true,
       "ret": "dict"
     },
     "mark_ready": {
-      "params": [
-        [
-          "agreement_id",
-          "string"
-        ]
-      ],
+      "params": [["agreement_id", "string"]],
       "kwparams": {},
       "readonly": false,
       "ret": "dict",
@@ -224,14 +125,8 @@
     },
     "open_dispute": {
       "params": [
-        [
-          "agreement_id",
-          "string"
-        ],
-        [
-          "claim",
-          "string"
-        ]
+        ["agreement_id", "string"],
+        ["claim", "string"]
       ],
       "kwparams": {},
       "readonly": false,
@@ -239,60 +134,35 @@
       "payable": false
     },
     "refund_to_party_a": {
-      "params": [
-        [
-          "agreement_id",
-          "string"
-        ]
-      ],
+      "params": [["agreement_id", "string"]],
       "kwparams": {},
       "readonly": false,
       "ret": "dict",
       "payable": false
     },
     "release_to_party_b": {
-      "params": [
-        [
-          "agreement_id",
-          "string"
-        ]
-      ],
+      "params": [["agreement_id", "string"]],
       "kwparams": {},
       "readonly": false,
       "ret": "dict",
       "payable": false
     },
     "resolve": {
-      "params": [
-        [
-          "agreement_id",
-          "string"
-        ]
-      ],
+      "params": [["agreement_id", "string"]],
       "kwparams": {},
       "readonly": false,
       "ret": "dict",
       "payable": false
     },
     "resolve_fallback_split": {
-      "params": [
-        [
-          "agreement_id",
-          "string"
-        ]
-      ],
+      "params": [["agreement_id", "string"]],
       "kwparams": {},
       "readonly": false,
       "ret": "dict",
       "payable": false
     },
     "resolve_no_show": {
-      "params": [
-        [
-          "agreement_id",
-          "string"
-        ]
-      ],
+      "params": [["agreement_id", "string"]],
       "kwparams": {},
       "readonly": false,
       "ret": "dict",
@@ -300,14 +170,8 @@
     },
     "respond_to_dispute": {
       "params": [
-        [
-          "agreement_id",
-          "string"
-        ],
-        [
-          "response",
-          "string"
-        ]
+        ["agreement_id", "string"],
+        ["response", "string"]
       ],
       "kwparams": {},
       "readonly": false,
@@ -315,12 +179,7 @@
       "payable": false
     },
     "schedule_fee_bps": {
-      "params": [
-        [
-          "new_fee_bps",
-          "int"
-        ]
-      ],
+      "params": [["new_fee_bps", "int"]],
       "kwparams": {},
       "readonly": false,
       "ret": "dict",
@@ -328,22 +187,10 @@
     },
     "submit_evidence": {
       "params": [
-        [
-          "agreement_id",
-          "string"
-        ],
-        [
-          "note",
-          "string"
-        ],
-        [
-          "evidence_url",
-          "string"
-        ],
-        [
-          "evidence_digest",
-          "string"
-        ]
+        ["agreement_id", "string"],
+        ["note", "string"],
+        ["evidence_url", "string"],
+        ["evidence_digest", "string"]
       ],
       "kwparams": {},
       "readonly": false,

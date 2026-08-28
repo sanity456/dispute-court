@@ -11,6 +11,7 @@
     "moduleResolution": "bundler",
     "types": ["node", "@cloudflare/workers-types"],
     "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
@@ -31,5 +32,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "vendor"]
+  "exclude": ["node_modules", "vendor", "work", "dist", ".local-data", ".wrangler", "outputs"]
 }
