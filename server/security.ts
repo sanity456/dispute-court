@@ -35,7 +35,7 @@ export function sameOrigin(request: Request) {
     );
 }
 export async function bodyJson(
-  request: Request,
+  request: Pick<Request, "headers" | "body">,
 ): Promise<Record<string, unknown>> {
   if (!request.headers.get("content-type")?.startsWith("application/json"))
     throw new ApiError(415, "Send a JSON request.");
@@ -136,7 +136,7 @@ export async function rateLimit(
   const bucket = key + ":" + Math.floor(now / windowMs);
   const row = await db
     .prepare(
-      "INSERT INTO rate_buckets (key,count,expires_at) VALUES (?,1,?) ON CONFLICT(key) DO UPDATE SET count=count+1 WHERE count < ? RETURNING count",
+      "INSERT INTO rate_buckets (key,count,expires_at) VALUES (?,1,?) ON CONFLICT(key) DO UPDATE SET count=rate_buckets.count+1 WHERE rate_buckets.count < ? RETURNING count",
     )
     .bind(bucket, now + windowMs * 2, limit)
     .first();

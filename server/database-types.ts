@@ -11,6 +11,8 @@ export interface Prepared {
   run(): Promise<SqlResult>;
 }
 export interface Database {
+  readonly dialect?: "sqlite" | "postgres";
+  initialize?(): Promise<void>;
   prepare(sql: string): Prepared;
   batch(statements: Prepared[]): Promise<SqlResult[]>;
 }

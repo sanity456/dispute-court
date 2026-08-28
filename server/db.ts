@@ -1,4 +1,4 @@
-import { binding } from "virtual:product-database";
+import { binding } from "@product/database";
 import migration from "../drizzle/0000_product_base.sql?raw";
 import argsMigration from "../drizzle/0001_transaction_args.sql?raw";
 import { schemaStatements } from "./schema-statements.ts";
@@ -7,6 +7,10 @@ let initialized: Promise<Database> | undefined;
 export async function getDb(): Promise<Database> {
   initialized ??= (async () => {
     const db = binding();
+    if (db.initialize) {
+      await db.initialize();
+      return db;
+    }
     await db.batch(
       schemaStatements(migration).map((statement) => db.prepare(statement)),
     );

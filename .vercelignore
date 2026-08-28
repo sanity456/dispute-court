@@ -1,0 +1,16 @@
+.git
+.openai
+.env*
+!.env.example
+node_modules
+.next
+.next-vercel
+.vinext
+dist
+work
+outputs
+.local-data
+.wrangler
+*.tsbuildinfo
+next-env.d.ts
+.eslintcache

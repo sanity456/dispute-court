@@ -4,6 +4,7 @@ import { product } from "../lib/product.ts";
 import { jsonString, safeJson } from "../lib/activity-model.ts";
 import { ApiError, sha256 } from "./security.ts";
 import { object } from "./chain-model.ts";
+import { jsonField } from "./sql-dialect.ts";
 async function member(
   db: Database,
   id: string,
@@ -53,7 +54,7 @@ async function indexRecord(db: Database, value: unknown, detail = false) {
     const hash = await sha256(id + json);
     await db
       .prepare(
-        "INSERT OR IGNORE INTO observations(id,record_id,at,status,json) VALUES(?,?,?,?,?)",
+        "INSERT INTO observations(id,record_id,at,status,json) VALUES(?,?,?,?,?) ON CONFLICT(id) DO NOTHING",
       )
       .bind(hash, id, now, String(record.status ?? "unknown"), json)
       .run();
@@ -140,7 +141,11 @@ export async function syncDirectory(db: Database, network: Network) {
     product.id === "commitment-pools"
       ? await db
           .prepare(
-            "SELECT r.id FROM records r LEFT JOIN system_state s ON s.key='members:'||r.id LEFT JOIN system_state d ON d.key='detail:'||r.id WHERE r.detail_json IS NULL OR s.json IS NULL OR json_extract(s.json,'$.participant_count') != json_extract(r.json,'$.participant_count') OR (r.status NOT IN ('settled','cancelled') AND COALESCE(d.updated_at,0)<?) ORDER BY (r.detail_json IS NOT NULL),COALESCE(d.updated_at,0),r.created_at DESC LIMIT 2",
+            "SELECT r.id FROM records r LEFT JOIN system_state s ON s.key='members:'||r.id LEFT JOIN system_state d ON d.key='detail:'||r.id WHERE r.detail_json IS NULL OR s.json IS NULL OR " +
+              jsonField(db, "s.json", "participant_count", true) +
+              " != " +
+              jsonField(db, "r.json", "participant_count", true) +
+              " OR (r.status NOT IN ('settled','cancelled') AND COALESCE(d.updated_at,0)<?) ORDER BY (r.detail_json IS NOT NULL),COALESCE(d.updated_at,0),r.created_at DESC LIMIT 2",
           )
           .bind(staleBefore)
           .all<{ id: string }>()
@@ -187,7 +192,10 @@ export async function coverage(db: Database) {
       ? ((
           await db
             .prepare(
-              "SELECT count(*) AS n FROM records r LEFT JOIN system_state s ON s.key='members:'||r.id WHERE s.json IS NULL OR json_extract(s.json,'$.participant_count') != json_extract(r.json,'$.participant_count')",
+              "SELECT count(*) AS n FROM records r LEFT JOIN system_state s ON s.key='members:'||r.id WHERE s.json IS NULL OR " +
+                jsonField(db, "s.json", "participant_count", true) +
+                " != " +
+                jsonField(db, "r.json", "participant_count", true),
             )
             .first<{ n: number }>()
         )?.n ?? 0)
@@ -216,7 +224,7 @@ export async function directory(
   const where = ["r.hidden=0"],
     values: SqlValue[] = [];
   if (query) {
-    where.push("(r.title LIKE ? OR r.id LIKE ?)");
+    where.push("(LOWER(r.title) LIKE LOWER(?) OR LOWER(r.id) LIKE LOWER(?))");
     values.push("%" + query + "%", "%" + query + "%");
   }
   if (status) {

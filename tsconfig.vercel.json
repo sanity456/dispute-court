@@ -1,0 +1,27 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "types": ["node"] },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.mts",
+    ".next-vercel/types/**/*.ts",
+    ".next-vercel/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "vite.config.ts",
+    "drizzle.config.ts",
+    "server/database.worker.ts",
+    "server/database.local.ts",
+    "node_modules",
+    "vendor",
+    "work",
+    "dist",
+    ".local-data",
+    ".wrangler",
+    "outputs",
+    ".next",
+    ".vinext"
+  ]
+}

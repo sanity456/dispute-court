@@ -10,7 +10,10 @@ import {
   listActivity,
   importTransaction,
 } from "../server/journal.ts";
-import { handleProductRequest } from "../server/api.ts";
+import { handleProductRequest as productRequest } from "../server/api.ts";
+import { siteUser } from "../server/security.ts";
+const handleProductRequest = (request, db, network) =>
+  productRequest(request, db, network, siteUser);
 import {
   observeTransaction,
   transactionCall,

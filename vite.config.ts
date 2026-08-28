@@ -58,7 +58,10 @@ export default defineConfig(async () => {
   return {
     resolve: {
       alias: {
-        "virtual:product-database": fileURLToPath(
+        "@product/auth": fileURLToPath(
+          new URL("./server/auth.sites.ts", import.meta.url),
+        ),
+        "@product/database": fileURLToPath(
           new URL(
             isCodexLocalPreview
               ? "./server/database.local.ts"

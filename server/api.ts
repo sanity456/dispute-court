@@ -8,7 +8,6 @@ import {
   jsonResponse,
   rateLimit,
   sameOrigin,
-  siteUser,
   textField,
   txHash,
 } from "./security.ts";
@@ -49,9 +48,16 @@ export async function handleProductRequest(
   request: Request,
   db: Database,
   network: Network,
+  authenticate: (request: Request) => string | Promise<string>,
 ): Promise<Response> {
   try {
-    const userId = siteUser(request),
+    if (typeof authenticate !== "function")
+      throw new ApiError(
+        503,
+        "Account verification is unavailable.",
+        "auth_unavailable",
+      );
+    const userId = await authenticate(request),
       url = new URL(request.url);
     const path = url.pathname
       .replace(/^\/api\/product\/?/, "")

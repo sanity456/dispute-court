@@ -1,4 +1,6 @@
 allowBuilds:
+  # Optional funding notice; no build step is needed for this dependency.
+  core-js: false
   esbuild: true
   sharp: true
   unrs-resolver: true

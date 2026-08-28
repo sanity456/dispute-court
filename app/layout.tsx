@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { product } from "../lib/product";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "./product-tools.css";
@@ -9,9 +10,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    "https://dispute-court-genlayer.blazekingsley2.chatgpt.site",
-  ),
+  metadataBase: new URL(product.origin),
   title: "Dispute Court — Agreement-first resolution",
   description:
     "Agree first. Fund second. Resolve against a record both parties accepted on Studionet.",

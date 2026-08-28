@@ -2,6 +2,7 @@ import type { Database } from "./database-types";
 import { coverage } from "./directory.ts";
 import { safeJson } from "../lib/activity-model.ts";
 import { product } from "../lib/product.ts";
+import { jsonField } from "./sql-dialect.ts";
 export async function ownerOverview(db: Database) {
   const [
     intentCounts,
@@ -103,7 +104,25 @@ export async function ownerOverview(db: Database) {
   if (product.id === "commitment-pools") {
     const missed = await db
       .prepare(
-        "SELECT r.id,r.title,r.status,r.updated_at,m.wallet FROM members m JOIN records r ON r.id=m.record_id WHERE r.status='active' AND json_extract(m.json,'$.status')='active' AND ? >= json_extract(COALESCE(r.detail_json,r.json),'$.activity_starts_at')+(json_extract(m.json,'$.rounds_passed')+1)*json_extract(COALESCE(r.detail_json,r.json),'$.round_window_seconds') LIMIT 100",
+        "SELECT r.id,r.title,r.status,r.updated_at,m.wallet FROM members m JOIN records r ON r.id=m.record_id WHERE r.status='active' AND " +
+          jsonField(db, "m.json", "status") +
+          "='active' AND ? >= " +
+          jsonField(
+            db,
+            "COALESCE(r.detail_json,r.json)",
+            "activity_starts_at",
+            true,
+          ) +
+          "+(" +
+          jsonField(db, "m.json", "rounds_passed", true) +
+          "+1)*" +
+          jsonField(
+            db,
+            "COALESCE(r.detail_json,r.json)",
+            "round_window_seconds",
+            true,
+          ) +
+          " LIMIT 100",
       )
       .bind(now)
       .all<{

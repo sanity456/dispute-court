@@ -342,3 +342,35 @@
     animation: none !important;
   }
 }
+.auth-shell {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+}
+.auth-card {
+  width: 100%;
+  max-width: 30rem;
+  display: grid;
+  gap: 1.25rem;
+  padding: 2rem;
+}
+.auth-card h1 {
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+.auth-brand {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.auth-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+.auth-links a {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}

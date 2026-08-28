@@ -1,4 +1,5 @@
 "use client";
+import { signInPath, signOutPath, usesNeonAuth } from "../lib/auth-mode";
 import { useEffect, useRef, useState } from "react";
 import { productApi } from "../lib/client";
 import { product } from "../lib/product";
@@ -346,7 +347,7 @@ export function SessionStrip({ protocol }: { protocol: Protocol }) {
     return (
       <div className="product-session">
         <span>Account history is saved independently of your wallet.</span>
-        <a href="/signout-with-chatgpt?return_to=/">Sign out</a>
+        <a href={signOutPath}>Sign out</a>
       </div>
     );
   return (
@@ -355,7 +356,9 @@ export function SessionStrip({ protocol }: { protocol: Protocol }) {
         {protocol.sessionError || "Checking account access…"} Sign in to use
         durable history and actions.
       </span>
-      <a href="/signin-with-chatgpt?return_to=/">Sign in with ChatGPT →</a>
+      <a href={signInPath}>
+        {usesNeonAuth ? "Sign in / Create account →" : "Sign in with ChatGPT →"}
+      </a>
     </div>
   );
 }

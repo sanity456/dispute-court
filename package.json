@@ -2,12 +2,16 @@
   "name": "dispute-court-web",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.19.0",
   "engines": {
-    "node": ">=22.13.0"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "vinext dev",
     "build": "vinext build",
+    "dev:vercel": "node scripts/next.mjs dev",
+    "build:vercel": "node scripts/next.mjs build",
+    "start:vercel": "node scripts/next.mjs start",
     "test": "node --test tests/*.test.mjs",
     "start": "vinext start",
     "lint": "node scripts/lint.mjs",
@@ -16,6 +20,8 @@
     "format:check": "prettier --check app components lib server db tests scripts vite.config.ts drizzle.config.ts eslint.config.mjs"
   },
   "dependencies": {
+    "@neondatabase/auth": "0.5.0-beta",
+    "@neondatabase/serverless": "1.1.0",
     "drizzle-orm": "0.45.2",
     "next": "16.2.11",
     "react": "19.2.8",
