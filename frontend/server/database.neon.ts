@@ -1,7 +1,9 @@
 import migration from "./postgres-schema.sql?raw";
 import { createPostgresDatabase } from "./postgres-database";
-import { schemaStatements } from "./schema-statements";
 import type { Database } from "./database-types";
+import deployment from "../lib/deployment.json";
+import { product } from "../lib/product.ts";
+import { releaseDataSchema, initializeReleaseData } from "./release-data.ts";
 let database: Database | undefined;
 export function binding(): Database {
   if (!database) {
@@ -10,15 +12,14 @@ export function binding(): Database {
       throw new Error(
         "Durable storage is unavailable. No transaction has been sent.",
       );
-    const db = createPostgresDatabase(connection);
+    if ((deployment as { protocolVersion?: number }).protocolVersion !== 3)
+      throw new Error("A verified v3 deployment is required for this release.");
+    const schema = releaseDataSchema(product.id, deployment.contractAddress);
+    const db = createPostgresDatabase(connection, schema);
     database = {
       ...db,
       async initialize() {
-        // An advisory transaction lock serializes concurrent serverless cold starts.
-        await db.batch([
-          db.prepare("SELECT pg_advisory_xact_lock(619990028)"),
-          ...schemaStatements(migration).map((sql) => db.prepare(sql)),
-        ]);
+        await initializeReleaseData(db, schema, migration);
       },
     };
   }

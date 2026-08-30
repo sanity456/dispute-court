@@ -159,12 +159,14 @@ try {
     read: async (method) =>
       method === product.listMethod
         ? { items: [value], total: 1 }
-        : method === "list_participants"
-          ? {
-              items: [{ address: owner, status: "active", rounds_passed: 0 }],
-              total: 1,
-            }
-          : value,
+        : method === "get_config"
+          ? { protocol_version: 3, max_source_bytes: 6000 }
+          : method === "list_participants"
+            ? {
+                items: [{ address: owner, status: "active", rounds_passed: 0 }],
+                total: 1,
+              }
+            : value,
     transaction: async () => null,
     invalidate: async () => {},
   };
@@ -270,8 +272,18 @@ try {
     }),
   };
   const concurrent = await Promise.all([
-    handleWalletAuth(browser.request("auth/verify", signInInput), db),
-    handleWalletAuth(browser.request("auth/verify", signInInput), db),
+    handleWalletAuth(
+      browser.request("auth/verify", signInInput),
+      db,
+      product,
+      browser.clientAddress,
+    ),
+    handleWalletAuth(
+      browser.request("auth/verify", signInInput),
+      db,
+      product,
+      browser.clientAddress,
+    ),
   ]);
   assert.equal(concurrent.filter((r) => r.status === 200).length, 1);
   assert.ok(concurrent.some((r) => [401, 409].includes(r.status)));

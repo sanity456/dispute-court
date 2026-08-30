@@ -691,6 +691,18 @@ function ProductWorkspace({
                             " hours after response",
                         ],
                         ["Fallback", "50/50 after two evidence reopens"],
+                        ...(agreement.protocol_version === 3
+                          ? [
+                              ["Timeout split", "50/50, no fee"],
+                              [
+                                "Resolution deadline",
+                                agreement.resolution_deadline
+                                  ? date(agreement.resolution_deadline)
+                                  : "Response window + 3 evidence windows + 48 hours after dispute",
+                              ],
+                              ["Source limit", "6 KB per complete source"],
+                            ]
+                          : []),
                       ].map(([key, value]) => (
                         <div key={key}>
                           <dt className="text-xs text-[#70817c]">{key}</dt>
@@ -713,6 +725,8 @@ function ProductWorkspace({
                           Rulings and no-shows charge the agreed fee. Party A
                           receives 0/25/50/75/100% after fees; the evidence
                           fallback is 50/50 after bounded retries.
+                          {agreement.protocol_version === 3 &&
+                            " After the fixed resolution deadline, either party can split the full escrow equally without a fee."}
                         </p>
                       </details>
                     </div>
@@ -1036,8 +1050,9 @@ function ProductWorkspace({
                         />
                       </Field>
                       <p className="text-xs leading-6 text-[#70817c]">
-                        This ends the cooperative settlement stage and starts
-                        the other party’s response deadline.
+                        Starts the other party’s response deadline.
+                        {agreement.protocol_version === 3 &&
+                          " You can still give the full escrow to the other party."}
                       </p>
                       <button
                         className="court-secondary w-full"
@@ -1206,6 +1221,29 @@ function ProductWorkspace({
                       </button>
                     </article>
                   )}
+                  {actions?.timeout && (
+                    <article className="court-surface p-6">
+                      <h3 className="text-xl font-black">
+                        Resolution timed out
+                      </h3>
+                      <p className="mt-3 text-sm leading-7 text-[#70817c]">
+                        Split the full escrow equally. No court fee applies.
+                      </p>
+                      <button
+                        className="court-primary mt-5"
+                        disabled={disabled}
+                        onClick={() =>
+                          void transact(
+                            "Apply fee-free timeout split",
+                            "resolve_timeout_split",
+                            [agreement.id],
+                          )
+                        }
+                      >
+                        Apply agreed timeout split
+                      </button>
+                    </article>
+                  )}
                   {actions?.fallback && (
                     <article className="court-surface p-6">
                       <h3 className="text-xl font-black">
@@ -1244,6 +1282,18 @@ function ProductWorkspace({
                         reopens {agreement.reopen_count}/2 · leader explanation
                         is non-authoritative.
                       </p>
+                      {agreement.last_source_observations.length > 0 && (
+                        <ul className="mt-4 space-y-2 text-xs text-[#70817c]">
+                          {agreement.last_source_observations.map((source) => (
+                            <li key={String(source.id)}>
+                              {String(source.id)} ·{" "}
+                              {source.status === "verified"
+                                ? "Verified"
+                                : "Excluded: " + label(String(source.status))}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </article>
                   )}
                 </aside>
@@ -1377,8 +1427,10 @@ function ProductWorkspace({
                 <input type="checkbox" required className="mt-1" />
                 <span>
                   I accept the no-show rule, fee, public evidence, payout
-                  buckets and 50/50 fallback after bounded retries. These terms
-                  become fixed once both parties accept.
+                  buckets and 50/50 fallback after bounded retries. The fee-free
+                  timeout split becomes available after the response window,
+                  three evidence windows and 48 hours from the dispute. These
+                  terms become fixed once both parties accept.
                 </span>
               </label>
               <button className="court-primary" disabled={disabled}>

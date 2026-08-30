@@ -1,4 +1,5 @@
 export type Agreement = {
+  protocol_version: number;
   id: string;
   title: string;
   party_a: string;
@@ -11,6 +12,9 @@ export type Agreement = {
   performance_due_at: number;
   response_deadline: number;
   evidence_deadline: number;
+  resolution_deadline: number;
+  resolution_window_seconds: number;
+  max_source_bytes: number;
   terms_hash: string;
   summary: string;
   criteria: string;
@@ -27,6 +31,7 @@ export type Agreement = {
   reopen_count: number;
   resolution_attempt_count: number;
   evidence: Record<string, unknown>[];
+  last_source_observations: Record<string, unknown>[];
   verdict: Record<string, unknown>;
   paid: Record<string, unknown>;
   response_window_seconds: number;
@@ -63,6 +68,10 @@ export function normalizeAgreement(value: unknown): Agreement {
     "created_at",
   ];
   const numbers = [
+    "protocol_version",
+    "resolution_deadline",
+    "resolution_window_seconds",
+    "max_source_bytes",
     "fee_bps",
     "acceptance_deadline",
     "funding_deadline",
@@ -83,6 +92,9 @@ export function normalizeAgreement(value: unknown): Agreement {
   result.party_a_ready = Boolean(a.party_a_ready);
   result.party_b_ready = Boolean(a.party_b_ready);
   result.evidence = Array.isArray(a.evidence) ? a.evidence.map(record) : [];
+  result.last_source_observations = Array.isArray(a.last_source_observations)
+    ? a.last_source_observations.map(record)
+    : [];
   result.verdict = record(a.verdict);
   result.paid = record(a.paid);
   return result as Agreement;
@@ -101,7 +113,21 @@ export function agreementActions(a: Agreement, wallet: string, now: number) {
   const isB = role === "party_b";
   const party = isA || isB;
   const connected = Boolean(wallet);
-  const evidenceOpen = a.status === "evidence" && now < a.evidence_deadline;
+  const timedOut =
+    a.protocol_version === 3 &&
+    a.resolution_deadline > 0 &&
+    now >= a.resolution_deadline;
+  const evidenceOpen =
+    a.status === "evidence" && now < a.evidence_deadline && !timedOut;
+  const cooperative =
+    a.status === "funded" ||
+    (a.protocol_version === 3 &&
+      [
+        "awaiting_response",
+        "evidence",
+        "ready_for_resolution",
+        "resolution_stalled",
+      ].includes(a.status));
   return {
     accept:
       isB && a.status === "awaiting_acceptance" && now < a.acceptance_deadline,
@@ -113,8 +139,8 @@ export function agreementActions(a: Agreement, wallet: string, now: number) {
         (a.status === "awaiting_funding" &&
           party &&
           now >= a.funding_deadline)),
-    release: isA && a.status === "funded",
-    refund: isB && a.status === "funded",
+    release: isA && cooperative,
+    refund: isB && cooperative,
     dispute: party && a.status === "funded",
     respond:
       party &&
@@ -131,9 +157,18 @@ export function agreementActions(a: Agreement, wallet: string, now: number) {
       a.evidence.filter((e) => e.party === role).length < 10,
     ready: party && evidenceOpen && !(isA ? a.party_a_ready : a.party_b_ready),
     closeEvidence:
-      connected && a.status === "evidence" && now >= a.evidence_deadline,
-    resolve: connected && a.status === "ready_for_resolution",
-    fallback: party && a.status === "resolution_stalled",
+      connected &&
+      a.status === "evidence" &&
+      now >= a.evidence_deadline &&
+      !timedOut,
+    resolve: connected && a.status === "ready_for_resolution" && !timedOut,
+    fallback: party && a.status === "resolution_stalled" && !timedOut,
+    timeout:
+      party &&
+      timedOut &&
+      ["evidence", "ready_for_resolution", "resolution_stalled"].includes(
+        a.status,
+      ),
   };
 }
 export function agreementDeadline(a: Agreement) {
@@ -142,5 +177,7 @@ export function agreementDeadline(a: Agreement) {
   if (a.status === "awaiting_response") return a.response_deadline;
   if (a.status === "evidence") return a.evidence_deadline;
   if (a.status === "funded") return a.performance_due_at;
+  if (["ready_for_resolution", "resolution_stalled"].includes(a.status))
+    return a.resolution_deadline;
   return 0;
 }

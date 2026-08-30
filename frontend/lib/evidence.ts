@@ -4,6 +4,14 @@ export const PYTHON_WHITESPACE =
 export function normalizeEvidence(text: string) {
   return text.replace(PYTHON_WHITESPACE, " ").replace(/^ +| +$/g, "");
 }
+export const MAX_EVIDENCE_BYTES = 6000;
+export function validateEvidenceText(text: string) {
+  const normalized = normalizeEvidence(text);
+  const bytes = new TextEncoder().encode(normalized).byteLength;
+  if (!bytes || bytes > MAX_EVIDENCE_BYTES)
+    throw new Error("Use a complete source of 1–6,000 UTF-8 bytes.");
+  return normalized;
+}
 export async function evidenceDigest(text: string) {
   const digest = await crypto.subtle.digest(
     "SHA-256",
@@ -17,6 +25,8 @@ export function validateEvidenceUrl(value: string): string {
   const input = value.trim();
   if (
     !input.startsWith("https://") ||
+    !/^https:\/\/[A-Za-z0-9.-]+(?::443)?(?:[/?][\x21-\x7e]*)?$/.test(input) ||
+    input.includes("#") ||
     input.length > 2048 ||
     !/^[\x21-\x7e]+$/.test(input) ||
     input.includes("\\")
@@ -42,6 +52,7 @@ export function validateEvidenceUrl(value: string): string {
     );
   const host = url.hostname.toLowerCase().replace(/\.$/, "");
   if (
+    host.length > 253 ||
     !/^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/.test(host) ||
     /\.(local|localhost|internal|test|invalid|onion|nip\.io|sslip\.io|xip\.io)$/.test(
       host,

@@ -1,13 +1,13 @@
 # Vercel test hosting
 
-Each product has its own Vercel project, Neon Free database and wallet-only sign-in. The existing Sites deployment and its D1 data remain separate. Both hosts use the same explicitly configured GenLayer Studionet contracts; test actions can affect the same on-chain records.
+Each product has its own Vercel project, Neon Free database and wallet-only sign-in. This Vercel release uses a new v3 Studionet core/helper pair and a contract-bound v3 database namespace. The existing Sites deployment, its historical contracts and D1 data are unchanged. Do not publish the v3 checkout to an old Sites/D1 instance without a separately approved data-isolation plan.
 
 ## Two explicit targets
 
 - Sites-compatible source: `pnpm dev` / `pnpm build`. Uses Cloudflare/D1 and the same wallet authentication adapter. Existing published Sites versions are not automatically changed.
 - Vercel: `pnpm dev:vercel` / `pnpm build:vercel` / `pnpm start:vercel`. The wrapper selects native Next.js and Neon Postgres. Do not run the bare Next CLI.
 - `.openai/hosting.json` is preserved. SQLite migration `drizzle/0002_wallet_auth.sql` adds dedicated login challenges and sessions without modifying account records.
-- PostgreSQL initialization is in `server/postgres-schema.sql`. It is additive and serialized by a transaction-scoped advisory lock.
+- PostgreSQL initialization is in `server/postgres-schema.sql`. It is additive and serialized by a transaction-scoped advisory lock. Every read/write uses a transaction-local `search_path` containing only the product/core-bound v3 schema; historical `public` tables are not a fallback.
 
 ## Configuration
 
@@ -40,3 +40,13 @@ The 2026-08-28 wallet release removed this project's two automatic production al
 - Validate both native Next.js and Sites/Vinext builds after shared changes.
 - Keep secrets and cookies out of logs; preserve database isolation.
 - Do not enable paid plans, unattended signers, background operators or notification providers without approval.
+
+## Verified v3 contract and data binding
+
+The checked-in manifests name the verified v3 contracts; the old ones are preserved as `deployment-v2.json` and `evidence-deployment-v2.json`. Browser and server read the same manifests, not address/RPC environment overrides. The Neon namespace is derived from the product ID and full core address by `server/release-data.ts`; no user-supplied namespace is accepted. Its initialization fails closed unless the manifest is v3. The previous protected app and its `public` schema remain available for historical-record recovery.
+
+`node scripts/check-release-data.mjs` initializes this product's verified v3 namespace, checks idempotence and scoped writes, and confirms unchanged legacy row counts. Its temporary preference marker is inserted and removed within one transaction. `node scripts/check-neon.mjs` separately exercises authentication, concurrency and journal behavior in a newly created disposable verification schema. Neither script migrates or reassigns old records.
+
+Run `node scripts/verify-security-release.mjs --expected-fee-bps <approved-integer>` after updating both manifests. This is read-only and must fail against legacy or mismatched code. Then follow [the activation checklist](../../SUBMISSION_CHECKLIST.md), including private access and actual wallet/browser checks.
+
+Documents use a fresh per-response script nonce and a strict CSP; they are not statically cached. The shared `middleware.ts` entry supports the two hosting targets. Next.js 16 currently reports its middleware-to-proxy naming deprecation; that warning is not a disabled security check. After deployment, verify nonce-bearing scripts and production response headers on the actual host.

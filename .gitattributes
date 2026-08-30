@@ -1,0 +1,2 @@
+# Source verification compares exact deployed contract bytes on every platform.
+contracts/*.py text eol=lf

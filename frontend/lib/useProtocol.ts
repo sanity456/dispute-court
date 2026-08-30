@@ -20,6 +20,7 @@ import { assertLoginWallet } from "./wallet-login";
 import type { WalletSession } from "./wallet-auth-policy";
 import { recoverOutbox, saveSubmittedHash, walletRejected } from "./recovery";
 import type { Intent } from "./activity-model";
+import { isRecoveryMethod, isSecurityRelease } from "./release-policy";
 export type Notice = {
   kind: "success" | "error" | "info";
   text: string;
@@ -294,6 +295,16 @@ export function useProtocol(listMethod: string) {
         throw new Error(
           "Sign in with your wallet before submitting this action.",
         );
+      if (
+        !isSecurityRelease(config) &&
+        !(
+          target.toLowerCase() === contractAddress.toLowerCase() &&
+          isRecoveryMethod(method)
+        )
+      )
+        throw new Error(
+          "Security update pending. New commitments are paused; existing-fund recovery remains available.",
+        );
       await assertLoginWallet(window.ethereum, account);
       await productApi<ProductSession>("session");
       if (!current())
@@ -404,6 +415,7 @@ export function useProtocol(listMethod: string) {
   }
   return {
     wallet,
+    securityUpdateNeeded: Boolean(config) && !isSecurityRelease(config),
     items,
     total,
     stats,

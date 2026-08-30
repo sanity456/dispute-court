@@ -104,7 +104,14 @@ function network(transactions = new Map()) {
         };
       throw new Error("wrong target");
     },
-    read: async () => ({}),
+    read: async (method) =>
+      method === "get_config"
+        ? {
+            protocol_version: 3,
+            max_source_bytes: 6000,
+            product_contract: core,
+          }
+        : {},
     transaction: async (h) => transactions.get(h) ?? null,
     invalidate: async () => {},
   };

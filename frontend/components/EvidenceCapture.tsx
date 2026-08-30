@@ -4,6 +4,8 @@ import { readContractAt } from "../lib/genlayer";
 import { errorMessage, type Protocol } from "../lib/useProtocol";
 import {
   validateEvidenceUrl,
+  validateEvidenceText,
+  evidenceDigest,
   type EvidenceCapture as Capture,
 } from "../lib/evidence";
 export function EvidenceCapture({
@@ -34,6 +36,16 @@ export function EvidenceCapture({
       protocol.session?.coreAddress.toLowerCase()
     )
       throw new Error("This capture belongs to a different product.");
+    validateEvidenceUrl(value.url);
+    const text = validateEvidenceText(value.text);
+    if (
+      text !== value.text ||
+      new TextEncoder().encode(text).byteLength !== value.byte_length ||
+      (await evidenceDigest(text)) !== value.digest
+    )
+      throw new Error(
+        "The captured source could not be verified. Capture it again.",
+      );
     setCapture(value);
     setUrl(value.url);
     setReviewed(false);
@@ -63,8 +75,7 @@ export function EvidenceCapture({
     <fieldset className="product-evidence">
       <legend>Capture evidence</legend>
       <p className="product-muted">
-        Capture the full page and digest in a zero-value Studionet transaction.
-        Keep the source unchanged; a capture is not a verdict.
+        Complete public text, up to 6 KB. Keep the source unchanged.
       </p>
       <label className="product-field">
         <span>Public source URL</span>

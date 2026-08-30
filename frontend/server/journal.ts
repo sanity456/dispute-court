@@ -1,5 +1,6 @@
 import type { Database } from "./database-types";
 import type { Network } from "./network.ts";
+import { requireSecurityRelease } from "./release.ts";
 import { ApiError, address, sha256, textField, txHash } from "./security.ts";
 import {
   transactionCall,
@@ -44,6 +45,7 @@ export async function reserveIntent(
   );
   const recordId = recordIdForAction(method, args);
   if (recordId.length > 80) throw new ApiError(400, "Record ID is too long.");
+  await requireSecurityRelease(network, target, method);
   if (method === "submit_evidence") {
     const agreement = (await network.read("get_agreement", [recordId])) as {
       evidence?: {

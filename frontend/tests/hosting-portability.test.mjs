@@ -29,7 +29,7 @@ test("The Vercel target cannot change the default Sites build configuration", ()
     );
     assert.equal(result.status, 0, result.stderr);
     const config = JSON.parse(result.stdout);
-    if (target === "sites") assert.deepEqual(config.keys, []);
+    if (target === "sites") assert.deepEqual(config.keys, ["headers"]);
     else {
       assert.equal(config.provider, "wallet");
       const hosting = JSON.parse(

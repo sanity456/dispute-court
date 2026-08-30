@@ -23,6 +23,7 @@ const result = spawnSync(
     "scripts",
     "vite.config.ts",
     "next.config.ts",
+    "middleware.ts",
     "drizzle.config.ts",
     "eslint.config.mjs",
     "--max-warnings",

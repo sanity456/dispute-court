@@ -9,16 +9,23 @@ export const net = {
   coreAddress: "0x" + "11".repeat(20),
   captureAddress: "0x" + "22".repeat(20),
   ownerAddress: alice.address.toLowerCase(),
+  read: async () => ({ protocol_version: 3, max_source_bytes: 6000 }),
   methods: () => ({
     join: { readonly: false, params: ["id"] },
     fund_agreement: { readonly: false, params: ["id"] },
   }),
 };
 export class AuthBrowser {
-  constructor(db, origin = "https://wallet.example", app = product) {
+  constructor(
+    db,
+    origin = "https://wallet.example",
+    app = product,
+    clientAddress = "203.0.113.10",
+  ) {
     this.db = db;
     this.origin = origin;
     this.app = app;
+    this.clientAddress = clientAddress;
     this.cookies = new Map();
   }
   cookie() {
@@ -53,6 +60,7 @@ export class AuthBrowser {
       this.request("auth/" + path, input, extra),
       this.db,
       this.app,
+      this.clientAddress,
     );
     this.accept(response);
     return response;

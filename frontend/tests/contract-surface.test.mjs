@@ -18,7 +18,7 @@ function literals(node) {
   return [];
 }
 
-test("every UI transaction calls an actual deployed write method", () => {
+test("every UI transaction calls a versioned contract method; deployment compatibility is separately gated", () => {
   const called = new Set();
   for (const file of files) {
     const source = ts.createSourceFile(
@@ -43,7 +43,7 @@ test("every UI transaction calls an actual deployed write method", () => {
           called.add(method);
           assert.ok(
             schema.methods[method],
-            "Unknown deployed method: " + method,
+            "Unknown versioned method: " + method,
           );
           assert.equal(schema.methods[method].readonly, false);
           if (

@@ -1,8 +1,12 @@
 import type { NextConfig } from "next";
 import { resolve } from "node:path";
+import { documentSecurityHeaders } from "./server/document-security.ts";
 
 const nextConfig: NextConfig = {
   distDir: ".next-vercel",
+  async headers() {
+    return [{ source: "/:path*", headers: documentSecurityHeaders }];
+  },
   env: {
     NEXT_PUBLIC_AUTH_PROVIDER: "wallet",
     NEXT_PUBLIC_SITE_ORIGIN:
@@ -33,4 +37,4 @@ const nextConfig: NextConfig = {
 // configuration opt-in; wallet authentication is used on both targets.
 export default process.env.PRODUCT_HOSTING_TARGET === "vercel"
   ? nextConfig
-  : {};
+  : { headers: nextConfig.headers };

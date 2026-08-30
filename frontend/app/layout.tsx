@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+// Each document gets a fresh CSP nonce; never cache a rendered nonce for reuse.
+export const dynamic = "force-dynamic";
 import { product } from "../lib/product";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";

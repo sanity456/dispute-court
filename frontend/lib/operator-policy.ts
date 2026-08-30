@@ -54,6 +54,13 @@ export function operatorActions(
     return [];
   }
   if (
+    Number(record.protocol_version) === 3 &&
+    Number(record.resolution_deadline) > 0 &&
+    now >= Number(record.resolution_deadline) &&
+    ["evidence", "ready_for_resolution", "resolution_stalled"].includes(status)
+  )
+    return [];
+  if (
     status === "awaiting_acceptance" &&
     Number(record.acceptance_deadline) > 0 &&
     now >= Number(record.acceptance_deadline)

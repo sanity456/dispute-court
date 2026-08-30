@@ -4,7 +4,10 @@ import {
   normalizeAgreement,
   agreementActions,
   agreementRole,
+  agreementDeadline,
 } from "../lib/lifecycle.ts";
+import { operatorActions } from "../lib/operator-policy.ts";
+import { nextStep } from "../lib/reminders.ts";
 const agreement = normalizeAgreement({
   id: "a",
   party_a: "0xaa",
@@ -76,4 +79,100 @@ test("evidence, ready, resolve, and fallback follow the state machine", () => {
       .fallback,
     false,
   );
+});
+
+test("v3 timeout is party-only at the fixed deadline and displaces all adjudication actions", () => {
+  for (const status of [
+    "evidence",
+    "ready_for_resolution",
+    "resolution_stalled",
+  ]) {
+    const a = {
+      ...agreement,
+      protocol_version: 3,
+      status,
+      evidence_deadline: 300,
+      resolution_deadline: 500,
+    };
+    assert.equal(agreementActions(a, "0xaa", 499).timeout, false);
+    for (const party of ["0xaa", "0xbb"]) {
+      const actions = agreementActions(a, party, 500);
+      assert.equal(actions.timeout, true);
+      for (const action of [
+        "evidence",
+        "ready",
+        "closeEvidence",
+        "resolve",
+        "fallback",
+      ])
+        assert.equal(actions[action], false, status + ":" + action);
+    }
+    assert.equal(agreementActions(a, "0xcc", 500).timeout, false);
+    assert.equal(agreementActions(a, "", 500).timeout, false);
+    assert.deepEqual(operatorActions(a, [], false, 500), []);
+    assert.equal(
+      nextStep(a, "0xaa", 500).title,
+      "Apply the fee-free timeout split",
+    );
+  }
+});
+
+test("only v3 expands voluntary full-counterparty settlement beyond funding", () => {
+  for (const status of [
+    "awaiting_response",
+    "evidence",
+    "ready_for_resolution",
+    "resolution_stalled",
+  ]) {
+    const a = { ...agreement, protocol_version: 3, status };
+    assert.equal(agreementActions(a, "0xaa", 500).release, true);
+    assert.equal(agreementActions(a, "0xaa", 500).refund, false);
+    assert.equal(agreementActions(a, "0xbb", 500).refund, true);
+    assert.equal(agreementActions(a, "0xbb", 500).release, false);
+    assert.equal(agreementActions(a, "0xcc", 500).release, false);
+    assert.equal(
+      agreementActions({ ...a, protocol_version: 2 }, "0xaa", 500).release,
+      false,
+    );
+  }
+});
+
+test("timeout never replaces no-show or a terminal settlement", () => {
+  for (const status of [
+    "awaiting_response",
+    "resolved",
+    "cancelled",
+    "funded",
+  ]) {
+    const a = {
+      ...agreement,
+      protocol_version: 3,
+      status,
+      response_deadline: 200,
+      resolution_deadline: 500,
+    };
+    assert.equal(agreementActions(a, "0xaa", 500).timeout, false);
+  }
+  const noShow = {
+    ...agreement,
+    protocol_version: 3,
+    status: "awaiting_response",
+    response_deadline: 200,
+    resolution_deadline: 500,
+  };
+  assert.equal(agreementActions(noShow, "0xaa", 500).noShow, true);
+  assert.equal(
+    operatorActions(noShow, [], false, 500)[0].method,
+    "resolve_no_show",
+  );
+  for (const status of ["ready_for_resolution", "resolution_stalled"]) {
+    const a = {
+      ...agreement,
+      protocol_version: 3,
+      status,
+      resolution_deadline: 500,
+    };
+    assert.equal(agreementDeadline(a), 500);
+    assert.equal(nextStep(a, "0xaa", 499).deadline, 500);
+  }
 });

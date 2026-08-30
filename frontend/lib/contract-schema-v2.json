@@ -168,13 +168,6 @@
       "ret": "dict",
       "payable": false
     },
-    "resolve_timeout_split": {
-      "params": [["agreement_id", "string"]],
-      "kwparams": {},
-      "readonly": false,
-      "ret": "dict",
-      "payable": false
-    },
     "respond_to_dispute": {
       "params": [
         ["agreement_id", "string"],

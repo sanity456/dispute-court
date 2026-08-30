@@ -1,6 +1,8 @@
 {
-  "contractAddress": "0xfdF664aa657b0dE51dC7635bff9cEAA10604F00E",
-  "deploymentTransaction": "0xd9555d40b576b68592c94bc4b6e6e927bb3f4eb7aed17e3c55dda55e2f8c568c",
+  "contractAddress": "0x66cF318eb3C2276689BAe995b554104995485940",
+  "deploymentTransaction": "0xd6a8b6aee8e438012aeb16886daa0abd22d3608540543c3ced9e7da01fdc0328",
   "network": "studionet",
-  "chainId": 61999
+  "chainId": 61999,
+  "protocolVersion": 3,
+  "sourceSha256": "8eaa893c58927830a307763138dba45a5f77e4d31ead90e8d3688e0c7a6b123c"
 }

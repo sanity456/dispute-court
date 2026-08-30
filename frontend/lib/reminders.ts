@@ -100,6 +100,21 @@ export function nextStep(
   const isA = same(r.party_a),
     isB = same(r.party_b),
     party = isA || isB;
+  const resolutionDeadline =
+    number(r.protocol_version) === 3 ? number(r.resolution_deadline) : 0;
+  if (
+    resolutionDeadline > 0 &&
+    now >= resolutionDeadline &&
+    ["evidence", "ready_for_resolution", "resolution_stalled"].includes(status)
+  )
+    return {
+      title: party
+        ? "Apply the fee-free timeout split"
+        : "Resolution deadline passed",
+      detail: "Either party can split the full escrow equally without a fee.",
+      deadline: resolutionDeadline,
+      deadlineLabel: "Resolution timeout",
+    };
   const guides: Record<string, Guide> = {
     awaiting_acceptance: {
       title: isB
@@ -150,15 +165,15 @@ export function nextStep(
       title: "Request validator resolution",
       detail:
         "A connected wallet can request resolution. A capture supports source integrity, not the correctness of the ruling.",
-      deadline: 0,
-      deadlineLabel: "",
+      deadline: resolutionDeadline,
+      deadlineLabel: resolutionDeadline ? "Resolution timeout" : "",
     },
     resolution_stalled: {
       title: "Review the accepted fallback",
       detail:
         "The bounded evidence retries are exhausted. Either party may apply the agreed 50/50 split of net escrow.",
-      deadline: 0,
-      deadlineLabel: "",
+      deadline: resolutionDeadline,
+      deadlineLabel: resolutionDeadline ? "Fee-free resolution timeout" : "",
     },
     resolved: {
       title: "Review the result and withdraw your credit",

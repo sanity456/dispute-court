@@ -11,6 +11,7 @@ import {
   textField,
 } from "./security.ts";
 import { cleanExpiredTransientRows } from "./maintenance.ts";
+import { limitWalletClient } from "./auth-client.ts";
 import { logoutOwner } from "./owner-auth.ts";
 import { product } from "../lib/product.ts";
 import {
@@ -136,6 +137,7 @@ export async function handleWalletAuth(
   request: Request,
   db: Database,
   app: AuthProduct = product,
+  clientAddress?: string,
 ): Promise<Response> {
   try {
     const origin = requestOrigin(request);
@@ -173,7 +175,6 @@ export async function handleWalletAuth(
     if (request.method !== "POST")
       throw new ApiError(405, "Use POST for this action.");
     const input = await bodyJson(request);
-    await cleanExpiredTransientRows(db);
     if (path === "logout") {
       const token = readCookie(
         request,
@@ -203,8 +204,6 @@ export async function handleWalletAuth(
         await logoutOwner(db, request),
       ]);
     }
-    // A global cap bounds storage and signature work even when callers rotate addresses.
-    await rateLimit(db, "wallet-auth:" + app.id, 300);
     if (path === "challenge") {
       const wallet = address(input.wallet);
       if (input.chainId !== WALLET_CHAIN_ID)
@@ -213,7 +212,11 @@ export async function handleWalletAuth(
           "Use GenLayer Studionet for this product.",
           "wrong_chain",
         );
-      await rateLimit(db, "wallet-login:" + app.id + ":" + wallet, 10);
+      await limitWalletClient(db, request, app.id, "challenge", clientAddress);
+      // A single client cannot exhaust this circuit breaker. Invalid input
+      // never reaches it, and it cannot block verification of an issued challenge.
+      await rateLimit(db, "wallet-challenge-global:" + app.id, 300);
+      await cleanExpiredTransientRows(db);
       const id = randomToken(),
         binding = randomToken(),
         issuedAt = Date.now(),
@@ -261,6 +264,8 @@ export async function handleWalletAuth(
         "Start a new wallet sign-in in this browser.",
         "challenge_invalid",
       );
+    await limitWalletClient(db, request, app.id, "verify", clientAddress);
+    await cleanExpiredTransientRows(db);
     const browserHash = await sha256(binding);
     const challenge = await db
       .prepare(

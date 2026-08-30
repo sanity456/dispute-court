@@ -9,12 +9,8 @@ import {
 } from "./receipt";
 export { parseGen, formatGen } from "./amounts";
 
-export const contractAddress = String(
-  process.env.NEXT_PUBLIC_DISPUTE_COURT_ADDRESS ?? deployment.contractAddress,
-).trim();
-export const rpcUrl = String(
-  process.env.NEXT_PUBLIC_GENLAYER_RPC_URL ?? deployment.rpcUrl,
-).trim();
+export const contractAddress = String(deployment.contractAddress).trim();
+export const rpcUrl = String(deployment.rpcUrl).trim();
 export const networkName = "GenLayer Studionet";
 export const isLiveConfigured =
   /^0x[0-9a-fA-F]{40}$/.test(contractAddress) &&

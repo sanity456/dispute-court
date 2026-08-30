@@ -346,6 +346,9 @@ export function SessionStrip({ protocol }: { protocol: Protocol }) {
     return (
       <div className="product-session">
         <span>Signed in · {shortAddress(protocol.session.wallet)}</span>
+        {protocol.securityUpdateNeeded && (
+          <span role="status">Security update pending · recovery only</span>
+        )}
         <a href={signOutPath}>Sign out</a>
       </div>
     );

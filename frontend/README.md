@@ -42,10 +42,12 @@ Read [operations and recovery](docs/OPERATIONS.md) before enabling any unattende
 
 `scripts/verify-source.mjs` and `scripts/verify-studionet.mjs` are network-writing tests, not ordinary unit tests. They require `RUN_STUDIONET_LIFECYCLE=1`, create dedicated test actors and tiny test-value fixtures, and verify actual finalized execution/payouts. Do not casually rerun deployment scripts or replace the existing contract address.
 
-The evidence helper's canonical Python source lives at `../contracts/evidence_capture.py` in the parent product directory. Core v2 direct tests and helper tests live in that product's `../tests/` directory. Full workspace source must be kept alongside this frontend when working on contracts.
+The deployed v3 evidence helper is `../contracts/evidence_capture_v3.py`; the core v3 and its tests live in this repository's `../contracts/` and `../tests/` directories. Historical v2 sources, manifests and receipts are preserved, not upgraded in place. See the repository-root README for the self-contained Python setup.
+
+The updated app deliberately blocks new commitments against legacy or mismatched contracts. Run `node scripts/verify-security-release.mjs --expected-fee-bps 200` to verify this release. This read-only command checks successful finalized execution, exact local source bytes, the expected owner and fee, and the correct helper link. It passes for the new v3 pair and fails for legacy code.
 
 ## Release status
 
-Current implementation is a Studionet beta candidate, not a real-money release or an independently audited system. Human wallet/mobile acceptance, approved tester access, independent review and any always-on provider/signing setup remain explicit release gates. See the workspace `PRODUCT_COMPLETION_CHECKLIST.md`.
+The v3 contracts are deployed and the Vercel database is isolated by product and core address. The old protected app/data are preserved for existing-record recovery. See [release status](../RELEASE_STATUS.md) for the current private preview and verified scope. Human wallet acceptance, approved tester access and independent review remain explicit gates; unsupported mobile-wallet flows are not claimed. See [the submission and activation checklist](../SUBMISSION_CHECKLIST.md). This is Studionet-only, not a real-money release.
 
 Source is maintained in the separate private `sanity456/dispute-court` repository. A push does not automatically redeploy Vercel or Sites. See [wallet authentication](docs/WALLET_AUTH.md) and [Vercel hosting](docs/VERCEL.md).

@@ -1,6 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import type { Database, Prepared, SqlResult, SqlValue } from "./database-types";
 import { postgresParameters } from "./postgres-parameters.ts";
+import { isIsolatedDatabaseSchema } from "./release-data.ts";
 
 type Result = {
   rows: Record<string, unknown>[];
@@ -40,8 +41,10 @@ export function createPostgresDatabase(
     !url.hostname.endsWith(".neon.tech")
   )
     throw new Error("A valid Neon database connection is required.");
-  if (schema && !/^verification_[a-f0-9]{32}$/.test(schema))
-    throw new Error("Only isolated verification schemas are supported.");
+  if (schema !== undefined && !isIsolatedDatabaseSchema(schema))
+    throw new Error(
+      "Only isolated verification or v3 release schemas are supported.",
+    );
   const client = neon(connectionString, { fullResults: true });
   class Statement implements Prepared {
     readonly sql: string;

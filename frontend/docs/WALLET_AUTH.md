@@ -14,7 +14,9 @@ There are no email, password, registration or password-reset forms. First-time a
 - The server creates a five-minute EIP-4361 message with a random 256-bit nonce, exact origin, product request ID, address and chain.
 - A separate HTTP-only pre-login cookie binds redemption to the browser that requested the challenge.
 - The client checks the exact canonical message before `personal_sign` and rechecks the account/network around signing and verification.
-- Signature verification, expiry and atomic one-use consumption happen on the server. Verification attempts and challenge creation are rate-limited.
+- Signature verification, expiry and atomic one-use consumption happen on the server. Challenges are limited per trusted client network to 20/minute and 120/hour; verification is separately limited to 100/minute and 600/hour. IPv6 clients share a /64 bucket. Unsigned wallet claims never consume another wallet's quota.
+- Client identity comes only from Vercel's protected platform header or the Workers platform header. Production fails closed if identity is unavailable; arbitrary forwarding headers, cookies and JSON fields are not trusted. Rate keys use a daily product-scoped hash, not raw IP addresses. Shared-network clients can share a quota.
+- A 300/minute global challenge circuit breaker remains after validation and per-client limits to bound database growth. Distributed abuse can still exhaust it; it does not block verification of existing challenges. Infrastructure-level denial-of-service protection remains necessary.
 - A random 256-bit session token is sent only in an HTTP-only, host-only, SameSite=Strict cookie. HTTPS uses the `__Host-` prefix and Secure flag. Only the token's SHA-256 hash is stored.
 - Sessions expire after eight hours, are bound to the actual origin and product, and rotate on a new verified login.
 - POST routes require the same Origin; cross-site authentication requests are rejected. Identity headers, wallet addresses and old provider cookies are never proof of login.

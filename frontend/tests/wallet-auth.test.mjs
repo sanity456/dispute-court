@@ -212,12 +212,21 @@ test("Concurrent verification has one winner and nonce replay never creates anot
     browser.request("auth/verify", input),
   ];
   const results = await Promise.all(
-    requests.map((r) => handleWalletAuth(r, db)),
+    requests.map((r) =>
+      handleWalletAuth(r, db, product, browser.clientAddress),
+    ),
   );
   assert.equal(results.filter((r) => r.status === 200).length, 1);
   assert.ok(results.some((r) => [401, 409].includes(r.status)));
   assert.equal(
-    (await handleWalletAuth(browser.request("auth/verify", input), db)).status,
+    (
+      await handleWalletAuth(
+        browser.request("auth/verify", input),
+        db,
+        product,
+        browser.clientAddress,
+      )
+    ).status,
     401,
   );
   assert.equal(
@@ -454,12 +463,13 @@ test("Old email, registration and password endpoints are permanently inactive", 
 test("Challenge rate limits are enforced and expiry cleanup never removes durable account records", async (t) => {
   const db = await database(t),
     browser = new AuthBrowser(db);
-  for (let i = 0; i < 10; i++) await browser.challenge();
+  for (let i = 0; i < 20; i++) await browser.challenge();
   assert.equal(
     (await browser.auth("challenge", { wallet: alice.address, chainId: 61999 }))
       .status,
     429,
   );
+  browser.clientAddress = "203.0.113.11";
   await browser.login(bob);
   await browser.api("preferences", { timezone: "Europe/London" });
   await db.prepare("UPDATE wallet_challenges SET expires_at=0").run();
