@@ -59,6 +59,43 @@ jobs:
           tests/test_security_court_v3.py::test_repeated_ai_failures_cannot_block_fee_free_timeout
           tests/test_security_court_v3.py::test_timeout_needs_no_successful_ai_call_and_deadline_never_extends
 
+      - name: Run every opt-in consensus test against isolated GLSim
+        env:
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: "0"
+          RUN_GENLAYER_INTEGRATION: "1"
+          RUN_GENLAYER_V3_INTEGRATION: "1"
+        run: |
+          glsim \
+            --host 127.0.0.1 \
+            --port 4000 \
+            --validators 5 \
+            --max-rotations 5 \
+            --no-browser \
+            --seed 20260905 \
+            > /tmp/dispute-court-glsim.log 2>&1 &
+          simulator_pid=$!
+          trap 'kill "$simulator_pid" 2>/dev/null || true' EXIT
+          ready=false
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error \
+              --header "content-type: application/json" \
+              --data '{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]}' \
+              http://127.0.0.1:4000/api > /tmp/dispute-court-glsim-ready.json; then
+              ready=true
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" != true ]; then
+            cat /tmp/dispute-court-glsim.log
+            exit 1
+          fi
+          gltest \
+            tests/test_integration_v2.py \
+            tests/test_integration_v3.py \
+            --network localnet \
+            -v -s
+
       - name: Set up pinned Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:

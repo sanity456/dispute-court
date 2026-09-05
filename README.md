@@ -29,14 +29,14 @@ py -3.12 -m venv .venv
 
 On macOS/Linux, use `python3.12 -m venv .venv` and `.venv/bin/python` for the same install/check commands. No parent-workspace environment is required. The check script lints first, disables auto-loaded CLI plugins, and runs only mocked v3 tests. Add `--legacy` to include historical direct-mode regressions. It never sends transactions or clears artifact directories. Contract source is pinned to LF line endings by `.gitattributes` so byte-for-byte deployment verification survives a fresh checkout.
 
-Live smoke tests are separate and require explicit authorization to create new Studionet test contracts:
+Public CI runs both opt-in integration cases against an isolated, deterministic five-validator GLSim instance on Ubuntu; it does not send a public-network transaction. A hosted Studionet smoke test is separate and requires explicit authorization to create new test contracts:
 
 ```powershell
 $env:RUN_GENLAYER_V3_INTEGRATION='1'
 .venv\Scripts\gltest.exe tests/test_integration_v3.py --network studionet -v -s
 ```
 
-This smoke test covers deployment/configuration, not complete live AI adjudication or wallet acceptance. Keep it out of ordinary CI/direct tests.
+The hosted smoke test covers deployment/configuration, not complete live AI adjudication or wallet acceptance. Keep the hosted-network command out of ordinary CI; the isolated GLSim cases are already included there.
 
 ## Web app
 
