@@ -4,7 +4,7 @@ Updated 2026-09-05. This response covers **Dispute Court only**. Commitment Pool
 
 ## 1. Complete clean Ubuntu suite
 
-The [public Ubuntu run](https://github.com/sanity456/dispute-court/actions/runs/33983229580) checked out the entire repository on a fresh GitHub-hosted `ubuntu-24.04` runner and passed in 3m47s:
+The [public Ubuntu run](https://github.com/sanity456/dispute-court/actions/runs/33984294179) checked out the entire repository on a fresh GitHub-hosted `ubuntu-24.04` runner and passed in 3m35s:
 
 - GenVM lint: DisputeCourtV3 and EvidenceCaptureV3 passed.
 - Contract tests: 229 direct tests passed; the two opt-in cases were then run separately and both passed through an isolated five-validator GLSim consensus environment.
@@ -13,29 +13,29 @@ The [public Ubuntu run](https://github.com/sanity456/dispute-court/actions/runs/
 - Prettier, zero-warning ESLint, both TypeScript checks, Sites build and Vercel build passed.
 - The live contract-source check, public deployment check and final clean-tree check passed.
 
-The exact commands and environment are in the [immutable workflow](https://github.com/sanity456/dispute-court/blob/8ab86dd70db2a4801b13474c0c561958de17b66a/.github/workflows/ubuntu-clean-suite.yml).
+The exact commands and environment are in the [immutable workflow](https://github.com/sanity456/dispute-court/blob/66867e359d50afdeb36dca317b2e1af116a05452/.github/workflows/ubuntu-clean-suite.yml).
 
 ## 2. Stored chain timestamps
 
-The timeout tests use `direct_vm.warp(...)`, which supplies the GenVM transaction datetime read by the contract. They do not compare against the Ubuntu host clock. The [exact tests](https://github.com/sanity456/dispute-court/blob/8ab86dd70db2a4801b13474c0c561958de17b66a/tests/test_security_court_v3.py#L124-L170) rerun explicitly in the workflow and cover one hour, two minutes and one second before the deadline; the exact deadline; and a far-future timestamp in every eligible adjudication state.
+The timeout tests use `direct_vm.warp(...)`, which supplies the GenVM transaction datetime read by the contract. They do not compare against the Ubuntu host clock. The [exact tests](https://github.com/sanity456/dispute-court/blob/66867e359d50afdeb36dca317b2e1af116a05452/tests/test_security_court_v3.py#L124-L194) rerun explicitly in the workflow and cover one hour, two minutes and one second before the deadline; the exact deadline; and a far-future timestamp in every eligible adjudication state.
 
 ## 3. Required public GitHub Actions result
 
-Submission evidence is the successful [public Actions run `33983229580`](https://github.com/sanity456/dispute-court/actions/runs/33983229580). It completed at `2026-09-05T18:14:25Z`. Submission must not proceed if a later required check fails.
+Submission evidence is the successful [public Actions run `33984294179`](https://github.com/sanity456/dispute-court/actions/runs/33984294179). It completed at `2026-09-05T18:34:23Z`. Submission must not proceed if a later required check fails.
 
 ## 4. Pinned dependencies and runners
 
 The run enforces exact pins before installing or testing:
 
 - Ubuntu `24.04`, Python `3.12.13`, pip `26.2.1`, Node.js `24.18.0`, pnpm `11.19.0`.
-- `genlayer-test[sim]==0.29.2`, `genvm-linter==0.11.0`, `pytest==9.1.1` and every other Python requirement use exact versions in [requirements-dev.txt](https://github.com/sanity456/dispute-court/blob/8ab86dd70db2a4801b13474c0c561958de17b66a/requirements-dev.txt).
+- `genlayer-test[sim]==0.29.2`, `genvm-linter==0.11.0`, `pytest==9.1.1` and every other Python requirement use exact versions in [requirements-dev.txt](https://github.com/sanity456/dispute-court/blob/66867e359d50afdeb36dca317b2e1af116a05452/requirements-dev.txt).
 - All 25 JavaScript dependency specifications are exact and the frozen lockfile is required.
 - All three GitHub Actions are referenced by full 40-character commit SHA.
 - Both submitted contracts pin GenVM runner `py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6`.
 
 ## 5. Immutable evidence commit
 
-The tested source is [commit `8ab86dd70db2a4801b13474c0c561958de17b66a`](https://github.com/sanity456/dispute-court/commit/8ab86dd70db2a4801b13474c0c561958de17b66a), not a moving `main` link. The Actions run above is bound to that exact SHA.
+The tested source is [commit `66867e359d50afdeb36dca317b2e1af116a05452`](https://github.com/sanity456/dispute-court/commit/66867e359d50afdeb36dca317b2e1af116a05452), not a moving `main` link. The Actions run above is bound to that exact SHA.
 
 ## 6. Deployed-source match
 
@@ -43,8 +43,8 @@ The Ubuntu job fetched finalized Studionet deployment data and compared its sour
 
 | Contract | Address | Repository/live SHA-256 |
 | --- | --- | --- |
-| [DisputeCourtV3 source](https://github.com/sanity456/dispute-court/blob/8ab86dd70db2a4801b13474c0c561958de17b66a/contracts/dispute_court_v3.py) | `0x49CE252a7b8a085Ef9B859F82bD55Af1eC601BEe` | `1718a9ef8b3668599cf98d26207a611d9eb22d655ef6c5c0332f7c534bf8b66b` |
-| [EvidenceCaptureV3 source](https://github.com/sanity456/dispute-court/blob/8ab86dd70db2a4801b13474c0c561958de17b66a/contracts/evidence_capture_v3.py) | `0x66cF318eb3C2276689BAe995b554104995485940` | `8eaa893c58927830a307763138dba45a5f77e4d31ead90e8d3688e0c7a6b123c` |
+| [DisputeCourtV3 source](https://github.com/sanity456/dispute-court/blob/66867e359d50afdeb36dca317b2e1af116a05452/contracts/dispute_court_v3.py) | `0x49CE252a7b8a085Ef9B859F82bD55Af1eC601BEe` | `1718a9ef8b3668599cf98d26207a611d9eb22d655ef6c5c0332f7c534bf8b66b` |
+| [EvidenceCaptureV3 source](https://github.com/sanity456/dispute-court/blob/66867e359d50afdeb36dca317b2e1af116a05452/contracts/evidence_capture_v3.py) | `0x66cF318eb3C2276689BAe995b554104995485940` | `8eaa893c58927830a307763138dba45a5f77e4d31ead90e8d3688e0c7a6b123c` |
 
 The same check verified chain ID `61999`, protocol version `3`, owner `0x91B1b2D1f2De66400fcbeAEbadB8a5330eB28DC0`, fee `200` bps and the helper link.
 
@@ -123,7 +123,7 @@ The companion parameterized cases set the stored timestamp to `2029-01-01T00:00:
 
 ## 8. Signed-out evaluator and evidence access
 
-At `2026-09-05T18:27:56Z`, every reviewer-facing evidence link in this response was fetched again with redirects enabled and with empty `Cookie` and `Authorization` headers. Each returned final HTTP `200`: the commit, Actions run, workflow, tests, requirements, both contract sources, [full Studionet lifecycle report](https://github.com/sanity456/dispute-court/blob/8ab86dd70db2a4801b13474c0c561958de17b66a/frontend/verification/end-to-end-2026-08-30.md), [release status](https://github.com/sanity456/dispute-court/blob/8ab86dd70db2a4801b13474c0c561958de17b66a/RELEASE_STATUS.md), [public evaluator](https://dispute-court-studionet.vercel.app/) and [wallet sign-in route](https://dispute-court-studionet.vercel.app/auth/sign-in).
+At `2026-09-05T18:35:44Z`, all 11 reviewer-facing evidence links in this response were fetched again with redirects enabled and with empty `Cookie` and `Authorization` headers. Each returned final HTTP `200`: the commit, Actions run, workflow, tests, requirements, both contract sources, [full Studionet lifecycle report](https://github.com/sanity456/dispute-court/blob/66867e359d50afdeb36dca317b2e1af116a05452/frontend/verification/end-to-end-2026-08-30.md), [release status](https://github.com/sanity456/dispute-court/blob/66867e359d50afdeb36dca317b2e1af116a05452/RELEASE_STATUS.md), [public evaluator](https://dispute-court-studionet.vercel.app/) and [wallet sign-in route](https://dispute-court-studionet.vercel.app/auth/sign-in).
 
 The public deployment check also returned HTTP `200` with fresh CSP nonces, matching script nonces and the production document policy. Chrome with MetaMask completed wallet connection, an origin-bound login signature, session restoration after reload and wallet-scoped data loading on chain `61999`; authentication created no transaction and spent no gas or funds. A complete human two-wallet transaction/withdrawal trial is still a beta gate and is not claimed here.
 
