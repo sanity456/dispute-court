@@ -19,13 +19,14 @@
 - [x] Publish and verify a new private Vercel preview on the approved account without enabling a public alias.
 - [x] Verify production headers and browser execution after deployment, including fresh document nonces, wallet-only UI, no console errors and no horizontal overflow.
 - [x] Complete automated signed-wallet/session and two-wallet live lifecycle paths, including evidence-based AI adjudication and separate payout-child delivery verification.
+- [x] Publish a public, commit-pinned Ubuntu 24.04 workflow that runs the complete direct and frontend suites, explicit stored-chain timestamp regressions, both builds, source verification and hosted document checks.
 - [ ] Complete a human two-wallet injected-browser trial: first sign-in, signature rejection, account/network change, reload/session restore, failure/retry, credit and withdrawal.
 - [ ] Exercise a bad exhibit beside valid evidence, schema failure, early/late timeout boundaries, outsider rejection, and fee-free settlement in an authorized integration environment.
 - [ ] Test the supported injected EVM wallet/browser combination. Do not claim WalletConnect, mobile deep-link, or smart-contract-wallet support without implementing and testing it.
 
 ## Submission access and program rules
 
-- [ ] Give evaluators approved access to the protected demo and private source, or explicitly approve an appropriate public submission.
+- [x] Give evaluators signed-out access to the public demo, repository and immutable deployment-source commit while retaining protection on non-aliased previews.
 - [ ] Obtain the actual program rules and confirm network, eligibility, deadline, public-source/license, video and other required artifacts.
 - [ ] Include a concise walkthrough, contract addresses, tested commit, setup instructions and an honest limitations statement.
 - [ ] Describe this as an implementation-assisted review, not an independent security certification.

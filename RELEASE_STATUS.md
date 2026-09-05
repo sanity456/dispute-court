@@ -1,12 +1,14 @@
-# Dispute Court — private v3 Studionet release
+# Dispute Court — public v3 Studionet evaluator release
 
-Updated: 2026-08-30
+Updated: 2026-09-05
 
 ## Current release
 
 Dispute Court is a standalone, wallet-only Studionet product. Commitment Pools remains a separate product and repository.
 
-- Private preview: [Dispute Court](https://dispute-court-studionet-agk7midys-sanity3.vercel.app)
+- Public evaluator app: [Dispute Court](https://dispute-court-studionet.vercel.app/)
+- Public source: [sanity456/dispute-court](https://github.com/sanity456/dispute-court)
+- Evaluator deployment source commit: [`f76d3bd798ff51a791f52ff5a4ac75833e3abee5`](https://github.com/sanity456/dispute-court/commit/f76d3bd798ff51a791f52ff5a4ac75833e3abee5)
 - Core v3: `0x49CE252a7b8a085Ef9B859F82bD55Af1eC601BEe`
 - Evidence helper v3: `0x66cF318eb3C2276689BAe995b554104995485940`
 - Network: Studionet, chain ID `61999`
@@ -16,7 +18,7 @@ The exact v3 source bytes, deployment execution, owner, fee, protocol version an
 
 Email/password pages, APIs, provider adapters and provider-session acceptance are removed. First-time and returning users authenticate by signing an origin-bound wallet message. Connecting a wallet alone does not authenticate it. Owner tools require a separate expiring owner-wallet proof.
 
-The preview is protected by Vercel Authentication and is not anonymously accessible. No production alias or Sites deployment was changed by this release.
+The evaluator alias and repository are anonymously accessible. Non-aliased Vercel previews remain protected by Vercel Authentication.
 
 ## End-to-end verification
 
@@ -36,10 +38,10 @@ The exact transaction, verdict and payout evidence is recorded in [the 2026-08-3
 
 ## Remaining beta gates
 
-The exact hosted UI rendered without console errors or horizontal overflow, and correctly explained that a compatible injected wallet was unavailable. This machine's in-app browser has no Ethereum wallet extension, so a human extension-popup/signature run remains required. WalletConnect, mobile deep links and smart-contract wallets are not implemented or claimed.
+Chrome with MetaMask completed a real wallet connection, origin-bound login signature and session restoration after reload on Studionet chain 61999. Wallet-specific data loaded without an application error. No transaction, gas or funds were used in that authentication check. A full human two-wallet UI lifecycle, including rejection, account/network changes, retry and withdrawal, remains required. WalletConnect, mobile deep links and smart-contract wallets are not implemented or claimed.
 
-Before evaluator access or real-money use, also complete the program-specific submission checklist, approve evaluator access to the private preview/source, run a two-person human trial, assign operational ownership and key custody, and obtain an independent security/AI-policy review. Dispute Court is an experiment, not a legal court, legal advice or a guarantee of a correct AI ruling. This is a Studionet test release, not a mainnet or security certification.
+Before real-money use, also complete the program-specific submission checklist, run a two-person human trial, assign operational ownership and key custody, and obtain an independent security/AI-policy review. Dispute Court is an experiment, not a legal court, legal advice or a guarantee of a correct AI ruling. This is a Studionet test release, not a mainnet or security certification.
 
 ## Build and operate
 
-Use Node.js 24 and pnpm 11.19.0 from `frontend/`. Follow [Vercel setup](frontend/docs/VERCEL.md), [wallet authentication](frontend/docs/WALLET_AUTH.md), and [operations](frontend/docs/OPERATIONS.md). For Vercel Git import, use `frontend` as Root Directory. A GitHub push does not automatically redeploy this uploaded preview.
+Use Node.js 24 and pnpm 11.19.0 from `frontend/`; public CI pins Node.js 24.18.0 exactly. Follow [Vercel setup](frontend/docs/VERCEL.md), [wallet authentication](frontend/docs/WALLET_AUTH.md), and [operations](frontend/docs/OPERATIONS.md). For Vercel Git import, use `frontend` as Root Directory. A GitHub push does not automatically redeploy this uploaded preview.

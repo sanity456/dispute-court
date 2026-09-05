@@ -1,8 +1,10 @@
 # Dispute Court
 
+[![Ubuntu clean suite](https://github.com/sanity456/dispute-court/actions/workflows/ubuntu-clean-suite.yml/badge.svg)](https://github.com/sanity456/dispute-court/actions/workflows/ubuntu-clean-suite.yml)
+
 Dispute Court is an independent bilateral escrow-resolution product. Party B accepts Party A's immutable agreement before funding; cooperative settlement stays fee-free, while disputes follow a bounded evidence and exact-bucket procedure.
 
-The repository includes the contracts, their tests, and the complete app in `frontend/`. For the private Vercel test link, Git import setup and remaining acceptance checks, see [Release status](RELEASE_STATUS.md).
+The repository includes the contracts, their tests, and the complete app in `frontend/`. The public evaluator build is at [dispute-court-studionet.vercel.app](https://dispute-court-studionet.vercel.app/); deployment evidence and remaining acceptance checks are in [Release status](RELEASE_STATUS.md).
 
 ## Security-fixed v3 Studionet contracts
 
