@@ -61,7 +61,6 @@ jobs:
 
       - name: Run every opt-in consensus test against isolated GLSim
         env:
-          PYTEST_DISABLE_PLUGIN_AUTOLOAD: "0"
           RUN_GENLAYER_INTEGRATION: "1"
           RUN_GENLAYER_V3_INTEGRATION: "1"
         run: |
@@ -90,7 +89,7 @@ jobs:
             cat /tmp/dispute-court-glsim.log
             exit 1
           fi
-          gltest \
+          env -u PYTEST_DISABLE_PLUGIN_AUTOLOAD gltest \
             tests/test_integration_v2.py \
             tests/test_integration_v3.py \
             --network localnet \
