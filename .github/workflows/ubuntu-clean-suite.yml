@@ -55,7 +55,7 @@ jobs:
           python -m pytest
           -p gltest.direct.pytest_plugin
           -p no:cacheprovider
-          -vv --tb=short
+          -vv -s --tb=short
           tests/test_security_court_v3.py::test_repeated_ai_failures_cannot_block_fee_free_timeout
           tests/test_security_court_v3.py::test_timeout_needs_no_successful_ai_call_and_deadline_never_extends
 

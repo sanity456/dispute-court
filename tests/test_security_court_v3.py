@@ -131,23 +131,48 @@ def test_repeated_ai_failures_cannot_block_fee_free_timeout(answered, direct_vm,
     direct_vm.mock_llm(r"(?s).*", json.dumps({"outcome": "unexpected_model_outcome"}))
     for remaining in (3600, 120, 1):
         warp(direct_vm, deadline - remaining)
-        with direct_vm.expect_revert("Invalid adjudication outcome"):
+        with direct_vm.expect_revert(
+            "[LLM_ERROR] Invalid adjudication outcome: unexpected_model_outcome"
+        ):
             answered.resolve("agreement-1")
         state = answered.get_agreement("agreement-1")
         assert state["resolution_attempt_count"] == state["reopen_count"] == 0
         assert state["resolution_deadline"] == deadline
     direct_vm.sender = direct_alice
-    with direct_vm.expect_revert("deadline has not been reached"):
+    with direct_vm.expect_revert(
+        "[EXPECTED] Resolution deadline has not been reached"
+    ):
         answered.resolve_timeout_split("agreement-1")
     warp(direct_vm, deadline)
     direct_vm.sender = direct_charlie
-    with direct_vm.expect_revert("Only agreement parties"):
+    with direct_vm.expect_revert(
+        "[EXPECTED] Only agreement parties may perform this action"
+    ):
         answered.resolve_timeout_split("agreement-1")
     direct_vm.sender = direct_bob
     result = answered.resolve_timeout_split("agreement-1")
-    assert result["verdict"]["resolution_type"] == "resolution_timeout_split"
-    assert result["paid"] == {"fee_wei": "0", "party_a_wei": "500", "party_b_wei": "500", "conservation_wei": "1000"}
-    with direct_vm.expect_revert("not awaiting adjudication"):
+    expected = {
+        "agreement_id": "agreement-1",
+        "status": "resolved",
+        "verdict": {
+            "resolution_type": "resolution_timeout_split",
+            "party_a_pct": 50,
+            "evidence_refs": [],
+            "reasoning": "The accepted absolute resolution deadline elapsed. Escrow is split equally without a fee.",
+            "reasoning_provenance": "deterministic_contract_rule",
+        },
+        "paid": {
+            "fee_wei": "0",
+            "party_a_wei": "500",
+            "party_b_wei": "500",
+            "conservation_wei": "1000",
+        },
+    }
+    assert result == expected
+    print(json.dumps({"resolution_deadline": deadline, "output": result}, sort_keys=True))
+    with direct_vm.expect_revert(
+        "[EXPECTED] Agreement is not awaiting adjudication"
+    ):
         answered.resolve_timeout_split("agreement-1")
     assert answered.get_credit(addr(direct_alice))["credit_wei"] == "500"
     assert answered.get_credit(addr(direct_bob))["credit_wei"] == "500"
