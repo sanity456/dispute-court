@@ -31,7 +31,7 @@ All email/password registration, login and reset APIs return `410 wallet_login_o
 
 Vercel Authentication is a separate private-preview gate, not product authentication. On Hobby, Standard Protection (`all_except_custom_domains`) protects generated deployment URLs and previews, but leaves production domains public. Do not infer privacy from that setting alone: verify anonymous requests to every link. See [Vercel deployment protection](https://vercel.com/docs/deployment-protection).
 
-The 2026-08-28 wallet release removed this project's two automatic production aliases after they failed that check. Those aliases return 404; the immutable test URL in `RELEASE_STATUS.md` remains gated. No app, database or user record was deleted, and aliases can be reassigned if deliberately approved. Use `vercel deploy` (preview) for future private tests; do not use `--prod`, add domains, disable protection or upgrade a plan without explicit approval. A Vercel production label does not make a product mainnet-ready.
+The September 2026 evaluator activation deliberately restored the approved public canonical domain, `https://dispute-court-studionet.vercel.app/`, on the user's `sanity3` project. That domain is public; generated deployment URLs retain their separate preview protection. No old app, database or user record was deleted. Use `vercel deploy` (preview) for private tests; production redeployments are limited to this approved evaluator project. Do not add other domains, change protection, switch accounts or upgrade a plan without approval. A Vercel production label does not make a product mainnet-ready.
 
 ## Validation and operations
 
