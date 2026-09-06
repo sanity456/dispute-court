@@ -160,7 +160,7 @@ try {
       method === product.listMethod
         ? { items: [value], total: 1 }
         : method === "get_config"
-          ? { protocol_version: 3, max_source_bytes: 6000 }
+          ? { protocol_version: 4, max_source_bytes: 6000 }
           : method === "list_participants"
             ? {
                 items: [{ address: owner, status: "active", rounds_passed: 0 }],

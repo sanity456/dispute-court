@@ -9,14 +9,14 @@ export function releaseDataSchema(product: string, address: string): string {
   )
     throw new Error("Invalid release database binding.");
   return (
-    "v3_" + product.replaceAll("-", "_") + "_" + address.slice(2).toLowerCase()
+    "v4_" + product.replaceAll("-", "_") + "_" + address.slice(2).toLowerCase()
   );
 }
 
 export function isIsolatedDatabaseSchema(schema: string): boolean {
   return (
     /^verification_[a-f0-9]{32}$/.test(schema) ||
-    (/^v3_(commitment_pools|dispute_court)_[a-f0-9]{40}$/.test(schema) &&
+    (/^v4_(commitment_pools|dispute_court)_[a-f0-9]{40}$/.test(schema) &&
       !/_0{40}$/.test(schema))
   );
 }
@@ -26,7 +26,7 @@ export async function initializeReleaseData(
   schema: string,
   migration: string,
 ): Promise<void> {
-  if (!schema.startsWith("v3_") || !isIsolatedDatabaseSchema(schema))
+  if (!schema.startsWith("v4_") || !isIsolatedDatabaseSchema(schema))
     throw new Error("Invalid release database binding.");
   // Scoped adapter uses SET LOCAL for this whole transaction, including the
   // first cold start when the schema does not exist yet. Never fall back to public.

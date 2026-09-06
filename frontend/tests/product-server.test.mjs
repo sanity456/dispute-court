@@ -107,7 +107,7 @@ function network(transactions = new Map()) {
     read: async (method) =>
       method === "get_config"
         ? {
-            protocol_version: 3,
+            protocol_version: 4,
             max_source_bytes: 6000,
             product_contract: core,
           }

@@ -13,6 +13,30 @@ function leaderReceipt(value: unknown): Record<string, unknown> {
   return record(Array.isArray(leaders) ? leaders[0] : leaders);
 }
 
+function decodedLeaderError(value: unknown): string {
+  if (
+    typeof value !== "string" ||
+    value.length > 16384 ||
+    !/^[A-Za-z0-9+/]+={0,2}$/.test(value)
+  )
+    return "";
+  try {
+    const binary = atob(value);
+    const bytes = Uint8Array.from(binary, (character) =>
+      character.charCodeAt(0),
+    );
+    const message = new TextDecoder("utf-8", { fatal: true })
+      .decode(bytes)
+      .replace(/^[\u0000-\u001f]+/, "")
+      .trim();
+    return /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(message)
+      ? ""
+      : message;
+  } catch {
+    return "";
+  }
+}
+
 export function transactionStatus(value: unknown): string {
   const receipt = record(value);
   const status =
@@ -63,6 +87,7 @@ export function executionError(value: unknown): string {
   return String(
     vm.stderr ||
       leader.error ||
+      decodedLeaderError(leader.result) ||
       (result.status === "error" && payload.readable) ||
       "The contract rejected this action. No contract state change was applied.",
   ).slice(0, 700);

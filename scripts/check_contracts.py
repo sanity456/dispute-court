@@ -22,13 +22,14 @@ def main():
     environment["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
     environment["RUN_GENLAYER_INTEGRATION"] = "0"
     environment["RUN_GENLAYER_V3_INTEGRATION"] = "0"
-    for name in ["dispute_court_v3.py", "evidence_capture_v3.py"]:
+    environment["RUN_GENLAYER_V4_INTEGRATION"] = "0"
+    for name in ["dispute_court_v4.py", "evidence_capture_v4.py"]:
         path = ROOT / "contracts" / name
         if EXPECTED_RUNNER not in path.read_text(encoding="utf-8").splitlines()[0]:
             parser.error("Unexpected runner pin: " + name)
         subprocess.run([str(lint), "check", str(path), "--json"], cwd=ROOT, env=environment, check=True)
     selected = ["tests"] if args.legacy else [
-        "tests/test_dispute_court_v3.py", "tests/test_security_court_v3.py", "tests/test_evidence_capture_v3.py",
+        "tests/test_dispute_court_v4.py", "tests/test_security_court_v4.py", "tests/test_evidence_capture_v4.py",
     ]
     subprocess.run(
         [sys.executable, "-m", "pytest", "-p", "gltest.direct.pytest_plugin",

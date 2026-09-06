@@ -1,4 +1,4 @@
-export const SECURITY_PROTOCOL_VERSION = 3;
+export const SECURITY_PROTOCOL_VERSION = 4;
 export const SECURITY_EVIDENCE_BYTES = 6000;
 const recoveryMethods = new Set([
   "withdraw",

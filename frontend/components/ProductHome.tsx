@@ -158,6 +158,8 @@ function ProductWorkspace({
   const [detailError, setDetailError] = useState("");
   const [reviewed, setReviewed] = useState(false);
   const [settlementConfirmed, setSettlementConfirmed] = useState(false);
+  const [evidenceReady, setEvidenceReady] = useState(false);
+  const [evidenceCycle, setEvidenceCycle] = useState(0);
   const agreements = useMemo(
     () =>
       protocol.items
@@ -187,6 +189,7 @@ function ProductWorkspace({
     const task = window.setTimeout(async () => {
       setReviewed(false);
       setSettlementConfirmed(false);
+      setEvidenceReady(false);
       setDetailError("");
       if (!agreementId || !isLiveConfigured || !protocol.session?.signedIn)
         return;
@@ -217,6 +220,7 @@ function ProductWorkspace({
     const task = window.setTimeout(() => {
       setReviewed(false);
       setSettlementConfirmed(false);
+      setEvidenceReady(false);
     }, 0);
     return () => window.clearTimeout(task);
   }, [wallet]);
@@ -227,6 +231,7 @@ function ProductWorkspace({
     setSelectedId(id);
     setReviewed(false);
     setSettlementConfirmed(false);
+    setEvidenceReady(false);
     setTab("cases");
   }
   async function createAgreement(event: FormEvent<HTMLFormElement>) {
@@ -268,7 +273,7 @@ function ProductWorkspace({
           ["Party B", partyB],
           ["Title", String(data.get("title"))],
           ["Summary", String(data.get("summary"))],
-          ["Decision criteria", String(data.get("criteria"))],
+          ["Party B performance criteria", String(data.get("criteria"))],
           ["Test escrow", formatGen(amount.toString()) + " GEN"],
           ["Future adjudication fee", Number(config?.fee_bps ?? 0) / 100 + "%"],
           [
@@ -287,7 +292,7 @@ function ProductWorkspace({
           ],
           [
             "Accepted consequences",
-            "Missing the response deadline permits a no-show ruling. Bounded retries end in a 50/50 split of net escrow.",
+            "Party B performance maps to Party B's net share: none 0%, limited 25%, partial 50%, substantial 75%, full 100%. Missing a response permits a no-show ruling; bounded retries end 50/50.",
           ],
         ],
       });
@@ -306,7 +311,8 @@ function ProductWorkspace({
   async function evidence(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!agreement || !actions?.evidence) return;
-    const data = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const data = new FormData(form);
     try {
       const digest = String(data.get("digest") ?? "").trim();
       if (!/^[0-9a-fA-F]{64}$/.test(digest))
@@ -326,12 +332,17 @@ function ProductWorkspace({
         throw new Error(
           "You already submitted this source and digest. Review the existing exhibit instead of spending another evidence slot.",
         );
-      await transact("Submit evidence", "submit_evidence", [
+      const committed = await transact("Submit evidence", "submit_evidence", [
         agreement.id,
         String(data.get("note")),
         url,
         digest,
       ]);
+      if (committed) {
+        setEvidenceReady(false);
+        setEvidenceCycle((value) => value + 1);
+        form.reset();
+      }
     } catch (failure) {
       setNotice({ kind: "error", text: errorMessage(failure) });
     }
@@ -519,7 +530,7 @@ function ProductWorkspace({
                   [
                     "04",
                     "Resolve & claim credit",
-                    "Consensus uses fixed payout buckets. Bounded evidence retries end in the accepted 50/50 fallback.",
+                    "Consensus rates Party B's performance; the contract maps it to a fixed payout. Bounded retries end 50/50.",
                   ],
                 ].map(([step, title, description]) => (
                   <li key={step} className="flex gap-4">
@@ -655,7 +666,7 @@ function ProductWorkspace({
                       {agreement.summary}
                     </p>
                     <h3 className="mt-6 text-sm font-black">
-                      Agreed decision criteria
+                      Agreed Party B performance criteria
                     </h3>
                     <p className="mt-3 whitespace-pre-wrap rounded-2xl bg-[#e5ebe7] p-4 text-sm leading-7">
                       {agreement.criteria}
@@ -663,7 +674,7 @@ function ProductWorkspace({
                     <dl className="mt-6 grid grid-cols-2 gap-5 text-sm">
                       {[
                         ["Party A · funder", agreement.party_a],
-                        ["Party B · counterparty", agreement.party_b],
+                        ["Party B · performer / payee", agreement.party_b],
                         ["Escrow", formatGen(agreement.amount_wei) + " GEN"],
                         ["Adjudication fee", agreement.fee_bps / 100 + "%"],
                         [
@@ -691,7 +702,7 @@ function ProductWorkspace({
                             " hours after response",
                         ],
                         ["Fallback", "50/50 after two evidence reopens"],
-                        ...(agreement.protocol_version === 3
+                        ...(agreement.protocol_version >= 3
                           ? [
                               ["Timeout split", "50/50, no fee"],
                               [
@@ -722,10 +733,12 @@ function ProductWorkspace({
                         </summary>
                         <p>
                           Cooperative release or refund has no court fee.
-                          Rulings and no-shows charge the agreed fee. Party A
-                          receives 0/25/50/75/100% after fees; the evidence
-                          fallback is 50/50 after bounded retries.
-                          {agreement.protocol_version === 3 &&
+                          Rulings and no-shows charge the agreed fee. The
+                          evidence fallback is 50/50 after bounded retries.
+                          {agreement.protocol_version >= 4
+                            ? " Party B performance maps to Party B's net share: none 0%, limited 25%, partial 50%, substantial 75%, full 100%."
+                            : " Party A receives 0/25/50/75/100% after fees."}
+                          {agreement.protocol_version >= 3 &&
                             " After the fixed resolution deadline, either party can split the full escrow equally without a fee."}
                         </p>
                       </details>
@@ -898,9 +911,28 @@ function ProductWorkspace({
                           ),
                         )}
                       </h3>
-                      <p className="mt-4 text-sm leading-7 text-[#bbcdc7]">
-                        {String(agreement.verdict.reasoning ?? "")}
-                      </p>
+                      {agreement.protocol_version >= 4 &&
+                        Boolean(agreement.verdict.reason_code) && (
+                          <div className="mt-5 rounded-2xl bg-white/10 p-4">
+                            {!["not_evaluated", "undetermined", ""].includes(
+                              String(agreement.verdict.performance_level ?? ""),
+                            ) && (
+                              <>
+                                <p className="text-xs text-[#bbcdc7]">
+                                  Party B performance
+                                </p>
+                                <p className="mt-1 text-xl font-black capitalize">
+                                  {label(
+                                    String(agreement.verdict.performance_level),
+                                  )}
+                                </p>
+                              </>
+                            )}
+                            <code className="mt-2 block break-all text-xs text-[#f1c969]">
+                              {String(agreement.verdict.reason_code)}
+                            </code>
+                          </div>
+                        )}
                       <div className="mt-6 grid grid-cols-3 gap-4">
                         {[
                           ["Party A", agreement.paid.party_a_wei],
@@ -917,13 +949,21 @@ function ProductWorkspace({
                           </div>
                         ))}
                       </div>
-                      <p className="mt-6 text-xs leading-6 text-[#bbcdc7]">
-                        These are contract credit allocations, not proof of
-                        delivered wallet funds. Explanation provenance:{" "}
-                        {label(
-                          String(agreement.verdict.reasoning_provenance ?? ""),
-                        )}
-                        .
+                      <details className="mt-6 text-xs leading-6 text-[#bbcdc7]">
+                        <summary className="cursor-pointer font-bold text-white">
+                          Why this result
+                        </summary>
+                        <p className="mt-3">
+                          {String(agreement.verdict.reasoning ?? "")}
+                        </p>
+                        <p className="mt-3">
+                          Allocations and reason code are authoritative. The AI
+                          explanation is supporting context only.
+                        </p>
+                      </details>
+                      <p className="mt-4 text-xs leading-6 text-[#bbcdc7]">
+                        Contract credit allocations are not proof of delivered
+                        wallet funds.
                       </p>
                     </article>
                   )}
@@ -941,7 +981,7 @@ function ProductWorkspace({
                       {role === "party_a"
                         ? "Party A · funder"
                         : role === "party_b"
-                          ? "Party B · counterparty"
+                          ? "Party B · performer / payee"
                           : "Read-only visitor"}
                     </h3>
                     <p className="mt-4 text-sm leading-7">
@@ -1051,7 +1091,7 @@ function ProductWorkspace({
                       </Field>
                       <p className="text-xs leading-6 text-[#70817c]">
                         Starts the other party’s response deadline.
-                        {agreement.protocol_version === 3 &&
+                        {agreement.protocol_version >= 3 &&
                           " You can still give the full escrow to the other party."}
                       </p>
                       <button
@@ -1113,8 +1153,9 @@ function ProductWorkspace({
                         />
                       </Field>
                       <EvidenceCapture
-                        key={agreement.id + "|" + wallet}
+                        key={agreement.id + "|" + wallet + "|" + evidenceCycle}
                         protocol={protocol}
+                        onReviewChange={setEvidenceReady}
                       />
                       <p className="text-xs leading-6 text-[#70817c]">
                         Public evidence only. URLs, notes and digests are
@@ -1123,7 +1164,7 @@ function ProductWorkspace({
                       </p>
                       <button
                         className="court-primary w-full"
-                        disabled={disabled}
+                        disabled={disabled || !evidenceReady}
                       >
                         Commit evidence
                       </button>
@@ -1274,13 +1315,30 @@ function ProductWorkspace({
                       <h3 className="mt-3 text-xl font-black">
                         {label(String(selected.attempt.outcome ?? ""))}
                       </h3>
-                      <p className="mt-3 text-sm leading-7 text-[#70817c]">
-                        {String(selected.attempt.reasoning ?? "")}
-                      </p>
+                      {Boolean(selected.attempt.performance_level) &&
+                        selected.attempt.performance_level !==
+                          "undetermined" && (
+                          <p className="mt-3 text-sm font-bold">
+                            Party B performance:{" "}
+                            {label(String(selected.attempt.performance_level))}
+                          </p>
+                        )}
+                      {Boolean(selected.attempt.reason_code) && (
+                        <code className="mt-2 block break-all text-xs">
+                          {String(selected.attempt.reason_code)}
+                        </code>
+                      )}
+                      <details className="mt-3 text-sm leading-7 text-[#70817c]">
+                        <summary className="cursor-pointer font-bold">
+                          View explanation
+                        </summary>
+                        <p className="mt-2">
+                          {String(selected.attempt.reasoning ?? "")}
+                        </p>
+                      </details>
                       <p className="mt-4 text-xs text-[#70817c]">
                         Attempt {agreement.resolution_attempt_count} · evidence
-                        reopens {agreement.reopen_count}/2 · leader explanation
-                        is non-authoritative.
+                        reopens {agreement.reopen_count}/2
                       </p>
                       {agreement.last_source_observations.length > 0 && (
                         <ul className="mt-4 space-y-2 text-xs text-[#70817c]">
@@ -1383,8 +1441,8 @@ function ProductWorkspace({
                 />
               </Field>
               <Field
-                title="Decision criteria"
-                hint="Define deliverables, acceptance standards, evidence, and how partial completion should be assessed."
+                title="Party B performance criteria"
+                hint="Define what none, partial and full performance mean for Party B."
               >
                 <textarea
                   name="criteria"
@@ -1426,11 +1484,11 @@ function ProductWorkspace({
               <label className="flex items-start gap-3 rounded-2xl bg-[#f6edcf] p-4 text-xs leading-6">
                 <input type="checkbox" required className="mt-1" />
                 <span>
-                  I accept the no-show rule, fee, public evidence, payout
-                  buckets and 50/50 fallback after bounded retries. The fee-free
-                  timeout split becomes available after the response window,
-                  three evidence windows and 48 hours from the dispute. These
-                  terms become fixed once both parties accept.
+                  Party A funds; Party B performs and is paid. Party B receives
+                  0/25/50/75/100% of net escrow for none/limited/partial/
+                  substantial/full performance. I accept the fee, no-show rule
+                  and 50/50 fallbacks. These terms become fixed after
+                  acceptance.
                 </span>
               </label>
               <button className="court-primary" disabled={disabled}>
@@ -1457,7 +1515,7 @@ function ProductWorkspace({
                 <li>Specify measurable deliverables</li>
                 <li>Use evidence both parties can access</li>
                 <li>Allow enough time for consensus</li>
-                <li>Explain partial-performance outcomes</li>
+                <li>Define partial-performance evidence</li>
                 <li>Keep confidential information off-chain</li>
               </ul>
             </article>

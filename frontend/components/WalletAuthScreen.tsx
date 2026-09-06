@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { product } from "../lib/product";
 import { loginWithWallet, logoutWallet } from "../lib/wallet-auth-client";
+import { userFacingError } from "../lib/recovery";
 
 export default function WalletAuthScreen({
   signOut = false,
@@ -24,11 +25,7 @@ export default function WalletAuthScreen({
       // Local destination only. Old reset-link tokens and untrusted redirects are discarded.
       window.location.replace("/");
     } catch (failure) {
-      setError(
-        failure instanceof Error
-          ? failure.message
-          : "Wallet access is unavailable. Please try again.",
-      );
+      setError(userFacingError(failure));
     } finally {
       lock.current = false;
       setBusy(false);

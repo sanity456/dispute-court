@@ -1,4 +1,4 @@
-// Initializes only this product's verified v3 namespace. Never migrates or deletes legacy data.
+// Initializes only this product's verified v4 namespace. Never migrates or deletes legacy data.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { loadEnvFile } from "node:process";
@@ -23,7 +23,7 @@ assert.equal(
 const manifest = JSON.parse(
   readFileSync(new URL("../lib/deployment.json", import.meta.url), "utf8"),
 );
-assert.equal(manifest.protocolVersion, 3);
+assert.equal(manifest.protocolVersion, 4);
 assert.equal(manifest.chainId, 61999);
 assert.equal(manifest.rpcUrl, "https://studio.genlayer.com/api");
 const schema = releaseDataSchema(product.id, manifest.contractAddress);

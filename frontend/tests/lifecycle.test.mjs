@@ -81,7 +81,7 @@ test("evidence, ready, resolve, and fallback follow the state machine", () => {
   );
 });
 
-test("v3 timeout is party-only at the fixed deadline and displaces all adjudication actions", () => {
+test("v3+ timeout is party-only at the fixed deadline and displaces all adjudication actions", () => {
   for (const status of [
     "evidence",
     "ready_for_resolution",
@@ -89,7 +89,7 @@ test("v3 timeout is party-only at the fixed deadline and displaces all adjudicat
   ]) {
     const a = {
       ...agreement,
-      protocol_version: 3,
+      protocol_version: 4,
       status,
       evidence_deadline: 300,
       resolution_deadline: 500,
@@ -117,14 +117,14 @@ test("v3 timeout is party-only at the fixed deadline and displaces all adjudicat
   }
 });
 
-test("only v3 expands voluntary full-counterparty settlement beyond funding", () => {
+test("v3+ expands voluntary full-counterparty settlement beyond funding", () => {
   for (const status of [
     "awaiting_response",
     "evidence",
     "ready_for_resolution",
     "resolution_stalled",
   ]) {
-    const a = { ...agreement, protocol_version: 3, status };
+    const a = { ...agreement, protocol_version: 4, status };
     assert.equal(agreementActions(a, "0xaa", 500).release, true);
     assert.equal(agreementActions(a, "0xaa", 500).refund, false);
     assert.equal(agreementActions(a, "0xbb", 500).refund, true);
@@ -146,7 +146,7 @@ test("timeout never replaces no-show or a terminal settlement", () => {
   ]) {
     const a = {
       ...agreement,
-      protocol_version: 3,
+      protocol_version: 4,
       status,
       response_deadline: 200,
       resolution_deadline: 500,
@@ -155,7 +155,7 @@ test("timeout never replaces no-show or a terminal settlement", () => {
   }
   const noShow = {
     ...agreement,
-    protocol_version: 3,
+    protocol_version: 4,
     status: "awaiting_response",
     response_deadline: 200,
     resolution_deadline: 500,
@@ -168,7 +168,7 @@ test("timeout never replaces no-show or a terminal settlement", () => {
   for (const status of ["ready_for_resolution", "resolution_stalled"]) {
     const a = {
       ...agreement,
-      protocol_version: 3,
+      protocol_version: 4,
       status,
       resolution_deadline: 500,
     };

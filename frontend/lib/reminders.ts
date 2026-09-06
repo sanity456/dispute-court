@@ -101,7 +101,7 @@ export function nextStep(
     isB = same(r.party_b),
     party = isA || isB;
   const resolutionDeadline =
-    number(r.protocol_version) === 3 ? number(r.resolution_deadline) : 0;
+    number(r.protocol_version) >= 3 ? number(r.resolution_deadline) : 0;
   if (
     resolutionDeadline > 0 &&
     now >= resolutionDeadline &&

@@ -1,13 +1,13 @@
 # Vercel test hosting
 
-Each product has its own Vercel project, Neon Free database and wallet-only sign-in. This Vercel release uses a new v3 Studionet core/helper pair and a contract-bound v3 database namespace. The existing Sites deployment, its historical contracts and D1 data are unchanged. Do not publish the v3 checkout to an old Sites/D1 instance without a separately approved data-isolation plan.
+Each product has its own Vercel project, Neon Free database and wallet-only sign-in. This release uses the v4 Studionet core/helper pair and a contract-bound v4 database namespace. Historical deployments and data remain unchanged. Do not publish this checkout to an old Sites/D1 instance without a separately approved data-isolation plan.
 
 ## Two explicit targets
 
 - Sites-compatible source: `pnpm dev` / `pnpm build`. Uses Cloudflare/D1 and the same wallet authentication adapter. Existing published Sites versions are not automatically changed.
 - Vercel: `pnpm dev:vercel` / `pnpm build:vercel` / `pnpm start:vercel`. The wrapper selects native Next.js and Neon Postgres. Do not run the bare Next CLI.
 - `.openai/hosting.json` is preserved. SQLite migration `drizzle/0002_wallet_auth.sql` adds dedicated login challenges and sessions without modifying account records.
-- PostgreSQL initialization is in `server/postgres-schema.sql`. It is additive and serialized by a transaction-scoped advisory lock. Every read/write uses a transaction-local `search_path` containing only the product/core-bound v3 schema; historical `public` tables are not a fallback.
+- PostgreSQL initialization is in `server/postgres-schema.sql`. It is additive and serialized by a transaction-scoped advisory lock. Every read/write uses a transaction-local `search_path` containing only the product/core-bound v4 schema; historical `public` tables are not a fallback.
 
 ## Configuration
 
@@ -15,7 +15,7 @@ Connect this product's own Neon resource to its Vercel project. The required ser
 
 No email provider, Neon Auth URL, auth cookie signing secret, OAuth client, or user private key is required for wallet login. Session tokens and login challenges are generated securely by the server. Old provider configuration is not read by the app.
 
-Vercel builds derive canonical public links from the deployment URL. An optional trusted `NEXT_PUBLIC_SITE_ORIGIN` selects a canonical origin. Login messages always bind to the actual request origin, not a forwarded-host header or canonical-link override.
+Canonical public links are fixed to `https://dispute-court-studionet.vercel.app/`. Login messages always bind to the actual request origin, not a forwarded-host header or canonical-link override.
 
 For local work, use an ignored `.env.local` and set `PORT` to the preview port. Open the native Next.js preview at `http://localhost:<port>` to match its normalized request origin. HTTP sign-in is restricted to loopback hosts; deployed sign-in requires HTTPS. The local Vercel target uses the configured Neon database.
 
@@ -41,11 +41,11 @@ The 2026-08-28 wallet release removed this project's two automatic production al
 - Keep secrets and cookies out of logs; preserve database isolation.
 - Do not enable paid plans, unattended signers, background operators or notification providers without approval.
 
-## Verified v3 contract and data binding
+## Verified v4 contract and data binding
 
-The checked-in manifests name the verified v3 contracts; the old ones are preserved as `deployment-v2.json` and `evidence-deployment-v2.json`. Browser and server read the same manifests, not address/RPC environment overrides. The Neon namespace is derived from the product ID and full core address by `server/release-data.ts`; no user-supplied namespace is accepted. Its initialization fails closed unless the manifest is v3. The previous protected app and its `public` schema remain available for historical-record recovery.
+The checked-in manifests name the verified v4 contracts; prior versions are preserved as versioned manifests. Browser and server read the same manifests, not address/RPC environment overrides. The Neon namespace is derived from the product ID and full core address by `server/release-data.ts`; no user-supplied namespace is accepted. Initialization fails closed unless the manifest is v4. Historical schemas remain available for recovery.
 
-`node scripts/check-release-data.mjs` initializes this product's verified v3 namespace, checks idempotence and scoped writes, and confirms unchanged legacy row counts. Its temporary preference marker is inserted and removed within one transaction. `node scripts/check-neon.mjs` separately exercises authentication, concurrency and journal behavior in a newly created disposable verification schema. Neither script migrates or reassigns old records.
+`node scripts/check-release-data.mjs` initializes this product's verified v4 namespace, checks idempotence and scoped writes, and confirms unchanged legacy row counts. Its temporary preference marker is inserted and removed within one transaction. `node scripts/check-neon.mjs` separately exercises authentication, concurrency and journal behavior in a newly created disposable verification schema. Neither script migrates or reassigns old records.
 
 Run `node scripts/verify-security-release.mjs --expected-fee-bps <approved-integer>` after updating both manifests. This is read-only and must fail against legacy or mismatched code. Then follow [the activation checklist](../../SUBMISSION_CHECKLIST.md), including private access and actual wallet/browser checks.
 

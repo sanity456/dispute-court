@@ -267,7 +267,7 @@ test("new commitments fail closed on legacy contracts while existing-fund recove
   const core = "0x" + "11".repeat(20),
     capture = "0x" + "22".repeat(20);
   let coreVersion = 2,
-    helperVersion = 3,
+    helperVersion = 4,
     linkedCore = core;
   const net = {
     coreAddress: core,
@@ -300,12 +300,12 @@ test("new commitments fail closed on legacy contracts while existing-fund recove
     await requireSecurityRelease(net, core, method);
   }
   await assert.rejects(requireSecurityRelease(net, capture, "capture"));
-  coreVersion = 3;
+  coreVersion = 4;
   await requireSecurityRelease(net, core, "resolve_timeout_split");
   await requireSecurityRelease(net, capture, "capture");
   helperVersion = 2;
   await assert.rejects(requireSecurityRelease(net, capture, "capture"));
-  helperVersion = 3;
+  helperVersion = 4;
   linkedCore = "0x" + "33".repeat(20);
   await assert.rejects(requireSecurityRelease(net, capture, "capture"));
 });

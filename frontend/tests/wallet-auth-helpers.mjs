@@ -9,7 +9,7 @@ export const net = {
   coreAddress: "0x" + "11".repeat(20),
   captureAddress: "0x" + "22".repeat(20),
   ownerAddress: alice.address.toLowerCase(),
-  read: async () => ({ protocol_version: 3, max_source_bytes: 6000 }),
+  read: async () => ({ protocol_version: 4, max_source_bytes: 6000 }),
   methods: () => ({
     join: { readonly: false, params: ["id"] },
     fund_agreement: { readonly: false, params: ["id"] },

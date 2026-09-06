@@ -43,7 +43,7 @@ export function createPostgresDatabase(
     throw new Error("A valid Neon database connection is required.");
   if (schema !== undefined && !isIsolatedDatabaseSchema(schema))
     throw new Error(
-      "Only isolated verification or v3 release schemas are supported.",
+      "Only isolated verification or v4 release schemas are supported.",
     );
   const client = neon(connectionString, { fullResults: true });
   class Statement implements Prepared {

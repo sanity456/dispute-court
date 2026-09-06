@@ -26,8 +26,10 @@ export async function verifyRelease({
   for (const manifest of [core, helper]) {
     assert.equal(manifest.network, "studionet");
     assert.equal(manifest.chainId, 61999);
+    assert.equal(manifest.protocolVersion, 4);
     assert.match(manifest.contractAddress, /^0x[0-9a-fA-F]{40}$/);
     assert.match(manifest.deploymentTransaction, /^0x[0-9a-fA-F]{64}$/);
+    assert.match(manifest.sourceSha256, /^[a-f0-9]{64}$/);
   }
   assert.match(core.ownerAddress, /^0x[0-9a-fA-F]{40}$/);
   assert.ok(
@@ -62,16 +64,22 @@ export async function verifyRelease({
       kind + " source is unavailable",
     );
     const source = Buffer.from(sources[kind]);
+    const sourceSha256 = createHash("sha256").update(source).digest("hex");
+    assert.equal(
+      manifest.sourceSha256,
+      sourceSha256,
+      kind + " manifest source hash mismatch",
+    );
     assert.equal(
       Buffer.compare(Buffer.from(receipt.data.contract_code, "base64"), source),
       0,
       kind +
-        " does not match the local v3 source: the security release is NOT activated",
+        " does not match the local v4 source: the security release is NOT activated",
     );
     verified.push({
       kind,
       address: manifest.contractAddress,
-      sourceSha256: createHash("sha256").update(source).digest("hex"),
+      sourceSha256,
     });
   }
   const config = await readConfig(core.contractAddress);
@@ -80,7 +88,7 @@ export async function verifyRelease({
     ["core", config],
     ["helper", capture],
   ]) {
-    assert.equal(value?.protocol_version, 3, kind + " is not v3");
+    assert.equal(value?.protocol_version, 4, kind + " is not v4");
     assert.equal(
       value?.max_source_bytes,
       6000,
@@ -94,6 +102,13 @@ export async function verifyRelease({
   );
   assert.equal(config.fee_bps, expectedFeeBps, "Unexpected fee");
   assert.equal(
+    config.decision_policy,
+    "party_b_performance_level_v1",
+    "Directional-safe decision policy is not active",
+  );
+  assert.equal(config.party_a_role, "funder_refund_side");
+  assert.equal(config.party_b_role, "performer_payment_side");
+  assert.equal(
     String(capture.product_contract).toLowerCase(),
     core.contractAddress.toLowerCase(),
     "Helper belongs to a different core",
@@ -104,7 +119,7 @@ export async function verifyRelease({
     "Evidence helper must not accept funds",
   );
   return {
-    protocolVersion: 3,
+    protocolVersion: 4,
     chainId: 61999,
     owner: core.ownerAddress,
     feeBps: expectedFeeBps,
@@ -141,7 +156,7 @@ async function main() {
   const source =
     product.id === "commitment-pools"
       ? "commitment_pool_v3.py"
-      : "dispute_court_v3.py";
+      : "dispute_court_v4.py";
   const report = await verifyRelease({
     core,
     helper,
@@ -149,7 +164,7 @@ async function main() {
     sources: {
       core: readFileSync(resolve(frontend, "../contracts", source)),
       helper: readFileSync(
-        resolve(frontend, "../contracts/evidence_capture_v3.py"),
+        resolve(frontend, "../contracts/evidence_capture_v4.py"),
       ),
     },
     chainId: () => client.getChainId(),

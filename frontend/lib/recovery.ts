@@ -76,3 +76,9 @@ export function walletRejected(error: unknown): boolean {
   }
   return false;
 }
+
+export function userFacingError(error: unknown): string {
+  if (walletRejected(error))
+    return "Wallet request cancelled. Nothing was sent.";
+  return error instanceof Error ? error.message : String(error);
+}

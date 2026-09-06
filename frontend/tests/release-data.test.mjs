@@ -48,10 +48,10 @@ test("Invalid release bindings and unscoped schema names fail closed before I/O"
   for (const invalid of [
     "",
     "public",
-    "v3_public",
+    "v4_public",
     schema + '"; DROP SCHEMA public;--',
     schema.toUpperCase(),
-    "v3_" + product.id.replaceAll("-", "_") + "_" + "0".repeat(40),
+    "v4_" + product.id.replaceAll("-", "_") + "_" + "0".repeat(40),
   ])
     assert.throws(
       () => createPostgresDatabase(connection, invalid),
@@ -148,8 +148,8 @@ test("Browser and server share the verified manifest, and archived deployments r
   const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
   for (const name of ["deployment", "evidence-deployment"]) {
     const current = JSON.parse(read("../lib/" + name + ".json"));
-    const archive = JSON.parse(read("../lib/" + name + "-v2.json"));
-    assert.equal(current.protocolVersion, 3);
+    const archive = JSON.parse(read("../lib/" + name + "-v3.json"));
+    assert.equal(current.protocolVersion, 4);
     assert.equal(current.chainId, 61999);
     assert.match(current.sourceSha256, /^[a-f0-9]{64}$/);
     assert.notEqual(

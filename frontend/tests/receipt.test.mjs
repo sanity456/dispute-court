@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  executionError,
   executionState,
   transactionStatus,
   waitForFinalizedTransaction,
@@ -52,6 +53,24 @@ test("a finalized revert never becomes a success", async () => {
       { pause: async () => {} },
     ),
     /Only Party B/,
+  );
+});
+
+test("base64 GenVM reverts become readable contract errors", () => {
+  assert.equal(
+    executionError({
+      consensus_data: {
+        leader_receipt: [
+          {
+            execution_result: "ERROR",
+            result:
+              "AVtFWFRFUk5BTF0gU291cmNlIGV4Y2VlZHMgNjAwMCBVVEYtOCBieXRlczsgdXNlIGEgc21hbGxlciBkZWRpY2F0ZWQgcGFnZQ==",
+            genvm_result: { stderr: "" },
+          },
+        ],
+      },
+    }),
+    "[EXTERNAL] Source exceeds 6000 UTF-8 bytes; use a smaller dedicated page",
   );
 });
 

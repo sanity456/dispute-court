@@ -8,8 +8,11 @@ import {
 } from "../lib/evidence.ts";
 import { calendarFile, nextStep } from "../lib/reminders.ts";
 import { intentDescription, canonicalArgs } from "../lib/activity-model.ts";
-import { walletRejected } from "../lib/recovery.ts";
+import { userFacingError, walletRejected } from "../lib/recovery.ts";
 import { product } from "../lib/product.ts";
+test("shared links use the stable public evaluator origin", () => {
+  assert.equal(product.origin, "https://dispute-court-studionet.vercel.app");
+});
 test("evidence normalization matches Python whitespace, including NEL and record separator", async () => {
   const raw = " \nFirst\u0085second\u001cthird\u2003fourth  ";
   assert.equal(normalizeEvidence(raw), "First second third fourth");
@@ -98,6 +101,10 @@ test("only explicit EIP-1193 rejection is safe to classify as unsigned cancellat
   assert.equal(walletRejected({ cause: { cause: { code: 4001 } } }), true);
   assert.equal(walletRejected(new Error("Timeout")), false);
   assert.equal(walletRejected({ code: -32000 }), false);
+  assert.equal(
+    userFacingError({ cause: { code: 4001 } }),
+    "Wallet request cancelled. Nothing was sent.",
+  );
   assert.deepEqual(canonicalArgs([1, 1000000000000000001n]), [
     "1",
     "1000000000000000001",

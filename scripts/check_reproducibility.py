@@ -40,7 +40,7 @@ for group in ("dependencies", "devDependencies"):
             f"Unpinned {group} entry: {name}={version}",
         )
 
-for name in ("dispute_court_v3.py", "evidence_capture_v3.py"):
+for name in ("dispute_court_v4.py", "evidence_capture_v4.py"):
     first_line = (ROOT / "contracts" / name).read_text(encoding="utf-8").splitlines()[0]
     require(EXPECTED_RUNNER in first_line, "Unexpected GenVM runner pin: " + name)
 

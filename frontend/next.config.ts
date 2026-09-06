@@ -9,11 +9,7 @@ const nextConfig: NextConfig = {
   },
   env: {
     NEXT_PUBLIC_AUTH_PROVIDER: "wallet",
-    NEXT_PUBLIC_SITE_ORIGIN:
-      process.env.NEXT_PUBLIC_SITE_ORIGIN ||
-      (process.env.VERCEL_URL
-        ? "https://" + process.env.VERCEL_URL
-        : "http://localhost:" + (process.env.PORT || "3000")),
+    NEXT_PUBLIC_SITE_ORIGIN: "https://dispute-court-studionet.vercel.app",
   },
   typescript: { tsconfigPath: "tsconfig.vercel.json" },
   webpack(config) {

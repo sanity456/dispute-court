@@ -114,14 +114,14 @@ export function agreementActions(a: Agreement, wallet: string, now: number) {
   const party = isA || isB;
   const connected = Boolean(wallet);
   const timedOut =
-    a.protocol_version === 3 &&
+    a.protocol_version >= 3 &&
     a.resolution_deadline > 0 &&
     now >= a.resolution_deadline;
   const evidenceOpen =
     a.status === "evidence" && now < a.evidence_deadline && !timedOut;
   const cooperative =
     a.status === "funded" ||
-    (a.protocol_version === 3 &&
+    (a.protocol_version >= 3 &&
       [
         "awaiting_response",
         "evidence",

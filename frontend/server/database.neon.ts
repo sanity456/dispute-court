@@ -12,8 +12,8 @@ export function binding(): Database {
       throw new Error(
         "Durable storage is unavailable. No transaction has been sent.",
       );
-    if ((deployment as { protocolVersion?: number }).protocolVersion !== 3)
-      throw new Error("A verified v3 deployment is required for this release.");
+    if ((deployment as { protocolVersion?: number }).protocolVersion !== 4)
+      throw new Error("A verified v4 deployment is required for this release.");
     const schema = releaseDataSchema(product.id, deployment.contractAddress);
     const db = createPostgresDatabase(connection, schema);
     database = {

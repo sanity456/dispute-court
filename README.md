@@ -6,16 +6,16 @@ Dispute Court is an independent bilateral escrow-resolution product. Party B acc
 
 The repository includes the contracts, their tests, and the complete app in `frontend/`. The public evaluator build is at [dispute-court-studionet.vercel.app](https://dispute-court-studionet.vercel.app/); deployment evidence and remaining acceptance checks are in [Release status](RELEASE_STATUS.md).
 
-## Security-fixed v3 Studionet contracts
+## Current v4 Studionet contracts
 
-- Contract: `contracts/dispute_court_v3.py`
-- Evidence helper: `contracts/evidence_capture_v3.py`
-- Direct tests: `tests/test_dispute_court_v3.py` plus the v3 security regressions
-- Opt-in deployment smoke test: `tests/test_integration_v3.py`
+- Contract: `contracts/dispute_court_v4.py`
+- Evidence helper: `contracts/evidence_capture_v4.py`
+- Direct tests: `tests/test_dispute_court_v4.py` plus the v4 security regressions
+- Opt-in full-consensus test: `tests/test_integration_v4.py`
 - Web app: `frontend/`
-- Security boundaries and rollout: `ARCHITECTURE_V3.md` and `SUBMISSION_CHECKLIST.md`
+- Decision boundary and rollout: `ARCHITECTURE_V4.md` and `SUBMISSION_CHECKLIST.md`
 
-`contracts/micro_dispute_court.py` is the audited legacy prototype and remains only for regression comparison.
+The v3 and earlier contracts remain immutable historical records and regression fixtures. Do not create new agreements on them.
 
 ## Contract checks from a fresh checkout
 
@@ -27,20 +27,20 @@ py -3.12 -m venv .venv
 .venv\Scripts\python.exe scripts/check_contracts.py
 ```
 
-On macOS/Linux, use `python3.12 -m venv .venv` and `.venv/bin/python` for the same install/check commands. No parent-workspace environment is required. The check script lints first, disables auto-loaded CLI plugins, and runs only mocked v3 tests. Add `--legacy` to include historical direct-mode regressions. It never sends transactions or clears artifact directories. Contract source is pinned to LF line endings by `.gitattributes` so byte-for-byte deployment verification survives a fresh checkout.
+On macOS/Linux, use `python3.12 -m venv .venv` and `.venv/bin/python` for the same install/check commands. No parent-workspace environment is required. The check script lints first, disables auto-loaded CLI plugins, and runs the complete mocked v4 suite. Add `--legacy` to include historical direct-mode regressions. It never sends transactions or clears artifact directories. Contract source is pinned to LF line endings by `.gitattributes` so byte-for-byte deployment verification survives a fresh checkout.
 
 Public CI runs both opt-in integration cases against an isolated, deterministic five-validator GLSim instance on Ubuntu; it does not send a public-network transaction. A hosted Studionet smoke test is separate and requires explicit authorization to create new test contracts:
 
 ```powershell
-$env:RUN_GENLAYER_V3_INTEGRATION='1'
-.venv\Scripts\gltest.exe tests/test_integration_v3.py --network studionet -v -s
+$env:RUN_GENLAYER_V4_INTEGRATION='1'
+.venv\Scripts\gltest.exe tests/test_integration_v4.py --network studionet -v -s
 ```
 
 The hosted smoke test covers deployment/configuration, not complete live AI adjudication or wallet acceptance. Keep the hosted-network command out of ordinary CI; the isolated GLSim cases are already included there.
 
 ## Web app
 
-The verified **v3** Studionet core is configured in `frontend/lib/deployment.json`: `0x49CE252a7b8a085Ef9B859F82bD55Af1eC601BEe` on chain 61999, with its own verified v3 evidence helper in `frontend/lib/evidence-deployment.json`. The RPC is `https://studio.genlayer.com/api`. Browser and server share these manifests; address/RPC environment overrides are not used. Vercel storage is bound to this product and core address in its own v3 Neon schema. The old manifests are archived as `*-v2.json`; the previous protected deployment and its records are preserved. Live read failures never substitute sample data.
+The verified **v4** Studionet core is configured in `frontend/lib/deployment.json`: `0xC49ED63ddc1685850aAF5d5e85986c1bCedBe8b5` on chain 61999, with its own verified v4 evidence helper `0x4E13Da8eF88E75Eb1a6c2A1BB4180b69f78a916f`. The RPC is `https://studio.genlayer.com/api`. Browser and server share these manifests; address/RPC environment overrides are not used. Vercel storage is bound to this product and core address in its own v4 Neon schema. Prior manifests and their records are preserved. Live read failures never substitute sample data.
 
 ```powershell
 cd frontend
@@ -55,7 +55,7 @@ The app exposes distinct Case, Agreement, Agreement Builder, and Owner experienc
 
 ## Public-money warning
 
-The prototype and v2 contracts are historical and have known limitations; do not create new commitments on them. v3 addresses the reported code issues and is deployed on Studionet, but has not been independently audited. Current verification evidence and the remaining acceptance, privacy, monitoring, key-custody and external-review gates are listed in [Release status](RELEASE_STATUS.md).
+v3 and earlier contracts are historical and have known limitations; do not create new agreements on them. v4 removes model-selected payout direction and derives money deterministically from Party B's named performance level. It is deployed and source-matched on Studionet, but has not been independently audited. Current evidence and the remaining acceptance, monitoring, key-custody and external-review gates are listed in [Release status](RELEASE_STATUS.md).
 
 ## Live lifecycle verification
 
@@ -70,4 +70,4 @@ This explicitly opt-in harness creates labeled Studionet-only test records with 
 
 The source-backed court harness exercises bilateral acceptance, native-value funding, response, actual public-page capture, evidence-based adjudication and payout delivery. The separate `verify-studionet.mjs` harness covers the evidence-empty fallback path.
 
-See [Release status](RELEASE_STATUS.md) and [the latest end-to-end verification record](frontend/verification/end-to-end-2026-08-30.md) for verified scope and remaining product work.
+See [Release status](RELEASE_STATUS.md) and [the human v3 finding that required v4](frontend/verification/human-wallet-e2e-2026-09-05.md) for verified scope and remaining product work.

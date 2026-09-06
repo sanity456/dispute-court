@@ -8,9 +8,7 @@ export const product: {
 } = {
   id: "dispute-court",
   name: "Dispute Court",
-  origin:
-    process.env.NEXT_PUBLIC_SITE_ORIGIN ??
-    "https://dispute-court-genlayer.blazekingsley2.chatgpt.site",
+  origin: "https://dispute-court-studionet.vercel.app",
   recordPath: "agreements",
   listMethod: "list_agreements",
   detailMethod: "get_agreement",

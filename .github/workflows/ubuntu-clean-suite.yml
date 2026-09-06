@@ -25,6 +25,7 @@ jobs:
       PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
       RUN_GENLAYER_INTEGRATION: "0"
       RUN_GENLAYER_V3_INTEGRATION: "0"
+      RUN_GENLAYER_V4_INTEGRATION: "0"
 
     steps:
       - name: Check out the complete repository
@@ -56,13 +57,14 @@ jobs:
           -p gltest.direct.pytest_plugin
           -p no:cacheprovider
           -vv -s --tb=short
-          tests/test_security_court_v3.py::test_repeated_ai_failures_cannot_block_fee_free_timeout
-          tests/test_security_court_v3.py::test_timeout_needs_no_successful_ai_call_and_deadline_never_extends
+          tests/test_security_court_v4.py::test_repeated_ai_failures_cannot_block_fee_free_timeout
+          tests/test_security_court_v4.py::test_timeout_needs_no_successful_ai_call_and_deadline_never_extends
 
       - name: Run every opt-in consensus test against isolated GLSim
         env:
           RUN_GENLAYER_INTEGRATION: "1"
           RUN_GENLAYER_V3_INTEGRATION: "1"
+          RUN_GENLAYER_V4_INTEGRATION: "1"
         run: |
           glsim \
             --host 127.0.0.1 \
@@ -92,6 +94,7 @@ jobs:
           if ! env -u PYTEST_DISABLE_PLUGIN_AUTOLOAD gltest \
               tests/test_integration_v2.py \
               tests/test_integration_v3.py \
+              tests/test_integration_v4.py \
               --network localnet \
               -v -s; then
             cat /tmp/dispute-court-glsim.log

@@ -18,7 +18,12 @@ import {
 } from "./wallet-auth-client";
 import { assertLoginWallet } from "./wallet-login";
 import type { WalletSession } from "./wallet-auth-policy";
-import { recoverOutbox, saveSubmittedHash, walletRejected } from "./recovery";
+import {
+  recoverOutbox,
+  saveSubmittedHash,
+  userFacingError,
+  walletRejected,
+} from "./recovery";
 import type { Intent } from "./activity-model";
 import { isRecoveryMethod, isSecurityRelease } from "./release-policy";
 export type Notice = {
@@ -62,6 +67,7 @@ export function useProtocol(listMethod: string) {
   const [sessionError, setSessionError] = useState("");
   const busyRef = useRef(false);
   const identityEpoch = useRef(0);
+  const sessionReasonRef = useRef("");
   const refresh = useCallback(() => setRevision((value) => value + 1), []);
   const clearAccount = useCallback(() => {
     identityEpoch.current++;
@@ -87,7 +93,7 @@ export function useProtocol(listMethod: string) {
       if (stale()) return;
       if (!auth.authenticated || !auth.wallet) {
         clearAccount();
-        setSessionError("Sign in to continue.");
+        setSessionError(sessionReasonRef.current || "Sign in to continue.");
         return;
       }
       if (window.ethereum) {
@@ -96,9 +102,9 @@ export function useProtocol(listMethod: string) {
         } catch {
           if (stale()) return;
           clearAccount();
-          setSessionError(
-            "Your connected wallet changed. Sign in again to continue.",
-          );
+          sessionReasonRef.current =
+            "Wallet or network changed. Sign in again to continue.";
+          setSessionError(sessionReasonRef.current);
           if (!isWalletLoginPending()) await logoutWallet();
           return;
         }
@@ -110,6 +116,7 @@ export function useProtocol(listMethod: string) {
       value.expiresAt = auth.expiresAt;
       setSession(value);
       setWallet(window.ethereum ? value.wallet : "");
+      sessionReasonRef.current = "";
       setSessionError("");
       void recoverOutbox(value.wallet).then((result) => {
         if (!stale() && result.pending)
@@ -177,8 +184,10 @@ export function useProtocol(listMethod: string) {
   }, [wallet, revision, session?.wallet]);
   useEffect(() => {
     const changed = () => {
+      sessionReasonRef.current =
+        "Wallet or network changed. Sign in again to continue.";
       clearAccount();
-      setSessionError("Wallet or network changed. Sign in again to continue.");
+      setSessionError(sessionReasonRef.current);
       if (!isWalletLoginPending())
         void logoutWallet().catch((failure) =>
           setSessionError(
@@ -187,10 +196,10 @@ export function useProtocol(listMethod: string) {
         );
     };
     const invalid = () => {
+      sessionReasonRef.current ||=
+        "Your wallet session ended or changed. Sign in again to continue.";
       clearAccount();
-      setSessionError(
-        "Your wallet session ended or changed. Sign in again to continue.",
-      );
+      setSessionError(sessionReasonRef.current);
     };
     const updated = () => {
       clearAccount();
@@ -202,6 +211,11 @@ export function useProtocol(listMethod: string) {
       if (!isWalletLoginPending()) refresh();
     };
     window.addEventListener("focus", focused);
+    const visible = () => {
+      if (document.visibilityState === "visible" && !isWalletLoginPending())
+        refresh();
+    };
+    document.addEventListener("visibilitychange", visible);
     const provider = window.ethereum;
     provider?.on?.("accountsChanged", changed);
     provider?.on?.("chainChanged", changed);
@@ -218,6 +232,7 @@ export function useProtocol(listMethod: string) {
       unsubscribe();
       window.removeEventListener(SESSION_INVALID_EVENT, invalid);
       window.removeEventListener("focus", focused);
+      document.removeEventListener("visibilitychange", visible);
       provider?.removeListener?.("accountsChanged", changed);
       provider?.removeListener?.("chainChanged", changed);
       provider?.removeListener?.("disconnect", changed);
@@ -229,10 +244,10 @@ export function useProtocol(listMethod: string) {
     if (!session?.expiresAt) return;
     const timer = window.setTimeout(
       () => {
+        sessionReasonRef.current =
+          "Your wallet session expired. Sign in again to continue.";
         clearAccount();
-        setSessionError(
-          "Your wallet session expired. Sign in again to continue.",
-        );
+        setSessionError(sessionReasonRef.current);
       },
       Math.max(0, session.expiresAt - Date.now()),
     );
@@ -242,6 +257,8 @@ export function useProtocol(listMethod: string) {
     if (busyRef.current) return;
     busyRef.current = true;
     setBusy("Sign in with wallet");
+    sessionReasonRef.current = "";
+    setSessionError("");
     try {
       await loginWithWallet();
       refresh();
@@ -446,5 +463,5 @@ export function useProtocol(listMethod: string) {
 }
 export type Protocol = ReturnType<typeof useProtocol>;
 export function errorMessage(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
+  return userFacingError(error);
 }
