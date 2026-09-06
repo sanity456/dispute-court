@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   contractAddress,
@@ -27,6 +27,11 @@ import { HelpPanel } from "./HelpPanel";
 import { OwnerDesk } from "./OwnerDesk";
 import { PublishReview, type PublishDraft } from "./PublishReview";
 import { templates } from "../lib/templates";
+import {
+  agreementReviewKey,
+  detailIsFresh,
+  workspaceIdentity,
+} from "../lib/workspace-review";
 
 type Tab =
   "cases" | "agreements" | "mywork" | "create" | "activity" | "help" | "owner";
@@ -114,7 +119,7 @@ export default function ProductHome({
   const protocol = useProtocol("list_agreements");
   return (
     <ProductWorkspace
-      key={protocol.session?.wallet ?? "signed-out"}
+      key={workspaceIdentity(protocol.session)}
       protocol={protocol}
       initialId={initialId}
     />
@@ -152,13 +157,14 @@ function ProductWorkspace({
   }
   const [detail, setDetail] = useState<{
     key: string;
+    revision: number;
     agreement: Agreement;
     attempt: Record<string, unknown> | null;
   } | null>(null);
   const [detailError, setDetailError] = useState("");
-  const [reviewed, setReviewed] = useState(false);
-  const [settlementConfirmed, setSettlementConfirmed] = useState(false);
-  const [evidenceReady, setEvidenceReady] = useState(false);
+  const [reviewedKey, setReviewedKey] = useState("");
+  const [settlementKey, setSettlementKey] = useState("");
+  const [evidenceKey, setEvidenceKey] = useState("");
   const [evidenceCycle, setEvidenceCycle] = useState(0);
   const agreements = useMemo(
     () =>
@@ -172,24 +178,37 @@ function ProductWorkspace({
     [protocol.items, protocol.session?.preferences],
   );
   const agreementId = selectedId || agreements[0]?.id || "";
-  const detailKey = [agreementId, protocol.revision].join("|");
-  const selected = detail?.key === detailKey ? detail : null;
+  const selected = detail?.key === agreementId ? detail : null;
   const agreement = selected?.agreement;
+  const reviewKey = agreementReviewKey(agreement);
+  const reviewed = Boolean(reviewKey && reviewedKey === reviewKey);
+  const settlementConfirmed = Boolean(reviewKey && settlementKey === reviewKey);
+  const evidenceReady = Boolean(reviewKey && evidenceKey === reviewKey);
+  const onEvidenceReview = useCallback(
+    (checked: boolean) => setEvidenceKey(checked ? reviewKey : ""),
+    [reviewKey],
+  );
+  const detailFresh = detailIsFresh(
+    selected,
+    agreementId,
+    protocol.revision,
+    detailError,
+  );
   const role = agreement ? agreementRole(agreement, wallet) : "visitor";
   const actions = agreement ? agreementActions(agreement, wallet, now) : null;
   const owner = String(config?.owner ?? "");
   const isOwner = Boolean(
     wallet && owner && wallet.toLowerCase() === owner.toLowerCase(),
   );
-  const disabled = Boolean(busy) || !ready;
+  const disabled =
+    Boolean(busy) ||
+    !ready ||
+    (tab === "cases" && Boolean(agreementId) && !detailFresh);
   const pendingFeeAt = Number(config?.pending_fee_effective_at ?? 0);
 
   useEffect(() => {
     let cancelled = false;
     const task = window.setTimeout(async () => {
-      setReviewed(false);
-      setSettlementConfirmed(false);
-      setEvidenceReady(false);
       setDetailError("");
       if (!agreementId || !isLiveConfigured || !protocol.session?.signedIn)
         return;
@@ -206,7 +225,12 @@ function ProductWorkspace({
             )
           : null;
         if (!cancelled)
-          setDetail({ key: detailKey, agreement: value, attempt });
+          setDetail({
+            key: agreementId,
+            revision: protocol.revision,
+            agreement: value,
+            attempt,
+          });
       } catch (failure) {
         if (!cancelled) setDetailError(errorMessage(failure));
       }
@@ -215,23 +239,15 @@ function ProductWorkspace({
       cancelled = true;
       window.clearTimeout(task);
     };
-  }, [agreementId, detailKey, protocol.session?.signedIn]);
-  useEffect(() => {
-    const task = window.setTimeout(() => {
-      setReviewed(false);
-      setSettlementConfirmed(false);
-      setEvidenceReady(false);
-    }, 0);
-    return () => window.clearTimeout(task);
-  }, [wallet]);
+  }, [agreementId, protocol.revision, protocol.session?.signedIn]);
 
   function openAgreement(id: string) {
     if (!id) return;
     router.push("/agreements/" + encodeURIComponent(id));
     setSelectedId(id);
-    setReviewed(false);
-    setSettlementConfirmed(false);
-    setEvidenceReady(false);
+    setReviewedKey("");
+    setSettlementKey("");
+    setEvidenceKey("");
     setTab("cases");
   }
   async function createAgreement(event: FormEvent<HTMLFormElement>) {
@@ -310,6 +326,7 @@ function ProductWorkspace({
   }
   async function evidence(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (disabled || !evidenceReady) return;
     if (!agreement || !actions?.evidence) return;
     const form = event.currentTarget;
     const data = new FormData(form);
@@ -339,7 +356,7 @@ function ProductWorkspace({
         digest,
       ]);
       if (committed) {
-        setEvidenceReady(false);
+        setEvidenceKey("");
         setEvidenceCycle((value) => value + 1);
         form.reset();
       }
@@ -629,13 +646,19 @@ function ProductWorkspace({
                 Withdraw credit
               </button>
             </div>
-            {detailError ? (
+            {detailError && (
               <div className="mt-6" role="alert">
-                <Empty title="Agreement could not be loaded">
+                <Empty title="Could not refresh this agreement. Actions are paused.">
                   {detailError}
                 </Empty>
               </div>
-            ) : !agreement ? (
+            )}
+            {agreement && !detailFresh && !detailError && (
+              <p className="mt-4 text-sm text-[#60756e]" role="status">
+                Checking latest state… Your draft is kept; actions are paused.
+              </p>
+            )}
+            {!agreement ? (
               <div className="mt-6">
                 <Empty
                   title={
@@ -648,7 +671,10 @@ function ProductWorkspace({
                 </Empty>
               </div>
             ) : (
-              <div className="mt-7 grid items-start gap-6 lg:grid-cols-[1.15fr_.85fr]">
+              <div
+                key={agreement.id}
+                className="mt-7 grid items-start gap-6 lg:grid-cols-[1.15fr_.85fr]"
+              >
                 <div className="space-y-6">
                   <article className="court-surface p-6 sm:p-8">
                     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -758,7 +784,10 @@ function ProductWorkspace({
                             className="mt-1"
                             type="checkbox"
                             checked={reviewed}
-                            onChange={(e) => setReviewed(e.target.checked)}
+                            disabled={disabled}
+                            onChange={(e) =>
+                              setReviewedKey(e.target.checked ? reviewKey : "")
+                            }
                           />
                           <span>
                             I reviewed the parties, exact{" "}
@@ -1038,8 +1067,9 @@ function ProductWorkspace({
                           type="checkbox"
                           className="mt-1"
                           checked={settlementConfirmed}
+                          disabled={disabled}
                           onChange={(e) =>
-                            setSettlementConfirmed(e.target.checked)
+                            setSettlementKey(e.target.checked ? reviewKey : "")
                           }
                         />
                         <span>
@@ -1074,6 +1104,7 @@ function ProductWorkspace({
                       className="court-surface space-y-4 p-6"
                       onSubmit={(e) => {
                         e.preventDefault();
+                        if (disabled) return;
                         void transact("Open dispute", "open_dispute", [
                           agreement.id,
                           String(new FormData(e.currentTarget).get("claim")),
@@ -1107,6 +1138,7 @@ function ProductWorkspace({
                       className="court-surface space-y-4 p-6"
                       onSubmit={(e) => {
                         e.preventDefault();
+                        if (disabled) return;
                         void transact(
                           "Respond to dispute",
                           "respond_to_dispute",
@@ -1155,7 +1187,9 @@ function ProductWorkspace({
                       <EvidenceCapture
                         key={agreement.id + "|" + wallet + "|" + evidenceCycle}
                         protocol={protocol}
-                        onReviewChange={setEvidenceReady}
+                        disabled={disabled}
+                        reviewContext={reviewKey}
+                        onReviewChange={onEvidenceReview}
                       />
                       <p className="text-xs leading-6 text-[#70817c]">
                         Public evidence only. URLs, notes and digests are

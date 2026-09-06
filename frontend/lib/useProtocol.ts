@@ -65,6 +65,8 @@ export function useProtocol(listMethod: string) {
   const [now, setNow] = useState(0);
   const [session, setSession] = useState<ProductSession | null>(null);
   const [sessionError, setSessionError] = useState("");
+  const [sessionRevision, setSessionRevision] = useState(-1);
+  const [dataRevision, setDataRevision] = useState(-1);
   const busyRef = useRef(false);
   const identityEpoch = useRef(0);
   const sessionReasonRef = useRef("");
@@ -73,6 +75,8 @@ export function useProtocol(listMethod: string) {
     identityEpoch.current++;
     setExpectedWallet("");
     setSession(null);
+    setSessionRevision(-1);
+    setDataRevision(-1);
     setWallet("");
     setItems([]);
     setTotal(0);
@@ -115,14 +119,15 @@ export function useProtocol(listMethod: string) {
       if (stale()) return;
       value.expiresAt = auth.expiresAt;
       setSession(value);
+      setSessionRevision(revision);
       setWallet(window.ethereum ? value.wallet : "");
       sessionReasonRef.current = "";
       setSessionError("");
-      void recoverOutbox(value.wallet).then((result) => {
+      void recoverOutbox(value.wallet, value.coreAddress).then((result) => {
         if (!stale() && result.pending)
           setNotice({
             kind: "info",
-            text: "A transaction hash is saved on this device but has not reached your account history. Keep this page open or check Activity before repeating the action.",
+            text: "A saved transaction needs recovery. Check Activity before repeating the action.",
           });
       });
     })().catch((failure) => {
@@ -153,6 +158,7 @@ export function useProtocol(listMethod: string) {
         setTotal(Number(result.total ?? 0));
         setStats(record(statistics));
         setConfig(record(configuration));
+        setDataRevision(revision);
       } catch (failure) {
         if (!cancelled) setError(errorMessage(failure));
       } finally {
@@ -263,7 +269,10 @@ export function useProtocol(listMethod: string) {
       await loginWithWallet();
       refresh();
     } catch (failure) {
-      setNotice({ kind: "error", text: errorMessage(failure) });
+      const reason = errorMessage(failure);
+      sessionReasonRef.current = reason;
+      setSessionError(reason);
+      setNotice({ kind: "error", text: reason });
     } finally {
       busyRef.current = false;
       setBusy("");
@@ -287,6 +296,15 @@ export function useProtocol(listMethod: string) {
       if (epoch === identityEpoch.current) setLoading(false);
     }
   }
+  const ready =
+    isLiveConfigured &&
+    Boolean(session?.signedIn) &&
+    Boolean(wallet && wallet === session?.wallet) &&
+    Boolean(config) &&
+    sessionRevision === revision &&
+    dataRevision === revision &&
+    !error &&
+    !loading;
   async function transact(
     title: string,
     method: string,
@@ -302,6 +320,10 @@ export function useProtocol(listMethod: string) {
     const epoch = identityEpoch.current;
     const current = () => epoch === identityEpoch.current;
     try {
+      if (!ready)
+        throw new Error(
+          "Wait for the latest wallet and contract checks before submitting.",
+        );
       const account = wallet;
       if (
         !session?.signedIn ||
@@ -367,7 +389,12 @@ export function useProtocol(listMethod: string) {
           target,
           onSubmitted: async (hash) => {
             submittedHash = hash;
-            await saveSubmittedHash(intentId, hash, account);
+            await saveSubmittedHash(
+              intentId,
+              hash,
+              account,
+              session.coreAddress,
+            );
           },
         },
       );
@@ -396,7 +423,12 @@ export function useProtocol(listMethod: string) {
       if (intent) {
         if (hash) {
           try {
-            await saveSubmittedHash(intent.id, hash, intent.wallet);
+            await saveSubmittedHash(
+              intent.id,
+              hash,
+              intent.wallet,
+              session!.coreAddress,
+            );
           } catch {
             /* Recovery outbox retains the hash. */
           }
@@ -452,13 +484,7 @@ export function useProtocol(listMethod: string) {
     more,
     transact,
     setNotice,
-    ready:
-      isLiveConfigured &&
-      Boolean(session?.signedIn) &&
-      Boolean(wallet && wallet === session?.wallet) &&
-      Boolean(config) &&
-      !error &&
-      !loading,
+    ready,
   };
 }
 export type Protocol = ReturnType<typeof useProtocol>;

@@ -12,16 +12,21 @@ export function EvidenceCapture({
   protocol,
   urlName = "url",
   digestName = "digest",
+  disabled = false,
+  reviewContext = "",
   onReviewChange,
 }: {
   protocol: Protocol;
   urlName?: string;
   digestName?: string;
+  disabled?: boolean;
+  reviewContext?: string;
   onReviewChange?: (ready: boolean) => void;
 }) {
   const [url, setUrl] = useState("");
   const [capture, setCapture] = useState<Capture | null>(null);
-  const [reviewed, setReviewed] = useState(false);
+  const [reviewedContext, setReviewedContext] = useState<string | null>(null);
+  const reviewed = reviewedContext === reviewContext;
   const [error, setError] = useState("");
   const [working, setWorking] = useState(false);
   const [recoveryId, setRecoveryId] = useState("");
@@ -53,9 +58,10 @@ export function EvidenceCapture({
       );
     setCapture(value);
     setUrl(value.url);
-    setReviewed(false);
+    setReviewedContext(null);
   }
   async function create() {
+    if (disabled || working || !protocol.ready || protocol.busy) return;
     setError("");
     setWorking(true);
     try {
@@ -90,7 +96,7 @@ export function EvidenceCapture({
           onChange={(e) => {
             setUrl(e.target.value);
             setCapture(null);
-            setReviewed(false);
+            setReviewedContext(null);
           }}
         />
       </label>
@@ -102,6 +108,7 @@ export function EvidenceCapture({
         className="product-button"
         type="button"
         disabled={
+          disabled ||
           working ||
           Boolean(protocol.busy) ||
           !protocol.ready ||
@@ -138,7 +145,10 @@ export function EvidenceCapture({
             <input
               type="checkbox"
               checked={reviewed}
-              onChange={(e) => setReviewed(e.target.checked)}
+              disabled={disabled || working}
+              onChange={(e) =>
+                setReviewedContext(e.target.checked ? reviewContext : null)
+              }
             />
             <span>I reviewed this public text and it supports my proof.</span>
           </label>

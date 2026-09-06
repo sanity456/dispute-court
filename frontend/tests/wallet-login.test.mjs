@@ -12,7 +12,11 @@ import {
   SESSION_TTL_MS,
 } from "../lib/wallet-auth-policy.ts";
 import { productApi, setExpectedWallet } from "../lib/client.ts";
-import { rememberHash, recoverOutbox } from "../lib/recovery.ts";
+import {
+  rememberHash,
+  recoverOutbox,
+  deviceRecovery,
+} from "../lib/recovery.ts";
 import { product } from "../lib/product.ts";
 import { alice, bob } from "./wallet-auth-helpers.mjs";
 function flow() {
@@ -215,18 +219,35 @@ test("Recovery outboxes are separated by wallet and never auto-import legacy acc
     product.id + ":emergency-hash-outbox:v1",
     JSON.stringify([{ intentId: "legacy-private", hash }]),
   );
-  rememberHash("alice-private", hash, alice.address);
-  assert.deepEqual(await recoverOutbox(bob.address), {
+  const core = "0x" + "cc".repeat(20);
+  const otherCore = "0x" + "dd".repeat(20);
+  const legacyKey =
+    product.id + ":emergency-hash-outbox:v2:" + alice.address.toLowerCase();
+  const legacy = JSON.stringify([{ intentId: "earlier-release", hash }]);
+  values.set(legacyKey, legacy);
+  rememberHash("alice-private", hash, alice.address, core);
+  assert.deepEqual(await recoverOutbox(bob.address, core), {
     recovered: 0,
     pending: 0,
   });
   assert.equal(calls.length, 0);
-  assert.deepEqual(await recoverOutbox(alice.address), {
+  assert.deepEqual(await recoverOutbox(alice.address, otherCore), {
+    recovered: 0,
+    pending: 0,
+  });
+  assert.equal(calls.length, 0);
+  assert.equal(
+    deviceRecovery(alice.address, core).legacy[0].intentId,
+    "earlier-release",
+  );
+  assert.equal(deviceRecovery(bob.address, core).legacy.length, 0);
+  assert.deepEqual(await recoverOutbox(alice.address, core), {
     recovered: 1,
     pending: 0,
   });
   assert.equal(calls.length, 1);
   assert.match(calls[0], /alice-private$/);
+  assert.equal(values.get(legacyKey), legacy);
   assert.ok(
     values
       .get(product.id + ":emergency-hash-outbox:v1")
@@ -248,7 +269,7 @@ test("Both hosting targets use wallet auth and shipped UI has no credential form
   assert.match(ui, /Sign in with wallet/);
   assert.match(
     read("components/ProductHome.tsx"),
-    /key=\{protocol\.session\?\.wallet \?\? "signed-out"\}/,
+    /key=\{workspaceIdentity\(protocol\.session\)\}/,
   );
   assert.match(read("lib/wallet-auth-client.ts"), /await logoutWallet\(\)/);
   assert.match(read("lib/useProtocol.ts"), /subscribeToWalletSession/);

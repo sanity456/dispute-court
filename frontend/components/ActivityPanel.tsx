@@ -16,7 +16,7 @@ import {
 import { errorMessage, type Protocol } from "../lib/useProtocol";
 import { formatGen, shortAddress } from "../lib/genlayer";
 import { exportJson } from "../lib/export";
-import { recoverOutbox } from "../lib/recovery";
+import { deviceRecovery, recoverOutbox } from "../lib/recovery";
 type Page = { items: Intent[]; total: number; offset: number };
 export function ActivityPanel({
   protocol,
@@ -34,11 +34,18 @@ export function ActivityPanel({
   const [error, setError] = useState("");
   const [initial, setInitial] = useState(true);
   const [message, setMessage] = useState("");
+  const [device, setDevice] = useState<ReturnType<typeof deviceRecovery>>({
+    pending: [],
+    legacy: [],
+  });
   const latest = useRef(page.items);
   const requests = useRef({ version: 0 });
   const load = useCallback(async () => {
     const version = ++requests.current.version;
     if (!protocol.session?.signedIn) return;
+    setDevice(
+      deviceRecovery(protocol.session.wallet, protocol.session.coreAddress),
+    );
     if (mine && !protocol.wallet) {
       setPage({ items: [], total: 0, offset: 0 });
       latest.current = [];
@@ -56,7 +63,7 @@ export function ActivityPanel({
     setPage(value);
     latest.current = value.items;
     setInitial(false);
-  }, [offset, mine, protocol.wallet, protocol.session?.signedIn]);
+  }, [offset, mine, protocol.wallet, protocol.session]);
   useEffect(() => {
     const requestState = requests.current;
     let stopped = false;
@@ -149,6 +156,7 @@ export function ActivityPanel({
             void action("refresh", async () => {
               const result = await recoverOutbox(
                 protocol.session?.wallet ?? "",
+                protocol.session?.coreAddress ?? "",
               );
               await load();
               setMessage(
@@ -196,6 +204,71 @@ export function ActivityPanel({
         <p role="status" className="product-muted">
           {message}
         </p>
+      )}
+      {Boolean(device.pending.length || device.legacy.length) && (
+        <details className="product-panel">
+          <summary>
+            Device recovery · {device.pending.length} current,{" "}
+            {device.legacy.length} earlier-release hashes
+          </summary>
+          <p className="product-muted mt-3">
+            Earlier entries did not record their contract. They are kept
+            separately and are not pending requests in this release.
+          </p>
+          <button
+            className="product-button-secondary mt-3"
+            onClick={() =>
+              exportJson("device-recovery.json", {
+                wallet: protocol.session?.wallet,
+                currentCore: protocol.session?.coreAddress,
+                ...device,
+              })
+            }
+          >
+            Export recovery hashes
+          </button>
+          {[
+            ...device.pending.map((entry) => ({ ...entry, legacy: false })),
+            ...device.legacy.map((entry) => ({ ...entry, legacy: true })),
+          ].map((entry) => (
+            <div
+              className="mt-5"
+              key={[entry.legacy, entry.intentId, entry.hash].join("|")}
+            >
+              <p className="product-muted">
+                {entry.legacy
+                  ? "Earlier release · contract not recorded"
+                  : "Current release · journal recovery needed"}
+              </p>
+              <code className="product-hash">{entry.hash}</code>
+              <p className="product-muted">
+                Request: <code>{entry.intentId}</code>
+              </p>
+              <div className="product-toolbar mt-3">
+                <button
+                  className="product-button-secondary"
+                  disabled={Boolean(working)}
+                  onClick={() =>
+                    void action("device:" + entry.hash, async () => {
+                      await productApi("activity/import", { hash: entry.hash });
+                      setMessage(
+                        "Verified against this release and saved in Activity. The device copy is retained; nothing was resent.",
+                      );
+                    })
+                  }
+                >
+                  Check & import this hash
+                </button>
+                <button
+                  className="product-text-button"
+                  onClick={() => onSupport(entry.hash, "")}
+                >
+                  Get help
+                </button>
+              </div>
+            </div>
+          ))}
+        </details>
       )}
       {!page.items.length && (
         <div className="product-panel">
