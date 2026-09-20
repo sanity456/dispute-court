@@ -1,6 +1,6 @@
 # v5 rollout — same app, separate immutable contract
 
-Development checklist, not deployment evidence. No v5 addresses or receipts exist in the release registry yet.
+Rollout checklist, not proof that all gates passed. The separate v5 pair is now finalized and source-verified; see [V5_DEPLOYMENT_EVIDENCE.md](V5_DEPLOYMENT_EVIDENCE.md). Candidate manifests are isolated to staging and a local preview. The primary checkout still defaults to v4.
 
 ## What is implemented locally
 

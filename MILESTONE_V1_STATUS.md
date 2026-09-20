@@ -1,6 +1,6 @@
 # Milestone v1 — Negotiated Settlements (development candidate)
 
-Date: 2026-09-20. **Not deployed, pushed, or submission-ready.**
+Date: 2026-09-20. **Separate v5 candidate deployed and source-verified. Not pushed, production-activated, or submission-ready.**
 
 Same Dispute Court app and repository. The public v4 app, manifests, source and existing agreements are unchanged. The portal's milestone number (v1) is different from the proposed contract version (v5).
 
@@ -34,11 +34,11 @@ The actual local app was opened signed out: current v4 rendered, an unversioned 
 
 ## Release/submission gates still open
 
-1. Deploy and verify the v5 core/helper pair using the implemented tooling, then register only actual finalized deployment manifests. No candidate addresses are registered yet.
+1. Candidate deployment and source verification passed: see [V5_DEPLOYMENT_EVIDENCE.md](V5_DEPLOYMENT_EVIDENCE.md). Candidate registration is isolated to the local preview; production activation remains gated by the checks below.
 2. Validate the implemented same-app v4/v5 release selection and isolated storage on a candidate preview, including real v4 credit recovery and a rollback drill. No transfer or migration of existing escrow.
 3. Run the full funded negotiation/withdrawal lifecycle against a value-capable GenLayer environment. Confirm actual native payout delivery separately from successful settlement/withdrawal transactions.
 4. Review the full app with the release configuration; complete real two-wallet approval/rejection/counteroffer/expiry testing on the candidate deployment.
-5. After authorization: commit and push, require public Ubuntu Actions, deploy/source-match Studionet core and helper, and roll out to Vercel with rollback/recovery checks.
+5. After authorization: push the tested milestone and evidence, require public Ubuntu Actions, reverify the source-matched Studionet pair at the final commit, and roll out to Vercel with rollback/recovery checks.
 6. Open every evidence link signed out. Prepare the portal's <=1,000-character change summary using completed work, immutable commits, exact test inputs/timestamps/reason codes and transaction evidence. User performs final submission.
 
 ## Reproduce locally without touching real wallets
