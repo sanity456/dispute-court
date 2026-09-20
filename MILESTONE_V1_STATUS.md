@@ -30,14 +30,14 @@ Local environment: Windows, Node 24.18.0, pnpm 11.19.0, Python 3.12.14. The requ
 
 The v5 evidence helper, protocol-selected source verifier and candidate-manifest verification are now implemented. V4 source and live manifests remain byte-identical to the baseline. The app has a checked-in release registry, immutable v4 archives, versioned share links, a full-navigation version selector, and release-scoped API/database access. Unversioned old record links stay on v4. Non-default releases permit existing-agreement operations but block new agreement creation. Activation requires a retained v5 entry so rollback can preserve access to both contracts.
 
-The actual local app was opened signed out: current v4 rendered, an unversioned record route stayed on v4, and undeployed v5 was blocked without falling back. Two-release wallet operation still requires a real candidate deployment. See [V5_ROLLOUT.md](V5_ROLLOUT.md) for the explicit activation, rollback and funded-test checklist.
+The initial local app was opened signed out: current v4 rendered, an unversioned record route stayed on v4, and unregistered v5 was blocked without falling back. The separate v5 preview has since passed the funded two-wallet happy-path cycle, including exact native deliveries. See [V5_HUMAN_WALLET_EVIDENCE.md](V5_HUMAN_WALLET_EVIDENCE.md). The full two-release/rollback checks remain open.
 
 ## Release/submission gates still open
 
 1. Candidate deployment and source verification passed: see [V5_DEPLOYMENT_EVIDENCE.md](V5_DEPLOYMENT_EVIDENCE.md). Candidate registration is isolated to the local preview; production activation remains gated by the checks below.
 2. Validate the implemented same-app v4/v5 release selection and isolated storage on a candidate preview, including real v4 credit recovery and a rollback drill. No transfer or migration of existing escrow.
-3. Run the full funded negotiation/withdrawal lifecycle against a value-capable GenLayer environment. Confirm actual native payout delivery separately from successful settlement/withdrawal transactions.
-4. Review the full app with the release configuration; complete real two-wallet approval/rejection/counteroffer/expiry testing on the candidate deployment.
+3. Funded negotiation happy-path cycle passed on Studionet: 1,000 wei funded, numbered offer/counteroffer, 330/670 credit split with zero fee, both exact native transfers delivered, both remaining credits zero. The evidence bundle includes exact decoded inputs/outputs and stored timestamps.
+4. Review the full app with the release configuration; finish live on-chain offer rejection/cancellation/expiry and guard cases. Wallet-popup cancellations and the happy-path counteroffer are verified, but do not replace these remaining tests.
 5. After authorization: push the tested milestone and evidence, require public Ubuntu Actions, reverify the source-matched Studionet pair at the final commit, and roll out to Vercel with rollback/recovery checks.
 6. Open every evidence link signed out. Prepare the portal's <=1,000-character change summary using completed work, immutable commits, exact test inputs/timestamps/reason codes and transaction evidence. User performs final submission.
 

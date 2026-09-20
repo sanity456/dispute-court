@@ -1,0 +1,673 @@
+{
+  "scope": "Dispute Court v5 funded negotiation happy-path cycle; not all milestone gates",
+  "evidence": {
+    "deployment.json": {
+      "network": "studionet",
+      "chainId": 61999,
+      "rpcUrl": "https://studio.genlayer.com/api",
+      "contractAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "ownerAddress": "0x91B1b2D1f2De66400fcbeAEbadB8a5330eB28DC0",
+      "deploymentTransaction": "0x38525d640fc22bc79be1f57726f62ce2f1295a9f956a4ffd1fa0dfe5a76de2dd",
+      "protocolVersion": 5,
+      "sourceSha256": "29a8184b3050bc1cfb434d319ad8631e0d75f61a915248abece1a2a4c9c4d7c7"
+    },
+    "evidence-deployment.json": {
+      "contractAddress": "0x7547521fA84Df53f0C02BCdb9A60C323819F00b3",
+      "deploymentTransaction": "0x098b3482e6dd59d3c6a14eeef3ca890f4d43c9b2e2315d8e0a92d02e9a133434",
+      "network": "studionet",
+      "chainId": 61999,
+      "protocolVersion": 5,
+      "sourceSha256": "77f9f8572016015395df28daaa6f419441d0d7cc632e2f603a19d16a7398622a"
+    },
+    "human-wallet-test.json": {
+      "status": "Funded negotiated-settlement happy-path cycle passed, including both finalized native transfers. Additional guard, expiry and rollout tests remain.",
+      "withdrawalBVerificationFile": "withdrawal-b-verification.json",
+      "withdrawalBDelivery": {
+        "nativeTransferHash": "0x928c0f5ec69d295bf17a87f52db1c8b0ac0cd8001f0ef388fae245c9727e271c",
+        "valueWei": "670",
+        "recipient": "0x29b8b7d7cbf534eba01e56919de19d79d1509360",
+        "lifecycle": "FINALIZED",
+        "valueCredited": true,
+        "remainingPartyACreditWei": "0",
+        "remainingPartyBCreditWei": "0"
+      },
+      "withdrawalBHash": "0xb0fc7ce70675936600779a3058dcbdbcee5bf59fad1f38fea737b6b9bac10317",
+      "withdrawalAVerificationFile": "withdrawal-a-verification.json",
+      "withdrawalADelivery": {
+        "nativeTransferHash": "0x2d4fc6fe196083784f24e04885800e3ad41d4d9315b3602920e9d30e75ee3288",
+        "valueWei": "330",
+        "recipient": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+        "lifecycle": "FINALIZED",
+        "valueCredited": true,
+        "remainingPartyACreditWei": "0",
+        "remainingPartyBCreditWei": "670"
+      },
+      "withdrawalAHash": "0xdb4f1a17eab87ec14f11067d23ea5a832b6d199427a8dfe72903b7de80f59629",
+      "settlementVerificationFile": "settlement-verification.json",
+      "settlementResult": {
+        "reasonCode": "MUTUAL_SETTLEMENT_ACCEPTED",
+        "partyACreditDeltaWei": "330",
+        "partyBCreditDeltaWei": "670",
+        "feeWei": "0",
+        "conservationWei": "1000",
+        "resolvedAt": "2026-09-20T23:39:21.176697+00:00",
+        "withdrawalsVerified": true
+      },
+      "settlementAcceptanceHash": "0xd472d14a522e01c7f4c96233833ce0c1c368cee774588c56846961bd27158927",
+      "settlementAcceptanceDraft": {
+        "action": "accept_settlement",
+        "inputs": [
+          "court-v5-human-20260920-01",
+          2
+        ],
+        "expectedReasonCode": "MUTUAL_SETTLEMENT_ACCEPTED",
+        "expectedPartyACreditWei": "330",
+        "expectedPartyBCreditWei": "670",
+        "expectedFeeWei": "0",
+        "consentChecked": false
+      },
+      "counterofferVerificationFile": "offer-2-verification.json",
+      "counterofferHash": "0xf9f3ccc77e21858b8cf2332019ea811ce5aaff0bf50df89f145c0d4b5625df23",
+      "counterofferCancellation": {
+        "journalStatus": "Wallet request cancelled",
+        "journalHashRecorded": false,
+        "agreementStatus": "funded",
+        "escrowWei": "1000",
+        "offerCount": 1,
+        "partyBOfferCount": 0,
+        "currentOfferNumber": 1,
+        "currentOfferPartyBPct": 60,
+        "currentOfferStatus": "pending",
+        "performanceDeadlineUnchanged": true
+      },
+      "counterofferDraft": {
+        "action": "propose_settlement",
+        "inputs": [
+          "court-v5-human-20260920-01",
+          67,
+          3600,
+          1
+        ],
+        "partyAWei": "330",
+        "partyBWei": "670",
+        "feeWei": "0",
+        "consentChecked": false,
+        "transactionSentByAgent": false
+      },
+      "firstProposalVerificationFile": "offer-1-verification.json",
+      "firstProposalHash": "0xc10bd74625f39de8e891ba5edab17fd69e637e222391e5bca63235cf74a2282b",
+      "network": "studionet",
+      "chainId": 61999,
+      "sourceCommit": "51cbb8805887167cbe4b435fcdb705b01e1c7387",
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "helperAddress": "0x7547521fA84Df53f0C02BCdb9A60C323819F00b3",
+      "previewUrl": "http://127.0.0.1:4211/",
+      "partyA": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+      "partyB": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+      "agreementId": "court-v5-human-20260920-01",
+      "draft": {
+        "title": "v5 negotiated settlement wallet test",
+        "summary": "Studionet-only QA agreement. Both parties are test wallets controlled by the tester. No real goods or services are purchased. This fixture tests a 1000-wei escrow, numbered settlement offers, counteroffers, recipient-only acceptance, and withdrawal. Party B may provide a public checklist recording (1) agreement acceptance and funding and (2) negotiated settlement and payout delivery.",
+        "criteria": "For this fictional test fixture: none means neither checklist item is recorded; partial means one item is recorded; full means both items are recorded with their test transaction identifiers. Bilateral settlement reflects an agreed split and does not assert an AI performance finding. Use public test data only.",
+        "amountGen": "0.000000000000001",
+        "amountWei": "1000",
+        "acceptanceDays": 1,
+        "fundingDays": 1,
+        "performanceDays": 1,
+        "responseDays": 1,
+        "evidenceDays": 1
+      },
+      "creationTransferWei": "0",
+      "transactions": [
+        {
+          "action": "create_agreement",
+          "hash": "0xa56540edb0d3bf29db4f649cd7174b44138afcd1d3fbae0a75fbd2561df74b3b",
+          "browserStatus": "ACCEPTED",
+          "executionVerified": true,
+          "verifiedLifecycle": "FINALIZED",
+          "verifiedExecution": "success"
+        },
+        {
+          "action": "accept_agreement",
+          "hash": "0x6da1f1c6e2a25a9fc05ce8ff7e158c0e8dd76fb72ef54f571f9ee8d118ce33e2",
+          "inputs": [
+            "court-v5-human-20260920-01"
+          ],
+          "browserStatus": "ACCEPTED",
+          "executionVerified": true,
+          "verifiedLifecycle": "FINALIZED",
+          "verifiedExecution": "success"
+        }
+      ],
+      "fundingTransaction": {
+        "hash": "0x7e40977d3264157a07324f964d318a7175693af5f6ebc3acf15342c89974da2e",
+        "action": "fund_agreement",
+        "inputs": [
+          "court-v5-human-20260920-01"
+        ],
+        "valueWei": "1000",
+        "verifiedLifecycle": "FINALIZED",
+        "verifiedExecution": "success"
+      },
+      "walletRejectionTest": {
+        "status": "passed: browser cancellation, cancelled journal request without hash, and unchanged finalized contract state",
+        "action": "propose_settlement",
+        "intendedInputs": [
+          "court-v5-human-20260920-01",
+          60,
+          3600,
+          0
+        ],
+        "beforeOfferCount": 0,
+        "expectedAfterOfferCount": 0,
+        "expectedTransactionHash": null,
+        "observedAfterOfferCount": 0,
+        "journalStatus": "Wallet request cancelled",
+        "journalHashRecorded": false,
+        "verificationFile": "wallet-rejection-verification.json"
+      },
+      "chainTimestamps": {
+        "createdAt": "2026-09-20T23:08:50.297752+00:00",
+        "acceptanceDeadline": 1790032130,
+        "acceptedAt": "2026-09-20T23:14:36.716411+00:00",
+        "fundingDeadline": 1790032476,
+        "fundedAt": "2026-09-20T23:20:05.411541+00:00",
+        "performanceDueAt": 1790032805
+      },
+      "fundedLifecyclePassed": true,
+      "passedScope": "Create, accept, exact funding, wallet cancellation, proposal, counteroffer supersession, recipient acceptance, exact credit deltas, both native payout deliveries.",
+      "transactionPayloadBundle": "cycle-transaction-payloads.json",
+      "creditBaselineFile": "credit-baseline.json",
+      "note": "Completed funded negotiation cycle: exactly 1000 wei funded, offer and counteroffer accepted, 330/670 wei allocated with zero fee, and both exact native transfers finalized and credited. Both remaining contract credits are zero. Per-step reports preserve historical snapshots; remaining guard, expiry, recovery and release checks are not claimed as passed."
+    },
+    "credit-baseline.json": {
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "agreementId": "court-v5-human-20260920-01",
+      "stage": "before funding",
+      "credits": [
+        {
+          "account": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+          "creditWei": "0"
+        },
+        {
+          "account": "0x29b8b7d7cbf534eba01e56919de19d79d1509360",
+          "creditWei": "0"
+        }
+      ]
+    },
+    "creation-verification.json": {
+      "hash": "0xa56540edb0d3bf29db4f649cd7174b44138afcd1d3fbae0a75fbd2561df74b3b",
+      "lifecycle": "FINALIZED",
+      "execution": "success",
+      "chainId": 61999,
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "agreementId": "court-v5-human-20260920-01",
+      "partiesAndTermsMatchDraft": true,
+      "amountWei": "1000",
+      "status": "awaiting_acceptance",
+      "createdAt": "2026-09-20T23:08:50.297752+00:00",
+      "acceptanceDeadline": 1790032130,
+      "termsHash": "2360ea6242a072dee64591a0a1bf5e02f45ba1949f17fd74759d2d8d5981010c",
+      "windowSeconds": 86400,
+      "feeBps": 200,
+      "negotiationFeeBps": 0,
+      "note": "Stored contract timestamps; no local-clock eligibility assumption. This is a finalized state read, not the transaction return payload."
+    },
+    "acceptance-verification.json": {
+      "hash": "0x6da1f1c6e2a25a9fc05ce8ff7e158c0e8dd76fb72ef54f571f9ee8d118ce33e2",
+      "lifecycle": "FINALIZED",
+      "execution": "success",
+      "chainId": 61999,
+      "action": "accept_agreement",
+      "inputs": [
+        "court-v5-human-20260920-01"
+      ],
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "partyB": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+      "status": "awaiting_funding",
+      "termsHashUnchanged": true,
+      "amountWei": "1000",
+      "acceptedAt": "2026-09-20T23:14:36.716411+00:00",
+      "fundingDeadline": 1790032476,
+      "funded": false,
+      "note": "Finalized state read using stored chain timestamps. Transaction return payload not captured here."
+    },
+    "funding-verification.json": {
+      "hash": "0x7e40977d3264157a07324f964d318a7175693af5f6ebc3acf15342c89974da2e",
+      "lifecycle": "FINALIZED",
+      "execution": "success",
+      "chainId": 61999,
+      "action": "fund_agreement",
+      "inputs": [
+        "court-v5-human-20260920-01"
+      ],
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "amountWei": "1000",
+      "status": "funded",
+      "fundedAt": "2026-09-20T23:20:05.411541+00:00",
+      "performanceDueAt": 1790032805,
+      "termsHashUnchanged": true,
+      "settlementOfferCount": 0,
+      "amountProof": "The source-verified payable fund method requires message.value to equal the immutable 1000-wei amount before recording funded state.",
+      "note": "Finalized state read; stored chain timestamps. Transaction return payload is not captured here."
+    },
+    "wallet-rejection-verification.json": {
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "agreementId": "court-v5-human-20260920-01",
+      "status": "funded",
+      "amountWei": "1000",
+      "offerCount": 0,
+      "termsAndPerformanceDeadlineUnchanged": true,
+      "partyQuotasUnchanged": true,
+      "creditsUnchanged": true,
+      "browserObservedMessage": "Wallet request cancelled. Nothing was sent. Open Activity to review the saved request before submitting again.",
+      "note": "Finalized contract state comparison after wallet cancellation; not an on-chain offer rejection. Journal no-hash evidence is recorded separately."
+    },
+    "offer-1-verification.json": {
+      "hash": "0xc10bd74625f39de8e891ba5edab17fd69e637e222391e5bca63235cf74a2282b",
+      "lifecycle": "FINALIZED",
+      "execution": "success",
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "action": "propose_settlement",
+      "inputs": [
+        "court-v5-human-20260920-01",
+        60,
+        3600,
+        0
+      ],
+      "offer": {
+        "number": 1,
+        "proposer": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+        "recipient": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+        "partyAPct": 40,
+        "partyBPct": 60,
+        "partyAWei": "400",
+        "partyBWei": "600",
+        "feeWei": "0",
+        "status": "pending",
+        "reasonCode": "OFFER_PROPOSED",
+        "createdAt": 1789946836,
+        "expiresAt": 1789950436,
+        "effectiveExpiresAt": 1789950436
+      },
+      "agreementStatus": "funded",
+      "performanceDeadlineUnchanged": true,
+      "offerCount": 1,
+      "partyAOfferCount": 1,
+      "partyBOfferCount": 0,
+      "note": "Finalized contract view; stored chain timestamps. Proposal is not yet accepted and pays neither party."
+    },
+    "offer-2-verification.json": {
+      "hash": "0xf9f3ccc77e21858b8cf2332019ea811ce5aaff0bf50df89f145c0d4b5625df23",
+      "lifecycle": "FINALIZED",
+      "execution": "success",
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "action": "propose_settlement",
+      "inputs": [
+        "court-v5-human-20260920-01",
+        67,
+        3600,
+        1
+      ],
+      "offer": {
+        "number": 2,
+        "proposer": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+        "recipient": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+        "partyAPct": 33,
+        "partyBPct": 67,
+        "partyAWei": "330",
+        "partyBWei": "670",
+        "feeWei": "0",
+        "status": "pending",
+        "reasonCode": "OFFER_PROPOSED",
+        "createdAt": 1789947325,
+        "expiresAt": 1789950925,
+        "effectiveExpiresAt": 1789950925
+      },
+      "previousOffer": {
+        "number": 1,
+        "status": "superseded",
+        "reasonCode": "OFFER_SUPERSEDED",
+        "closedAt": 1789947325,
+        "closedBy": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360"
+      },
+      "agreementStatus": "funded",
+      "performanceDeadlineUnchanged": true,
+      "noSettlementAllocationYet": true,
+      "offerCount": 2,
+      "partyAOfferCount": 1,
+      "partyBOfferCount": 1,
+      "note": "Finalized contract views; stored chain timestamps. Counteroffer is pending recipient acceptance, not a completed settlement."
+    },
+    "settlement-verification.json": {
+      "hash": "0xd472d14a522e01c7f4c96233833ce0c1c368cee774588c56846961bd27158927",
+      "lifecycle": "FINALIZED",
+      "execution": "success",
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "action": "accept_settlement",
+      "inputs": [
+        "court-v5-human-20260920-01",
+        2
+      ],
+      "agreementStatus": "resolved",
+      "acceptedOfferNumber": 2,
+      "reasonCode": "MUTUAL_SETTLEMENT_ACCEPTED",
+      "resolutionType": "cooperative_negotiated",
+      "performanceLevel": "not_evaluated",
+      "partyAWei": "330",
+      "partyBWei": "670",
+      "feeWei": "0",
+      "conservationWei": "1000",
+      "resolvedAt": "2026-09-20T23:39:21.176697+00:00",
+      "offerClosedAt": 1789947561,
+      "offerEffectiveExpiry": 1789950925,
+      "termsHashUnchanged": true,
+      "creditDeltas": [
+        {
+          "account": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+          "beforeWei": "0",
+          "afterWei": "330",
+          "deltaWei": "330"
+        },
+        {
+          "account": "0x29b8b7d7cbf534eba01e56919de19d79d1509360",
+          "beforeWei": "0",
+          "afterWei": "670",
+          "deltaWei": "670"
+        }
+      ],
+      "withdrawalsVerified": false,
+      "note": "Finalized state and exact credit deltas verified before withdrawals. Credit allocation is not native payout delivery."
+    },
+    "withdrawal-a-verification.json": {
+      "hash": "0xdb4f1a17eab87ec14f11067d23ea5a832b6d199427a8dfe72903b7de80f59629",
+      "lifecycle": "FINALIZED",
+      "execution": "success",
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "action": "withdraw",
+      "inputs": [],
+      "returnedPayout": {
+        "id": "payout-00000001",
+        "recipient": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+        "amountWei": "330",
+        "status": "emitted_for_finalization",
+        "emittedAt": "2026-09-20T23:42:09.938697+00:00"
+      },
+      "nativeTransfer": {
+        "hash": "0x2d4fc6fe196083784f24e04885800e3ad41d4d9315b3602920e9d30e75ee3288",
+        "lifecycle": "FINALIZED",
+        "type": 0,
+        "valueCredited": true,
+        "from": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+        "to": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+        "valueWei": "330"
+      },
+      "deliveryVerified": true,
+      "remainingCreditWei": {
+        "partyA": "0",
+        "partyB": "670"
+      },
+      "note": "The exact native child identified by the parent finalized with value_credited=true, matching contract, recipient and value. Parent execution alone is not delivery proof."
+    },
+    "withdrawal-b-verification.json": {
+      "hash": "0xb0fc7ce70675936600779a3058dcbdbcee5bf59fad1f38fea737b6b9bac10317",
+      "lifecycle": "FINALIZED",
+      "execution": "success",
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "action": "withdraw",
+      "inputs": [],
+      "returnedPayout": {
+        "id": "payout-00000002",
+        "recipient": "0x29b8b7d7cbf534eba01e56919de19d79d1509360",
+        "amountWei": "670",
+        "status": "emitted_for_finalization",
+        "emittedAt": "2026-09-20T23:46:46.745397+00:00"
+      },
+      "nativeTransfer": {
+        "hash": "0x928c0f5ec69d295bf17a87f52db1c8b0ac0cd8001f0ef388fae245c9727e271c",
+        "lifecycle": "FINALIZED",
+        "type": 0,
+        "valueCredited": true,
+        "from": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+        "to": "0x29b8b7d7cbf534eba01e56919de19d79d1509360",
+        "valueWei": "670"
+      },
+      "deliveryVerified": true,
+      "remainingCreditWei": {
+        "partyA": "0",
+        "partyB": "0"
+      },
+      "note": "The exact native child identified by the parent finalized with value_credited=true, matching contract, recipient and value. Parent execution alone is not delivery proof."
+    },
+    "cycle-transaction-payloads.json": {
+      "sourceCommit": "51cbb8805887167cbe4b435fcdb705b01e1c7387",
+      "chainId": 61999,
+      "transactions": [
+        {
+          "hash": "0xa56540edb0d3bf29db4f649cd7174b44138afcd1d3fbae0a75fbd2561df74b3b",
+          "method": "create_agreement",
+          "sender": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+          "contract": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+          "valueWei": "0",
+          "decodedInputs": [
+            "court-v5-human-20260920-01",
+            "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "v5 negotiated settlement wallet test",
+            "Studionet-only QA agreement. Both parties are test wallets controlled by the tester. No real goods or services are purchased. This fixture tests a 1000-wei escrow, numbered settlement offers, counteroffers, recipient-only acceptance, and withdrawal. Party B may provide a public checklist recording (1) agreement acceptance and funding and (2) negotiated settlement and payout delivery.",
+            "For this fictional test fixture: none means neither checklist item is recorded; partial means one item is recorded; full means both items are recorded with their test transaction identifiers. Bilateral settlement reflects an agreed split and does not assert an AI performance finding. Use public test data only.",
+            "1000",
+            "86400",
+            "86400",
+            "86400",
+            "86400",
+            "86400"
+          ],
+          "lifecycle": "FINALIZED",
+          "execution": "success",
+          "decodedOutput": {
+            "acceptance_deadline": "1790032130",
+            "amount_wei": "1000",
+            "fee_bps": "200",
+            "funding_deadline": "0",
+            "id": "court-v5-human-20260920-01",
+            "party_a": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+            "party_b": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "performance_due_at": "0",
+            "status": "awaiting_acceptance",
+            "terms_hash": "2360ea6242a072dee64591a0a1bf5e02f45ba1949f17fd74759d2d8d5981010c",
+            "title": "v5 negotiated settlement wallet test"
+          }
+        },
+        {
+          "hash": "0x6da1f1c6e2a25a9fc05ce8ff7e158c0e8dd76fb72ef54f571f9ee8d118ce33e2",
+          "method": "accept_agreement",
+          "sender": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+          "contract": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+          "valueWei": "0",
+          "decodedInputs": [
+            "court-v5-human-20260920-01"
+          ],
+          "lifecycle": "FINALIZED",
+          "execution": "success",
+          "decodedOutput": {
+            "acceptance_deadline": "1790032130",
+            "amount_wei": "1000",
+            "fee_bps": "200",
+            "funding_deadline": "1790032476",
+            "id": "court-v5-human-20260920-01",
+            "party_a": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+            "party_b": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "performance_due_at": "0",
+            "status": "awaiting_funding",
+            "terms_hash": "2360ea6242a072dee64591a0a1bf5e02f45ba1949f17fd74759d2d8d5981010c",
+            "title": "v5 negotiated settlement wallet test"
+          }
+        },
+        {
+          "hash": "0x7e40977d3264157a07324f964d318a7175693af5f6ebc3acf15342c89974da2e",
+          "method": "fund_agreement",
+          "sender": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+          "contract": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+          "valueWei": "1000",
+          "decodedInputs": [
+            "court-v5-human-20260920-01"
+          ],
+          "lifecycle": "FINALIZED",
+          "execution": "success",
+          "decodedOutput": {
+            "acceptance_deadline": "1790032130",
+            "amount_wei": "1000",
+            "fee_bps": "200",
+            "funding_deadline": "1790032476",
+            "id": "court-v5-human-20260920-01",
+            "party_a": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+            "party_b": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "performance_due_at": "1790032805",
+            "status": "funded",
+            "terms_hash": "2360ea6242a072dee64591a0a1bf5e02f45ba1949f17fd74759d2d8d5981010c",
+            "title": "v5 negotiated settlement wallet test"
+          }
+        },
+        {
+          "hash": "0xc10bd74625f39de8e891ba5edab17fd69e637e222391e5bca63235cf74a2282b",
+          "method": "propose_settlement",
+          "sender": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+          "contract": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+          "valueWei": "0",
+          "decodedInputs": [
+            "court-v5-human-20260920-01",
+            "60",
+            "3600",
+            "0"
+          ],
+          "lifecycle": "FINALIZED",
+          "execution": "success",
+          "decodedOutput": {
+            "agreement_id": "court-v5-human-20260920-01",
+            "closed_at": "0",
+            "closed_by": "",
+            "created_at": "1789946836",
+            "effective_expires_at": "1789950436",
+            "expires_at": "1789950436",
+            "fee_wei": "0",
+            "number": "1",
+            "party_a_pct": "40",
+            "party_a_wei": "400",
+            "party_b_pct": "60",
+            "party_b_wei": "600",
+            "proposer": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+            "reason_code": "OFFER_PROPOSED",
+            "recipient": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "status": "pending",
+            "terms_hash": "2360ea6242a072dee64591a0a1bf5e02f45ba1949f17fd74759d2d8d5981010c"
+          }
+        },
+        {
+          "hash": "0xf9f3ccc77e21858b8cf2332019ea811ce5aaff0bf50df89f145c0d4b5625df23",
+          "method": "propose_settlement",
+          "sender": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+          "contract": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+          "valueWei": "0",
+          "decodedInputs": [
+            "court-v5-human-20260920-01",
+            "67",
+            "3600",
+            "1"
+          ],
+          "lifecycle": "FINALIZED",
+          "execution": "success",
+          "decodedOutput": {
+            "agreement_id": "court-v5-human-20260920-01",
+            "closed_at": "0",
+            "closed_by": "",
+            "created_at": "1789947325",
+            "effective_expires_at": "1789950925",
+            "expires_at": "1789950925",
+            "fee_wei": "0",
+            "number": "2",
+            "party_a_pct": "33",
+            "party_a_wei": "330",
+            "party_b_pct": "67",
+            "party_b_wei": "670",
+            "proposer": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "reason_code": "OFFER_PROPOSED",
+            "recipient": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+            "status": "pending",
+            "terms_hash": "2360ea6242a072dee64591a0a1bf5e02f45ba1949f17fd74759d2d8d5981010c"
+          }
+        },
+        {
+          "hash": "0xd472d14a522e01c7f4c96233833ce0c1c368cee774588c56846961bd27158927",
+          "method": "accept_settlement",
+          "sender": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+          "contract": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+          "valueWei": "0",
+          "decodedInputs": [
+            "court-v5-human-20260920-01",
+            "2"
+          ],
+          "lifecycle": "FINALIZED",
+          "execution": "success",
+          "decodedOutput": {
+            "accepted_offer_number": "2",
+            "agreement_id": "court-v5-human-20260920-01",
+            "paid": {
+              "conservation_wei": "1000",
+              "fee_wei": "0",
+              "party_a_wei": "330",
+              "party_b_wei": "670"
+            },
+            "status": "resolved",
+            "verdict": {
+              "evidence_refs": [],
+              "party_a_pct": "33",
+              "party_b_pct": "67",
+              "party_b_performance_pct": null,
+              "performance_level": "not_evaluated",
+              "reason_code": "MUTUAL_SETTLEMENT_ACCEPTED",
+              "reasoning": "Both parties accepted the numbered settlement offer. No adjudication fee applies.",
+              "reasoning_provenance": "deterministic_contract_rule",
+              "resolution_type": "cooperative_negotiated"
+            }
+          }
+        },
+        {
+          "hash": "0xdb4f1a17eab87ec14f11067d23ea5a832b6d199427a8dfe72903b7de80f59629",
+          "method": "withdraw",
+          "sender": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+          "contract": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+          "valueWei": "0",
+          "decodedInputs": [],
+          "lifecycle": "FINALIZED",
+          "execution": "success",
+          "decodedOutput": {
+            "amount_wei": "330",
+            "delivery_note": "Emission is not confirmation; verify the finalized child transaction.",
+            "emitted_at": "2026-09-20T23:42:09.938697+00:00",
+            "id": "payout-00000001",
+            "recipient": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+            "status": "emitted_for_finalization"
+          }
+        },
+        {
+          "hash": "0xb0fc7ce70675936600779a3058dcbdbcee5bf59fad1f38fea737b6b9bac10317",
+          "method": "withdraw",
+          "sender": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+          "contract": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+          "valueWei": "0",
+          "decodedInputs": [],
+          "lifecycle": "FINALIZED",
+          "execution": "success",
+          "decodedOutput": {
+            "amount_wei": "670",
+            "delivery_note": "Emission is not confirmation; verify the finalized child transaction.",
+            "emitted_at": "2026-09-20T23:46:46.745397+00:00",
+            "id": "payout-00000002",
+            "recipient": "0x29b8b7d7cbf534eba01e56919de19d79d1509360",
+            "status": "emitted_for_finalization"
+          }
+        }
+      ]
+    }
+  }
+}
