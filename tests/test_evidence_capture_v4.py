@@ -11,25 +11,30 @@ def address(account):
     raw = account.as_bytes if hasattr(account, "as_bytes") else bytes(account)
     return "0x" + bytes(raw).hex()
 
+@pytest.fixture(params=[4, 5], ids=["helper-v4", "helper-v5"])
+def helper_version(request):
+    return request.param
+
 @pytest.fixture
-def capture(direct_deploy, direct_vm, direct_alice):
+def capture(direct_deploy, direct_vm, direct_alice, helper_version):
     direct_vm.sender = direct_alice
     direct_vm.value = 0
     direct_vm.warp("2026-08-28T00:00:00+00:00")
-    return direct_deploy(CONTRACT_PATH, PRODUCT, sdk_version="v0.2.16")
+    path = Path(CONTRACT_PATH).with_name(f"evidence_capture_v{helper_version}.py")
+    return direct_deploy(str(path), PRODUCT, sdk_version="v0.2.16")
 
 def source(vm, text):
     vm.clear_mocks()
     vm.mock_web(r".*", {"status": 200, "body": text})
 
-def test_capture_uses_exact_python_whitespace_and_full_digest(capture, direct_vm, direct_alice):
+def test_capture_uses_exact_python_whitespace_and_full_digest(capture, direct_vm, direct_alice, helper_version):
     source(direct_vm, "  First\nsecond\u0085third\u001cfourth  ")
     result = capture.capture("https://example.com/evidence", "source-1")
     expected = "First second third fourth"
     assert result["text"] == expected
     assert result["digest"] == hashlib.sha256(expected.encode()).hexdigest()
     assert result["product_contract"] == PRODUCT.lower()
-    assert capture.get_config()["protocol_version"] == 4
+    assert capture.get_config()["protocol_version"] == helper_version
     assert capture.get_capture(address(direct_alice), "source-1") == result
 
 def test_duplicate_capture_is_idempotent_even_when_source_changes(capture, direct_vm):
@@ -76,14 +81,14 @@ def test_capture_namespace_and_cooldown(capture, direct_vm, direct_alice, direct
     with direct_vm.expect_revert("not found"):
         capture.get_capture(address(direct_bob), "second")
 
-def test_capture_validates_nonce_and_product_address(capture, direct_vm, direct_deploy):
+def test_capture_validates_nonce_and_product_address(capture, direct_vm, direct_deploy, helper_version):
     with direct_vm.expect_revert():
         capture.capture("https://example.com/", "../invalid")
     with direct_vm.expect_revert():
-        direct_deploy(CONTRACT_PATH, "0x" + "0" * 40, sdk_version="v0.2.16")
+        direct_deploy(str(Path(CONTRACT_PATH).with_name(f"evidence_capture_v{helper_version}.py")), "0x" + "0" * 40, sdk_version="v0.2.16")
 
 
-def test_constructor_accepts_genvm_address_object(direct_deploy, direct_vm, direct_alice):
+def test_constructor_accepts_genvm_address_object(direct_deploy, direct_vm, direct_alice, helper_version):
     direct_vm.sender = direct_alice
-    contract = direct_deploy(CONTRACT_PATH, direct_alice, sdk_version="v0.2.16")
+    contract = direct_deploy(str(Path(CONTRACT_PATH).with_name(f"evidence_capture_v{helper_version}.py")), direct_alice, sdk_version="v0.2.16")
     assert contract.get_config()["product_contract"] == address(direct_alice)

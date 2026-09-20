@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  contractAddress,
+  getContractAddress,
   isLiveConfigured,
   readContract,
   writeContract,
@@ -26,6 +26,7 @@ import {
 } from "./recovery";
 import type { Intent } from "./activity-model";
 import { isRecoveryMethod, isSecurityRelease } from "./release-policy";
+import { clientRelease } from "./client-release";
 export type Notice = {
   kind: "success" | "error" | "info";
   text: string;
@@ -116,6 +117,16 @@ export function useProtocol(listMethod: string) {
       if (stale()) return;
       setExpectedWallet(auth.wallet);
       const value = await productApi<ProductSession>("session");
+      if (
+        value.coreAddress.toLowerCase() !==
+          getContractAddress().toLowerCase() ||
+        value.captureAddress.toLowerCase() !==
+          clientRelease().helper.contractAddress.toLowerCase() ||
+        value.chainId !== 61999
+      )
+        throw new Error(
+          "The service returned a different release. No transaction will be sent.",
+        );
       if (stale()) return;
       value.expiresAt = auth.expiresAt;
       setSession(value);
@@ -310,7 +321,7 @@ export function useProtocol(listMethod: string) {
     method: string,
     args: unknown[] = [],
     value = 0n,
-    target = contractAddress,
+    target = getContractAddress(),
   ) {
     if (busyRef.current || !isLiveConfigured) return false;
     busyRef.current = true;
@@ -335,9 +346,9 @@ export function useProtocol(listMethod: string) {
           "Sign in with your wallet before submitting this action.",
         );
       if (
-        !isSecurityRelease(config) &&
+        !isSecurityRelease(config, clientRelease().core.protocolVersion) &&
         !(
-          target.toLowerCase() === contractAddress.toLowerCase() &&
+          target.toLowerCase() === getContractAddress().toLowerCase() &&
           isRecoveryMethod(method)
         )
       )
@@ -464,7 +475,9 @@ export function useProtocol(listMethod: string) {
   }
   return {
     wallet,
-    securityUpdateNeeded: Boolean(config) && !isSecurityRelease(config),
+    securityUpdateNeeded:
+      Boolean(config) &&
+      !isSecurityRelease(config, clientRelease().core.protocolVersion),
     items,
     total,
     stats,

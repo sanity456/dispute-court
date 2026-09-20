@@ -253,13 +253,14 @@ def test_supported_public_urls_remain_usable(answered, direct_vm, direct_alice, 
     assert answered.submit_evidence("agreement-1", "Complete receipt", url, digest(SOURCE_BODY))["url"] == url
 
 
-def test_new_safety_policy_is_in_immutable_terms(answered):
+def test_new_safety_policy_is_in_immutable_terms(answered, request):
     terms = answered.get_agreement("agreement-1")
-    assert terms["protocol_version"] == 4
+    expected_version = request.node.callspec.params["court_v4"]
+    assert terms["protocol_version"] == expected_version
     assert terms["decision_policy"] == "party_b_performance_level_v1"
     assert terms["party_a_role"] == "funder_refund_side"
     assert terms["party_b_role"] == "performer_payment_side"
     assert terms["max_source_bytes"] == 6000
     assert terms["resolution_window_seconds"] == 48 * 3600
     assert terms["timeout_policy"] == "50_50_without_fee_after_absolute_resolution_deadline"
-    assert answered.get_config()["protocol_version"] == 4
+    assert answered.get_config()["protocol_version"] == expected_version

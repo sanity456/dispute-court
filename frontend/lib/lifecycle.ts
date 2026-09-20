@@ -37,6 +37,12 @@ export type Agreement = {
   response_window_seconds: number;
   evidence_window_seconds: number;
   funding_window_seconds: number;
+  negotiation_policy: string;
+  settlement_offer_count: number;
+  party_a_offer_count: number;
+  party_b_offer_count: number;
+  accepted_offer_number: number;
+  settlement_offer: Record<string, unknown> | null;
   performance_window_seconds: number;
 };
 export function record(value: unknown): Record<string, unknown> {
@@ -66,6 +72,7 @@ export function normalizeAgreement(value: unknown): Agreement {
     "funded_at",
     "resolved_at",
     "created_at",
+    "negotiation_policy",
   ];
   const numbers = [
     "protocol_version",
@@ -83,6 +90,10 @@ export function normalizeAgreement(value: unknown): Agreement {
     "response_window_seconds",
     "evidence_window_seconds",
     "funding_window_seconds",
+    "settlement_offer_count",
+    "party_a_offer_count",
+    "party_b_offer_count",
+    "accepted_offer_number",
     "performance_window_seconds",
   ];
   const result: Record<string, unknown> = {};
@@ -96,6 +107,9 @@ export function normalizeAgreement(value: unknown): Agreement {
     ? a.last_source_observations.map(record)
     : [];
   result.verdict = record(a.verdict);
+  result.settlement_offer = a.settlement_offer
+    ? record(a.settlement_offer)
+    : null;
   result.paid = record(a.paid);
   return result as Agreement;
 }

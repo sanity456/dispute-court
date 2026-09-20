@@ -3,7 +3,9 @@ import { build } from "vite";
 import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
 const root = fileURLToPath(new URL("../", import.meta.url));
-const fixture = "/tests/fixtures/workspace-browser.mjs";
+const fixture = process.argv.includes("--settlement")
+  ? "/tests/fixtures/settlement-browser.mjs"
+  : "/tests/fixtures/workspace-browser.mjs";
 const result = await build({
   configFile: false,
   envFile: false,

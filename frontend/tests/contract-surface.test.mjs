@@ -9,7 +9,17 @@ const schema = JSON.parse(
 const deployment = JSON.parse(
   readFileSync(new URL("../lib/deployment.json", import.meta.url), "utf8"),
 );
-const files = ["../components/ProductHome.tsx", "../lib/useProtocol.ts"];
+const v5Schema = JSON.parse(
+  readFileSync(
+    new URL("../lib/contract-schema-v5.json", import.meta.url),
+    "utf8",
+  ),
+);
+const files = [
+  "../components/ProductHome.tsx",
+  "../lib/useProtocol.ts",
+  "../components/SettlementPanel.tsx",
+];
 
 function literals(node) {
   if (ts.isStringLiteral(node)) return [node.text];
@@ -21,6 +31,9 @@ function literals(node) {
 test("every UI transaction calls a versioned contract method; deployment compatibility is separately gated", () => {
   const called = new Set();
   for (const file of files) {
+    const methodSchema = file.endsWith("SettlementPanel.tsx")
+      ? v5Schema
+      : schema;
     const source = ts.createSourceFile(
       file,
       readFileSync(new URL(file, import.meta.url), "utf8"),
@@ -42,10 +55,10 @@ test("every UI transaction calls a versioned contract method; deployment compati
         for (const method of methods) {
           called.add(method);
           assert.ok(
-            schema.methods[method],
+            methodSchema.methods[method],
             "Unknown versioned method: " + method,
           );
-          assert.equal(schema.methods[method].readonly, false);
+          assert.equal(methodSchema.methods[method].readonly, false);
           if (
             node.arguments[2] &&
             ts.isArrayLiteralExpression(node.arguments[2]) &&
@@ -53,7 +66,7 @@ test("every UI transaction calls a versioned contract method; deployment compati
           ) {
             assert.equal(
               node.arguments[2].elements.length,
-              schema.methods[method].params.length,
+              methodSchema.methods[method].params.length,
               method + " argument count",
             );
           }
@@ -63,7 +76,7 @@ test("every UI transaction calls a versioned contract method; deployment compati
     }
     visit(source);
   }
-  const allWrites = Object.entries(schema.methods)
+  const allWrites = Object.entries(v5Schema.methods)
     .filter(([, info]) => !info.readonly)
     .map(([method]) => method);
   for (const method of allWrites)

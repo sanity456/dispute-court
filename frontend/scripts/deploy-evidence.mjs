@@ -7,13 +7,28 @@ import {
 } from "../vendor/genlayer-js/index.js";
 import { TransactionHashVariant } from "../vendor/genlayer-js/types/index.js";
 import { waitForFinalizedTransaction } from "../lib/receipt.ts";
+import { releaseSources } from "./verify-security-release.mjs";
 if (process.env.RUN_STUDIONET_EVIDENCE !== "1")
   throw new Error("Explicit RUN_STUDIONET_EVIDENCE=1 is required.");
+assert.ok(
+  [2, 4].includes(process.argv.length),
+  "Usage: node scripts/deploy-evidence.mjs [--core-manifest <path>]",
+);
+if (process.argv.length === 4) assert.equal(process.argv[2], "--core-manifest");
 const product = JSON.parse(
-  readFileSync(new URL("../lib/deployment.json", import.meta.url), "utf8"),
+  readFileSync(
+    process.argv.length === 4
+      ? process.argv[3]
+      : new URL("../lib/deployment.json", import.meta.url),
+    "utf8",
+  ),
 );
 assert.equal(product.chainId, 61999);
 assert.equal(product.network, "studionet");
+assert.equal(product.rpcUrl, "https://studio.genlayer.com/api");
+const helperSource = releaseSources(product.protocolVersion).helper;
+assert.match(product.contractAddress, /^0x[0-9a-fA-F]{40}$/);
+assert.notEqual(product.contractAddress.toLowerCase(), "0x" + "0".repeat(40));
 const account = createAccount();
 const client = createClient({
   chain: chains.studionet,
@@ -29,9 +44,7 @@ const log = (event, value) =>
   );
 const hash = await client.deployContract({
   code: new Uint8Array(
-    readFileSync(
-      new URL("../../contracts/evidence_capture.py", import.meta.url),
-    ),
+    readFileSync(new URL("../../contracts/" + helperSource, import.meta.url)),
   ),
   args: [product.contractAddress],
   leaderOnly: false,
@@ -54,6 +67,7 @@ const config = await client.readContract({
   transactionHashVariant: TransactionHashVariant.LATEST_FINAL,
 });
 assert.equal(config.product_contract, product.contractAddress.toLowerCase());
+assert.equal(config.protocol_version, product.protocolVersion);
 log("evidence_deployed", {
   contractAddress: address,
   deploymentTransaction: hash,

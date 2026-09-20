@@ -1,21 +1,31 @@
 import type { Metadata } from "next";
-import ProductHome from "../../../components/ProductHome";
+import ReleaseWorkspace from "../../../components/ReleaseWorkspace";
 import { getDb } from "../../../server/db";
 import { createNetwork } from "../../../server/network";
 import { product } from "../../../lib/product";
+import { releaseById } from "../../../lib/releases";
 export const dynamic = "force-dynamic";
-type Props = { params: Promise<{ id: string }> };
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ release?: string }>;
+};
+export async function generateMetadata({
+  params,
+  searchParams,
+}: Props): Promise<Metadata> {
   const { id } = await params;
+  const releaseId = (await searchParams).release ?? "v4";
   let title = product.name + " record",
     description =
       "Review the public terms, current status and next step on GenLayer Studionet.";
   if (id && id.length <= 80) {
     try {
-      const db = await getDb();
-      const value = (await createNetwork(db).read(product.detailMethod, [
-        id,
-      ])) as Record<string, unknown>;
+      const release = releaseById(releaseId);
+      const db = await getDb(release.id);
+      const value = (await createNetwork(db, release).read(
+        product.detailMethod,
+        [id],
+      )) as Record<string, unknown>;
       title = String(value.title ?? title) + " · " + product.name;
       description = String(
         value.description ?? value.summary ?? description,
@@ -25,7 +35,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   }
   const url =
-    product.origin + "/" + product.recordPath + "/" + encodeURIComponent(id);
+    product.origin +
+    "/agreements/" +
+    encodeURIComponent(id) +
+    "?release=" +
+    encodeURIComponent(releaseId);
   return {
     title,
     description,
@@ -35,7 +49,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     twitter: { card: "summary", title, description, images: [] },
   };
 }
-export default async function RecordPage({ params }: Props) {
+export default async function RecordPage({ params, searchParams }: Props) {
   const { id } = await params;
-  return <ProductHome key={id} initialId={id} />;
+  const releaseId = (await searchParams).release ?? "v4";
+  return (
+    <ReleaseWorkspace key={releaseId} releaseId={releaseId} initialId={id} />
+  );
 }

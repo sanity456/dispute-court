@@ -12,6 +12,7 @@ networks:
 
 paths:
   contracts: "contracts"
-  artifacts: "artifacts"
+  # gltest clears this directory at startup. Never point it at release evidence.
+  artifacts: "work/gltest-artifacts"
 
 environment: .env

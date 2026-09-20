@@ -8,6 +8,8 @@ The repository includes the contracts, their tests, and the complete app in `fro
 
 ## Current v4 Studionet contracts
 
+The [negotiated-settlement milestone](MILESTONE_V1_STATUS.md) is in local development. It is not activated on the public app; v4 remains the current release.
+
 - Contract: `contracts/dispute_court_v4.py`
 - Evidence helper: `contracts/evidence_capture_v4.py`
 - Direct tests: `tests/test_dispute_court_v4.py` plus the v4 security regressions

@@ -1,0 +1,8 @@
+{
+  "contractAddress": "0x4E13Da8eF88E75Eb1a6c2A1BB4180b69f78a916f",
+  "deploymentTransaction": "0x903047ed515d6ffc314810ab73be4849f0191a88984e28713b1146a22611efc1",
+  "network": "studionet",
+  "chainId": 61999,
+  "protocolVersion": 4,
+  "sourceSha256": "3999f1289f5574a80069e53ea28a2b947681fdb09821a2f06caf1c8e7b24e260"
+}

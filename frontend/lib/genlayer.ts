@@ -2,19 +2,21 @@ import { ensureStudionet, assertWalletAccount } from "./wallet";
 import { getAddress } from "viem";
 import { productApi } from "./client";
 import { evidenceDigest } from "./evidence";
-import deployment from "./deployment.json";
+import { clientRelease } from "./client-release";
 import {
   waitForFinalizedTransaction,
   type TransactionProgress,
 } from "./receipt";
 export { parseGen, formatGen } from "./amounts";
 
-export const contractAddress = String(deployment.contractAddress).trim();
-export const rpcUrl = String(deployment.rpcUrl).trim();
+export function getContractAddress() {
+  return clientRelease().core.contractAddress;
+}
+export const rpcUrl = "https://studio.genlayer.com/api";
 export const networkName = "GenLayer Studionet";
 export const isLiveConfigured =
-  /^0x[0-9a-fA-F]{40}$/.test(contractAddress) &&
-  !/^0x0{40}$/i.test(contractAddress) &&
+  /^0x[0-9a-fA-F]{40}$/.test(getContractAddress()) &&
+  !/^0x0{40}$/i.test(getContractAddress()) &&
   /^https?:\/\//.test(rpcUrl);
 const chainId = 61999;
 type Client = ReturnType<
@@ -78,7 +80,7 @@ export async function connectWallet() {
 }
 
 export async function readContract(functionName: string, args: unknown[] = []) {
-  return readContractAt(contractAddress, functionName, args);
+  return readContractAt(getContractAddress(), functionName, args);
 }
 export async function readContractAt(
   target: string,
@@ -118,7 +120,7 @@ export async function writeContract(
     provider: provider(),
   });
   const hash = await client.writeContract({
-    address: getAddress(options.target ?? contractAddress),
+    address: getAddress(options.target ?? getContractAddress()),
     functionName,
     args: args as never[],
     value,

@@ -12,6 +12,9 @@ export const useProtocol = () => useContext(Context);
 export const errorMessage = (error) => error.message;
 export const useRouter = () => ({ push: () => {} });
 export const contractAddress = "0x" + "cc".repeat(20);
+export function getContractAddress() {
+  return contractAddress;
+}
 export const isLiveConfigured = true;
 export const shortAddress = (value) =>
   value.slice(0, 6) + "…" + value.slice(-4);

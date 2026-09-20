@@ -7,6 +7,8 @@ import { readContract, shortAddress } from "../lib/genlayer";
 import { errorMessage, type Protocol } from "../lib/useProtocol";
 import { calendarFile, formatDeadline, nextStep } from "../lib/reminders";
 import { downloadFile, exportJson } from "../lib/export";
+import { clientRelease } from "../lib/client-release";
+import { recordPath } from "../lib/releases";
 type History = {
   moderation: { hidden: number; moderation_reason: string } | null;
   observations: { at: number; status: string }[];
@@ -32,8 +34,7 @@ export function RecordTools({
     [attempts, setAttempts] = useState<unknown[]>([]);
   const notified = useRef(new Set<string>());
   const timezone = protocol.session?.preferences.timezone ?? "UTC";
-  const url =
-    product.origin + "/" + product.recordPath + "/" + encodeURIComponent(id);
+  const url = product.origin + recordPath(id, clientRelease().id);
   useEffect(() => {
     const prefs = protocol.session?.preferences;
     if (!prefs?.browserReminders || !guide.deadline) return;
@@ -203,7 +204,7 @@ export function RecordTools({
       </div>
       <a
         className="product-record-link"
-        href={"/" + product.recordPath + "/" + encodeURIComponent(id)}
+        href={recordPath(id, clientRelease().id)}
       >
         {url}
       </a>

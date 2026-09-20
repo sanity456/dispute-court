@@ -10,7 +10,7 @@ export async function requireSecurityRelease(
   const core = target.toLowerCase() === network.coreAddress.toLowerCase();
   if (core && isRecoveryMethod(method)) return;
   const configuration = await network.read("get_config", [], target);
-  if (!isSecurityRelease(configuration))
+  if (!isSecurityRelease(configuration, network.protocolVersion))
     throw new ApiError(
       409,
       "Security update pending. New commitments are paused; existing-fund recovery remains available.",
@@ -21,7 +21,10 @@ export async function requireSecurityRelease(
     if (
       String(helper.product_contract).toLowerCase() !==
         network.coreAddress.toLowerCase() ||
-      !isSecurityRelease(await network.read("get_config"))
+      !isSecurityRelease(
+        await network.read("get_config"),
+        network.protocolVersion,
+      )
     )
       throw new ApiError(
         409,

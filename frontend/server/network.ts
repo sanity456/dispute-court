@@ -1,8 +1,11 @@
 import { createClient, chains } from "../vendor/genlayer-js/index.js";
 import { TransactionHashVariant } from "../vendor/genlayer-js/types/index.js";
-import deployment from "../lib/deployment.json" with { type: "json" };
-import captureDeployment from "../lib/evidence-deployment.json" with { type: "json" };
-import coreSchema from "../lib/contract-schema.json" with { type: "json" };
+import {
+  currentRelease,
+  validateRelease,
+  type Release,
+} from "../lib/releases.ts";
+import { contractSurface } from "../lib/contract-surface.ts";
 import { jsonString } from "../lib/activity-model.ts";
 import {
   ApiError,
@@ -16,6 +19,8 @@ import type { Database } from "./database-types";
 import { recordRpcHealth } from "./health.ts";
 export type MethodInfo = { readonly: boolean; params: unknown[] };
 export type Network = {
+  protocolVersion?: number;
+  isCurrentRelease?: boolean;
   coreAddress: string;
   captureAddress: string;
   ownerAddress: string;
@@ -31,7 +36,12 @@ const captureMethods: Record<string, MethodInfo> = {
 };
 const clients = new Map<string, ReturnType<typeof createClient>>();
 const pendingReads = new Map<string, Promise<unknown>>();
-export function createNetwork(db: Database): Network {
+export function createNetwork(
+  db: Database,
+  release: Release = currentRelease,
+): Network {
+  const { core: deployment, helper: captureDeployment } =
+    validateRelease(release);
   const coreAddress = address(deployment.contractAddress),
     captureAddress = captureDeployment.contractAddress
       ? address(captureDeployment.contractAddress)
@@ -42,7 +52,10 @@ export function createNetwork(db: Database): Network {
   clients.set(coreAddress, client);
   function methods(target: string) {
     if (target.toLowerCase() === coreAddress)
-      return coreSchema.methods as Record<string, MethodInfo>;
+      return contractSurface(deployment.protocolVersion) as Record<
+        string,
+        MethodInfo
+      >;
     if (captureAddress && target.toLowerCase() === captureAddress)
       return captureMethods;
     throw new ApiError(400, "This contract does not belong to this product.");
@@ -96,6 +109,9 @@ export function createNetwork(db: Database): Network {
       );
   }
   return {
+    protocolVersion: deployment.protocolVersion,
+    isCurrentRelease:
+      coreAddress === currentRelease.core.contractAddress.toLowerCase(),
     coreAddress,
     captureAddress,
     ownerAddress: address(deployment.ownerAddress),

@@ -184,6 +184,26 @@ export function OwnerDesk({
       </div>
       {verified && overview && (
         <>
+          {protocol.config?.protocol_version === 5 && protocol.stats && (
+            <section
+              className="product-panel product-stack"
+              aria-label="Negotiated settlements"
+            >
+              <h2>Negotiated settlements</h2>
+              <p>
+                {String(protocol.stats.negotiated_resolutions ?? 0)} cases
+                settled by mutual agreement.
+              </p>
+              <p>
+                {formatGen(String(protocol.stats.negotiated_value_wei ?? "0"))}{" "}
+                GEN credited through negotiated settlements.
+              </p>
+              <p className="product-muted">
+                Contract totals, not proof of withdrawal delivery. Only the
+                agreement parties can approve a split.
+              </p>
+            </section>
+          )}
           <div className="product-panel product-stack">
             <div className="product-toolbar">
               <h2>Operational coverage</h2>

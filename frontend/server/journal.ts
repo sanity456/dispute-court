@@ -24,6 +24,12 @@ export async function reserveIntent(
     target = address(input.target),
     method = textField(input.method, "Method", 80);
   const definition = network.methods(target)[method];
+  if (method === "create_agreement" && network.isCurrentRelease === false)
+    throw new ApiError(
+      409,
+      "Create new agreements in the current release. Existing agreements remain available here.",
+      "release_creation_closed",
+    );
   const args = input.args;
   if (
     !definition ||

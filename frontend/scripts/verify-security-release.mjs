@@ -8,6 +8,15 @@ import { createClient, chains } from "../vendor/genlayer-js/index.js";
 import { TransactionHashVariant } from "../vendor/genlayer-js/types/index.js";
 import { executionState, transactionStatus } from "../lib/receipt.ts";
 import { product } from "../lib/product.ts";
+import { validateRelease, releaseById } from "../lib/releases.ts";
+
+export function releaseSources(version) {
+  assert.ok([4, 5].includes(version), "Unsupported release source version");
+  return {
+    core: `dispute_court_v${version}.py`,
+    helper: `evidence_capture_v${version}.py`,
+  };
+}
 
 export async function verifyRelease({
   core,
@@ -18,6 +27,8 @@ export async function verifyRelease({
   readConfig,
   expectedFeeBps,
 }) {
+  validateRelease({ id: `v${core.protocolVersion}`, core, helper });
+  const version = core.protocolVersion;
   assert.equal(
     core.rpcUrl,
     "https://studio.genlayer.com/api",
@@ -26,7 +37,7 @@ export async function verifyRelease({
   for (const manifest of [core, helper]) {
     assert.equal(manifest.network, "studionet");
     assert.equal(manifest.chainId, 61999);
-    assert.equal(manifest.protocolVersion, 4);
+    assert.equal(manifest.protocolVersion, version);
     assert.match(manifest.contractAddress, /^0x[0-9a-fA-F]{40}$/);
     assert.match(manifest.deploymentTransaction, /^0x[0-9a-fA-F]{64}$/);
     assert.match(manifest.sourceSha256, /^[a-f0-9]{64}$/);
@@ -74,7 +85,7 @@ export async function verifyRelease({
       Buffer.compare(Buffer.from(receipt.data.contract_code, "base64"), source),
       0,
       kind +
-        " does not match the local v4 source: the security release is NOT activated",
+        ` does not match the local v${version} source: the security release is NOT activated`,
     );
     verified.push({
       kind,
@@ -88,7 +99,11 @@ export async function verifyRelease({
     ["core", config],
     ["helper", capture],
   ]) {
-    assert.equal(value?.protocol_version, 4, kind + " is not v4");
+    assert.equal(
+      value?.protocol_version,
+      version,
+      kind + ` is not v${version}`,
+    );
     assert.equal(
       value?.max_source_bytes,
       6000,
@@ -108,6 +123,12 @@ export async function verifyRelease({
   );
   assert.equal(config.party_a_role, "funder_refund_side");
   assert.equal(config.party_b_role, "performer_payment_side");
+  if (version === 5) {
+    assert.equal(config.negotiation_policy, "bilateral_percentage_offers_v1");
+    assert.equal(config.max_offers_per_party, 50);
+    assert.equal(config.max_offer_window_seconds, 604800);
+    assert.equal(config.fee_policy, "adjudicated_resolutions_only");
+  }
   assert.equal(
     String(capture.product_contract).toLowerCase(),
     core.contractAddress.toLowerCase(),
@@ -119,7 +140,7 @@ export async function verifyRelease({
     "Evidence helper must not accept funds",
   );
   return {
-    protocolVersion: 4,
+    protocolVersion: version,
     chainId: 61999,
     owner: core.ownerAddress,
     feeBps: expectedFeeBps,
@@ -128,21 +149,30 @@ export async function verifyRelease({
 }
 
 async function main() {
-  assert.equal(
-    process.argv.length,
-    4,
-    "Usage: node scripts/verify-security-release.mjs --expected-fee-bps <integer>",
+  assert.ok(
+    [4, 6].includes(process.argv.length),
+    "Usage: node scripts/verify-security-release.mjs --expected-fee-bps <integer> [--manifest-dir <directory> | --release v4|v5]",
   );
   assert.equal(process.argv[2], "--expected-fee-bps");
   assert.match(process.argv[3], /^(0|[1-9][0-9]*)$/);
   const expectedFeeBps = Number(process.argv[3]);
   const frontend = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-  const core = JSON.parse(
-    readFileSync(resolve(frontend, "lib/deployment.json"), "utf8"),
-  );
-  const helper = JSON.parse(
-    readFileSync(resolve(frontend, "lib/evidence-deployment.json"), "utf8"),
-  );
+  if (process.argv.length === 6)
+    assert.ok(["--manifest-dir", "--release"].includes(process.argv[4]));
+  const manifestDir =
+    process.argv[4] === "--manifest-dir"
+      ? resolve(process.argv[5])
+      : resolve(frontend, "lib");
+  const selected =
+    process.argv[4] === "--release" ? releaseById(process.argv[5]) : null;
+  const core =
+    selected?.core ??
+    JSON.parse(readFileSync(resolve(manifestDir, "deployment.json"), "utf8"));
+  const helper =
+    selected?.helper ??
+    JSON.parse(
+      readFileSync(resolve(manifestDir, "evidence-deployment.json"), "utf8"),
+    );
   // Validate the endpoint before making any network request.
   assert.equal(
     core.rpcUrl,
@@ -153,19 +183,19 @@ async function main() {
     chain: chains.studionet,
     endpoint: core.rpcUrl,
   });
-  const source =
-    product.id === "commitment-pools"
-      ? "commitment_pool_v3.py"
-      : "dispute_court_v4.py";
+  assert.equal(
+    product.id,
+    "dispute-court",
+    "This verifier is Dispute Court only",
+  );
+  const source = releaseSources(core.protocolVersion);
   const report = await verifyRelease({
     core,
     helper,
     expectedFeeBps,
     sources: {
-      core: readFileSync(resolve(frontend, "../contracts", source)),
-      helper: readFileSync(
-        resolve(frontend, "../contracts/evidence_capture_v4.py"),
-      ),
+      core: readFileSync(resolve(frontend, "../contracts", source.core)),
+      helper: readFileSync(resolve(frontend, "../contracts", source.helper)),
     },
     chainId: () => client.getChainId(),
     async transaction(hash) {
@@ -202,7 +232,12 @@ if (
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
   main().catch((error) => {
-    console.error("Security release verification failed: " + error.message);
+    console.error(
+      "Security release verification failed: " +
+        (error instanceof assert.AssertionError
+          ? error.message
+          : "manifest validation or network operation failed; no raw RPC error is logged"),
+    );
     process.exitCode = 1;
   });
 }

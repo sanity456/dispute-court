@@ -1,4 +1,5 @@
 import { jsonString } from "./activity-model.ts";
+import { clientRelease } from "./client-release.ts";
 export const SESSION_INVALID_EVENT = "product-wallet-session-invalid";
 let expectedWallet = "";
 let identityVersion = 0;
@@ -34,6 +35,7 @@ export async function productApi<T = Record<string, unknown>>(
     credentials: "same-origin",
     cache: "no-store",
     headers: {
+      "X-Product-Release": clientRelease().id,
       ...(wallet ? { "X-Product-Wallet": wallet } : {}),
       ...(input === undefined ? {} : { "Content-Type": "application/json" }),
     },

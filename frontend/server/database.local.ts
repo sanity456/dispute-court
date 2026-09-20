@@ -2,6 +2,7 @@ import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import type { Database, Prepared, SqlResult, SqlValue } from "./database-types";
+import { releaseById } from "../lib/releases.ts";
 export function createLocalDatabase(
   filename: string,
 ): Database & { close(): void } {
@@ -70,8 +71,10 @@ export function createLocalDatabase(
     },
   };
 }
-let database: Database | undefined;
-export function binding(): Database {
+const databases = new Map<string, Database>();
+export function binding(releaseId = "v4"): Database {
+  const release = releaseById(releaseId);
+  let database = databases.get(releaseId);
   if (process.env.CODEX_LOCAL_PREVIEW !== "1")
     throw new Error(
       "Local database is only available in explicit local preview mode.",
@@ -79,7 +82,15 @@ export function binding(): Database {
   if (!database) {
     const directory = join(process.cwd(), ".local-data");
     mkdirSync(directory, { recursive: true });
-    database = createLocalDatabase(join(directory, "product.sqlite"));
+    database = createLocalDatabase(
+      join(
+        directory,
+        releaseId === "v4"
+          ? "product.sqlite"
+          : release.core.contractAddress.toLowerCase() + ".sqlite",
+      ),
+    );
+    databases.set(releaseId, database);
   }
   return database;
 }

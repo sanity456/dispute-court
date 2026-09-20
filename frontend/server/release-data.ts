@@ -9,6 +9,8 @@ export function releaseDataSchema(product: string, address: string): string {
   )
     throw new Error("Invalid release database binding.");
   return (
+    // v4_ identifies the durable SQL schema format, not the contract version.
+    // The immutable core address isolates v5 data without renaming v4 tables.
     "v4_" + product.replaceAll("-", "_") + "_" + address.slice(2).toLowerCase()
   );
 }

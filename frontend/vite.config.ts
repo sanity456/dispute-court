@@ -73,6 +73,7 @@ export default defineConfig(async () => {
     },
     css: { postcss: { plugins: [tailwindcss()] } },
     server: {
+      host: isCodexLocalPreview ? "127.0.0.1" : undefined,
       watch: {
         // Generated databases, build output and retained dependency caches
         // are not source files and must not trigger recursive preview scans.

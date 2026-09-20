@@ -1,5 +1,5 @@
 declare module "@product/database" {
-  export function binding(): import("../server/database-types").Database;
+  export function binding(releaseId?: string): import("../server/database-types").Database;
 }
 declare module "@product/auth" {
   export function authenticate(request: Request): string | Promise<string>;

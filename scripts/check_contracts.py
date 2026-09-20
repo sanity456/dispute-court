@@ -19,17 +19,20 @@ def main():
     if not lint.is_file():
         parser.error("Install requirements-dev.txt into this Python environment first.")
     environment = os.environ.copy()
+    environment["GENVM_VERSION"] = "v0.2.16"
     environment["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
     environment["RUN_GENLAYER_INTEGRATION"] = "0"
     environment["RUN_GENLAYER_V3_INTEGRATION"] = "0"
     environment["RUN_GENLAYER_V4_INTEGRATION"] = "0"
-    for name in ["dispute_court_v4.py", "evidence_capture_v4.py"]:
+    environment["RUN_GENLAYER_V5_INTEGRATION"] = "0"
+    for name in ["dispute_court_v4.py", "evidence_capture_v4.py", "dispute_court_v5.py", "evidence_capture_v5.py"]:
         path = ROOT / "contracts" / name
         if EXPECTED_RUNNER not in path.read_text(encoding="utf-8").splitlines()[0]:
             parser.error("Unexpected runner pin: " + name)
         subprocess.run([str(lint), "check", str(path), "--json"], cwd=ROOT, env=environment, check=True)
     selected = ["tests"] if args.legacy else [
         "tests/test_dispute_court_v4.py", "tests/test_security_court_v4.py", "tests/test_evidence_capture_v4.py",
+        "tests/test_settlement_v5.py",
     ]
     subprocess.run(
         [sys.executable, "-m", "pytest", "-p", "gltest.direct.pytest_plugin",

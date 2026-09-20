@@ -1,9 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { verifyRelease } from "../scripts/verify-security-release.mjs";
+import {
+  verifyRelease,
+  releaseSources,
+} from "../scripts/verify-security-release.mjs";
 
-function fixture() {
+function fixture(version = 4) {
   const core = {
     network: "studionet",
     chainId: 61999,
@@ -22,8 +25,8 @@ function fixture() {
     core: Buffer.from("reviewed core v4"),
     helper: Buffer.from("reviewed helper v4"),
   };
-  core.protocolVersion = 4;
-  helper.protocolVersion = 4;
+  core.protocolVersion = version;
+  helper.protocolVersion = version;
   core.sourceSha256 = createHash("sha256").update(sources.core).digest("hex");
   helper.sourceSha256 = createHash("sha256")
     .update(sources.helper)
@@ -45,16 +48,24 @@ function fixture() {
     ]),
   );
   const config = {
-    protocol_version: 4,
+    protocol_version: version,
     max_source_bytes: 6000,
     owner: core.ownerAddress,
     fee_bps: 200,
     decision_policy: "party_b_performance_level_v1",
     party_a_role: "funder_refund_side",
     party_b_role: "performer_payment_side",
+    ...(version === 5
+      ? {
+          negotiation_policy: "bilateral_percentage_offers_v1",
+          max_offers_per_party: 50,
+          max_offer_window_seconds: 604800,
+          fee_policy: "adjudicated_resolutions_only",
+        }
+      : {}),
   };
   const capture = {
-    protocol_version: 4,
+    protocol_version: version,
     max_source_bytes: 6000,
     product_contract: core.contractAddress,
     funds_accepted: false,
@@ -88,6 +99,50 @@ test("read-only activation verifier requires successful finalized deployments an
     .update(f.sources.core)
     .digest("hex");
   await assert.rejects(verifyRelease(f), /NOT activated/);
+});
+
+test("v5 verifier binds the reviewed helper, offer policy and source version without altering v4", async () => {
+  assert.deepEqual(releaseSources(5), {
+    core: "dispute_court_v5.py",
+    helper: "evidence_capture_v5.py",
+  });
+  assert.deepEqual(releaseSources(4), {
+    core: "dispute_court_v4.py",
+    helper: "evidence_capture_v4.py",
+  });
+  assert.throws(() => releaseSources(3));
+  const f = fixture(5);
+  assert.equal((await verifyRelease(f)).protocolVersion, 5);
+  for (const change of [
+    (f) => {
+      f.helper.protocolVersion = 4;
+    },
+    (f) => {
+      f.capture.protocol_version = 4;
+    },
+    (f) => {
+      f.config.negotiation_policy = "unknown";
+    },
+    (f) => {
+      f.config.max_offers_per_party = 100;
+    },
+    (f) => {
+      f.config.max_offer_window_seconds = 604801;
+    },
+    (f) => {
+      f.config.fee_policy = "all_settlements";
+    },
+    (f) => {
+      f.core.contractAddress = "0x" + "0".repeat(40);
+    },
+    (f) => {
+      f.core.rpcUrl = "https://unapproved.example/api";
+    },
+  ]) {
+    const changed = fixture(5);
+    change(changed);
+    await assert.rejects(verifyRelease(changed));
+  }
 });
 test("activation fails for old protocol, wrong helper, owner, fee, chain or receipt state", async () => {
   const changes = [

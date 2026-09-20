@@ -1,4 +1,4 @@
-// Initializes only this product's verified v4 namespace. Never migrates or deletes legacy data.
+// Initializes one registered release namespace. Never migrates or deletes legacy data.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { loadEnvFile } from "node:process";
@@ -9,6 +9,14 @@ import {
   releaseDataSchema,
 } from "../server/release-data.ts";
 import { product } from "../lib/product.ts";
+import { currentRelease, releaseById, releases } from "../lib/releases.ts";
+
+assert.ok(
+  [2, 4].includes(process.argv.length),
+  "Usage: node scripts/check-release-data.mjs [--release v4|v5]",
+);
+if (process.argv.length === 4) assert.equal(process.argv[2], "--release");
+const selected = releaseById(process.argv[3] ?? currentRelease.id);
 
 loadEnvFile(".env.local");
 const projects = {
@@ -20,10 +28,7 @@ assert.equal(
   projects[product.id],
   "Refusing an unrelated database",
 );
-const manifest = JSON.parse(
-  readFileSync(new URL("../lib/deployment.json", import.meta.url), "utf8"),
-);
-assert.equal(manifest.protocolVersion, 4);
+const manifest = selected.core;
 assert.equal(manifest.chainId, 61999);
 assert.equal(manifest.rpcUrl, "https://studio.genlayer.com/api");
 const schema = releaseDataSchema(product.id, manifest.contractAddress);
@@ -55,6 +60,12 @@ async function counts(namespace) {
   );
 }
 const legacyBefore = await counts("public");
+const otherSchemas = releases
+  .filter((release) => release.id !== selected.id)
+  .map((release) =>
+    releaseDataSchema(product.id, release.core.contractAddress),
+  );
+const othersBefore = await Promise.all(otherSchemas.map(counts));
 const db = createPostgresDatabase(process.env.DATABASE_URL, schema);
 const migration = readFileSync(
   new URL("../server/postgres-schema.sql", import.meta.url),
@@ -87,12 +98,18 @@ assert.deepEqual(
   legacyBefore,
   "Legacy counts changed; investigate before release",
 );
+assert.deepEqual(
+  await Promise.all(otherSchemas.map(counts)),
+  othersBefore,
+  "Another release's counts changed; investigate before release",
+);
 const releaseCounts = await counts(schema);
 assert.ok(Object.hasOwn(releaseCounts, "wallet_sessions"));
 assert.ok(Object.hasOwn(releaseCounts, "records"));
 console.log(
   JSON.stringify({
     product: product.id,
+    release: selected.id,
     schema,
     passed: true,
     legacyCountsUnchanged: true,

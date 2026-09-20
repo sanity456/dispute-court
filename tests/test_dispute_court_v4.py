@@ -33,12 +33,14 @@ def addr(account) -> str:
     return "0x" + bytes(raw).hex()
 
 
-@pytest.fixture()
-def court_v4(direct_deploy, direct_vm, direct_alice):
+@pytest.fixture(params=[4, 5], ids=["v4", "v5"])
+def court_v4(request, direct_deploy, direct_vm, direct_alice):
     direct_vm.sender = direct_alice
     direct_vm.value = 0
     direct_vm.warp(T0)
-    return direct_deploy(CONTRACT_PATH, FEE_BPS, sdk_version=DIRECT_TEST_SDK_VERSION)
+    # Run the unchanged adjudication/lifecycle regressions on both releases.
+    path = str(Path(CONTRACT_PATH).with_name(f"dispute_court_v{request.param}.py"))
+    return direct_deploy(path, FEE_BPS, sdk_version=DIRECT_TEST_SDK_VERSION)
 
 
 def create_agreement(

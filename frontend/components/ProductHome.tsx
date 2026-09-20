@@ -3,7 +3,7 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  contractAddress,
+  getContractAddress,
   formatGen,
   isLiveConfigured,
   parseGen,
@@ -25,8 +25,11 @@ import { DirectoryPanel } from "./DirectoryPanel";
 import { RecordTools, SessionStrip } from "./RecordTools";
 import { HelpPanel } from "./HelpPanel";
 import { OwnerDesk } from "./OwnerDesk";
+import { SettlementPanel } from "./SettlementPanel";
 import { PublishReview, type PublishDraft } from "./PublishReview";
 import { templates } from "../lib/templates";
+import { clientRelease } from "../lib/client-release";
+import { currentRelease, releases, recordPath } from "../lib/releases";
 import {
   agreementReviewKey,
   detailIsFresh,
@@ -146,6 +149,10 @@ function ProductWorkspace({
     transact,
   } = protocol;
   const [tab, setTab] = useState<Tab>("cases");
+  const isCurrentRelease = clientRelease().id === currentRelease.id;
+  const visibleTabs = tabs.filter(
+    ([id]) => id !== "create" || isCurrentRelease,
+  );
   const [selectedId, setSelectedId] = useState(initialId);
   const [supportContext, setSupportContext] = useState({ hash: "", id: "" });
   const [draft, setDraft] = useState<PublishDraft | null>(null);
@@ -243,7 +250,7 @@ function ProductWorkspace({
 
   function openAgreement(id: string) {
     if (!id) return;
-    router.push("/agreements/" + encodeURIComponent(id));
+    router.push(recordPath(id, clientRelease().id));
     setSelectedId(id);
     setReviewedKey("");
     setSettlementKey("");
@@ -292,6 +299,14 @@ function ProductWorkspace({
           ["Party B performance criteria", String(data.get("criteria"))],
           ["Test escrow", formatGen(amount.toString()) + " GEN"],
           ["Future adjudication fee", Number(config?.fee_bps ?? 0) / 100 + "%"],
+          ...(config?.protocol_version === 5
+            ? [
+                [
+                  "Negotiated settlement",
+                  "Either party may propose a fee-free whole-percentage split. Only the other party can accept it. Offers expire, do not pause deadlines, and are limited to 50 per party.",
+                ] as [string, string],
+              ]
+            : []),
           [
             "Windows",
             "Accept " +
@@ -389,7 +404,7 @@ function ProductWorkspace({
             </span>
           </button>
           <div className="hidden rounded-full bg-white/60 p-1 text-sm 2xl:flex">
-            {tabs.map(([id, title]) => (
+            {visibleTabs.map(([id, title]) => (
               <button
                 key={id}
                 aria-current={tab === id ? "page" : undefined}
@@ -411,7 +426,7 @@ function ProductWorkspace({
           </button>
         </div>
         <div className={shell + " flex gap-2 overflow-x-auto pb-3 2xl:hidden"}>
-          {tabs.map(([id, title]) => (
+          {visibleTabs.map(([id, title]) => (
             <button
               key={id}
               aria-current={tab === id ? "page" : undefined}
@@ -427,10 +442,10 @@ function ProductWorkspace({
       </nav>
       <div className={shell + " pt-4"}>
         <div className="court-mode court-live">
-          <strong>Studionet · sandbox</strong>
+          <strong>Studionet · sandbox · {clientRelease().id}</strong>
           <span>
             {isLiveConfigured
-              ? shortAddress(contractAddress) +
+              ? shortAddress(getContractAddress()) +
                 " · finalized contract data · test GEN only"
               : "Contract not configured. Transactions are disabled."}
           </span>
@@ -443,6 +458,38 @@ function ProductWorkspace({
           </button>
         </div>
         <SessionStrip protocol={protocol} />
+        {releases.length > 1 && (
+          <div className="court-surface mt-3 p-4">
+            <label>
+              Agreement version{" "}
+              <select
+                aria-label="Agreement version"
+                value={clientRelease().id}
+                disabled={Boolean(busy)}
+                onChange={(event) => {
+                  window.location.assign(
+                    "/?release=" + encodeURIComponent(event.target.value),
+                  );
+                }}
+              >
+                {releases.map((release) => (
+                  <option key={release.id} value={release.id}>
+                    {release.id === currentRelease.id
+                      ? "Current agreements"
+                      : "Previous agreements & withdrawals"}{" "}
+                    · {release.id}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {clientRelease().id !== currentRelease.id && (
+              <p className="mt-2 text-sm">
+                You are viewing the previous contract. Funds stay here; nothing
+                is migrated.
+              </p>
+            )}
+          </div>
+        )}
         {protocol.error && (
           <div className="court-notice court-notice-error" role="alert">
             <b>!</b>
@@ -503,6 +550,7 @@ function ProductWorkspace({
                 <button
                   className="court-primary"
                   onClick={() => setTab("create")}
+                  disabled={!isCurrentRelease}
                 >
                   Create an agreement ↗
                 </button>
@@ -759,6 +807,8 @@ function ProductWorkspace({
                         </summary>
                         <p>
                           Cooperative release or refund has no court fee.
+                          {agreement.protocol_version === 5 &&
+                            " Mutual settlement offers also carry no court fee. Only the other party can accept your proposed split; offers do not pause case deadlines."}
                           Rulings and no-shows charge the agreed fee. The
                           evidence fallback is 50/50 after bounded retries.
                           {agreement.protocol_version >= 4
@@ -1051,6 +1101,12 @@ function ProductWorkspace({
                       ))}
                     </ol>
                   </article>
+                  <SettlementPanel
+                    key={agreement.id}
+                    agreement={agreement}
+                    protocol={protocol}
+                    disabled={disabled}
+                  />
                   {(actions?.release || actions?.refund) && (
                     <article className="court-surface p-6">
                       <h3 className="text-xl font-black">
@@ -1401,7 +1457,7 @@ function ProductWorkspace({
         </section>
       )}
 
-      {tab === "create" && (
+      {tab === "create" && isCurrentRelease && (
         <section
           className={shell + " grid gap-8 py-12 lg:grid-cols-[1fr_340px]"}
         >
