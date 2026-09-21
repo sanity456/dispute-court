@@ -9,6 +9,7 @@ import { calendarFile, formatDeadline, nextStep } from "../lib/reminders";
 import { downloadFile, exportJson } from "../lib/export";
 import { clientRelease } from "../lib/client-release";
 import { recordPath } from "../lib/releases";
+import { recordLink } from "../lib/record-link";
 type History = {
   moderation: { hidden: number; moderation_reason: string } | null;
   observations: { at: number; status: string }[];
@@ -34,7 +35,9 @@ export function RecordTools({
     [attempts, setAttempts] = useState<unknown[]>([]);
   const notified = useRef(new Set<string>());
   const timezone = protocol.session?.preferences.timezone ?? "UTC";
-  const url = product.origin + recordPath(id, clientRelease().id);
+  const url = recordPath(id, clientRelease().id);
+  const shareUrl = () =>
+    recordLink(id, clientRelease().id, window.location.origin);
   useEffect(() => {
     const prefs = protocol.session?.preferences;
     if (!prefs?.browserReminders || !guide.deadline) return;
@@ -116,7 +119,7 @@ export function RecordTools({
           onClick={() =>
             void run(async () => {
               try {
-                await navigator.clipboard.writeText(url);
+                await navigator.clipboard.writeText(shareUrl());
                 setMessage(
                   "Invitation link copied. Access still follows this private site's sharing settings.",
                 );
@@ -140,6 +143,11 @@ export function RecordTools({
                     String(record.title),
                     guide,
                     protocol.session?.preferences.reminderMinutes ?? 60,
+                    Date.now(),
+                    {
+                      origin: window.location.origin,
+                      releaseId: clientRelease().id,
+                    },
                   ),
                   "text/calendar;charset=utf-8",
                 );
@@ -182,7 +190,7 @@ export function RecordTools({
                 product: product.id,
                 network: "studionet",
                 contract: protocol.session?.coreAddress,
-                url,
+                url: shareUrl(),
                 exportedAt: new Date().toISOString(),
                 record: fullRecord,
                 participants,

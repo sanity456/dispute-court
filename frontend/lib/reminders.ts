@@ -1,4 +1,5 @@
 import { product } from "./product.ts";
+import { recordLink } from "./record-link.ts";
 export type Guide = {
   title: string;
   detail: string;
@@ -260,6 +261,7 @@ export function calendarFile(
   guide: Guide,
   minutes = 60,
   now = Date.now(),
+  context = { origin: product.origin, releaseId: "v4" },
 ) {
   if (
     !guide.deadline ||
@@ -269,8 +271,7 @@ export function calendarFile(
     throw new Error("There is no future deadline to add.");
   if (![15, 60, 1440].includes(minutes))
     throw new Error("Unsupported reminder interval.");
-  const url =
-    product.origin + "/" + product.recordPath + "/" + encodeURIComponent(id);
+  const url = recordLink(id, context.releaseId, context.origin);
   return (
     [
       "BEGIN:VCALENDAR",
@@ -282,9 +283,11 @@ export function calendarFile(
       "UID:" +
         encodeURIComponent(id) +
         "-" +
+        context.releaseId +
+        "-" +
         guide.deadline +
         "@" +
-        new URL(product.origin).hostname,
+        new URL(context.origin).host,
       "DTSTAMP:" + stamp(now),
       "DTSTART:" + stamp(guide.deadline * 1000),
       "DTEND:" + stamp((guide.deadline + 900) * 1000),
