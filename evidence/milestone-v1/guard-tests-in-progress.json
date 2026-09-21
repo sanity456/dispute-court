@@ -1,0 +1,910 @@
+{
+  "scope": "Incomplete guard-test checkpoint. Rejection, cancellation and local reload/rollback checks passed; live expiry and refund/withdrawal remain open. No raw RPC data or credentials.",
+  "evidence": {
+    "guard-wallet-test.json": {
+      "status": "Offer 3 finalized successfully: 50/50, zero fee. Waiting for stored effective expiry 1789954118 (2026-09-21T01:28:38Z). Do not accept, replace, cancel or refund before expiry verification.",
+      "thirdOfferVerificationFile": "guard-offer-3-verification.json",
+      "thirdOfferPayloadFile": "guard-offer-3-payload.json",
+      "expiry": {
+        "offerNumber": 3,
+        "createdAt": 1789950518,
+        "effectiveExpiresAt": 1789954118,
+        "utc": "2026-09-21T01:28:38Z",
+        "verifiedExpired": false
+      },
+      "cancellationVerificationFile": "guard-cancellation-verification.json",
+      "cancellationPayloadFile": "guard-cancellation-payload.json",
+      "thirdOfferDraft": {
+        "action": "propose_settlement",
+        "inputs": [
+          "court-v5-guards-20260920-02",
+          50,
+          3600,
+          2
+        ],
+        "proposerRole": "partyB",
+        "partyAWei": "500",
+        "partyBWei": "500",
+        "feeWei": "0",
+        "expectedNextStep": "Leave offer 3 untouched until stored effective expiry; no acceptance, replacement, refund or cancellation before expiry verification",
+        "consentCheckedByAgent": false
+      },
+      "secondOfferVerificationFile": "guard-offer-2-verification.json",
+      "secondOfferPayloadFile": "guard-offer-2-payload.json",
+      "rejectionVerificationFile": "guard-rejection-verification.json",
+      "rejectionPayloadFile": "guard-rejection-payload.json",
+      "secondOfferDraft": {
+        "action": "propose_settlement",
+        "inputs": [
+          "court-v5-guards-20260920-02",
+          67,
+          3600,
+          1
+        ],
+        "proposerRole": "partyB",
+        "partyAWei": "330",
+        "partyBWei": "670",
+        "feeWei": "0",
+        "expectedNextStep": "Party B cancels its own offer 2; no acceptance",
+        "consentCheckedByAgent": false
+      },
+      "firstOfferVerificationFile": "guard-offer-1-verification.json",
+      "firstOfferPayloadFile": "guard-offer-1-payload.json",
+      "fundingVerificationFile": "guard-funding-verification.json",
+      "fundingPayloadFile": "guard-funding-payload.json",
+      "creditBaselineFile": "guard-credit-baseline.json",
+      "firstOfferDraft": {
+        "action": "propose_settlement",
+        "inputs": [
+          "court-v5-guards-20260920-02",
+          60,
+          3600,
+          0
+        ],
+        "partyAWei": "400",
+        "partyBWei": "600",
+        "feeWei": "0",
+        "expectedNextStep": "Party B rejects offer 1 on chain; do not accept the settlement",
+        "consentCheckedByAgent": false
+      },
+      "acceptanceVerificationFile": "guard-acceptance-verification.json",
+      "acceptancePayloadFile": "guard-acceptance-payload.json",
+      "creationVerificationFile": "guard-creation-verification.json",
+      "creationPayloadFile": "guard-creation-payload.json",
+      "sourceCommit": "51cbb8805887167cbe4b435fcdb705b01e1c7387",
+      "chainId": 61999,
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "partyA": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+      "partyB": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+      "agreementId": "court-v5-guards-20260920-02",
+      "draft": {
+        "title": "v5 rejection, cancellation and expiry test",
+        "summary": "Studionet-only public QA fixture controlled by the tester. No real goods or services. Fund exactly 1000 wei to verify recipient rejection, proposer cancellation, offer expiry and recovery without duplicate transactions. After testing, Party B voluntarily refunds all escrow to Party A, who withdraws the resulting credit.",
+        "criteria": "Fictional checklist: none means no test outcomes recorded; partial means some outcomes recorded; full means rejection, cancellation, expiry and recovery outcomes recorded with public transaction evidence. No confidential data. A voluntary refund or negotiated split does not assert an AI performance finding.",
+        "amountGen": "0.000000000000001",
+        "amountWei": "1000",
+        "acceptanceDays": 1,
+        "fundingDays": 1,
+        "performanceDays": 1,
+        "responseDays": 1,
+        "evidenceDays": 1
+      },
+      "plannedChecks": [
+        "Create, accept and fund with exact stored terms; record initial credits",
+        "A proposes offer 1; B rejects: OFFER_REJECTED, no credits or deadline changes",
+        "B proposes offer 2 and cancels it: OFFER_CANCELLED, no credits or deadline changes",
+        "B proposes offer 3 with 3600-second validity; record stored created_at and effective_expires_at",
+        "Observe pending-hash reload recovery without resending; if already finalized, mark pending recovery untested",
+        "Read finalized offer view after chain-time expiry: OFFER_EXPIRED; verify original deadlines unchanged",
+        "Keep direct-suite stale/self-acceptance reverts separate from any live UI or chain evidence",
+        "B voluntarily refunds escrow to A using the existing refund path; A withdraws; verify exact native child and final credits"
+      ],
+      "transactions": [
+        {
+          "action": "create_agreement",
+          "hash": "0x526d6af039f53433acec0d5a1be4be509e44bfa97753e9fe60a6223607edcd63"
+        },
+        {
+          "action": "accept_agreement",
+          "hash": "0x694406ba83499041ca56c2e2c9e05ebf3a59751f8f0505f5696de2d6877d9b1e"
+        },
+        {
+          "action": "fund_agreement",
+          "hash": "0x5381b4121bd8feec526f2387ae08aa7194236202971d28b0ae62679fad0a57a4"
+        },
+        {
+          "action": "propose_settlement",
+          "offerNumber": 1,
+          "hash": "0x174ee1178cf10e59212262ed7c6718e4f9c3e40b1a8450394097e1dbf29b1aed"
+        },
+        {
+          "action": "reject_settlement",
+          "offerNumber": 1,
+          "hash": "0xcd4e5d91021049966ea52c8e41290589ce27bd4f8a249eee20ba08d44a299023"
+        },
+        {
+          "action": "propose_settlement",
+          "offerNumber": 2,
+          "hash": "0xb1629384b92c0c7ac26fb94476c297ea8f1b5c1bb47388abec9b564f1f116c06"
+        },
+        {
+          "action": "cancel_settlement",
+          "offerNumber": 2,
+          "hash": "0xc2c4c31abc5f80cf9ceaf1b172d267215bf77246b276e9fa90a2fc706b80afed"
+        },
+        {
+          "action": "propose_settlement",
+          "offerNumber": 3,
+          "hash": "0xc5dbb06f7331736b1afe072d82d8d6d7177f2d777c48858d68fabff3e27d6156"
+        }
+      ],
+      "reloadRecovery": {
+        "beforeReloadUiStatus": "Create agreement: accepted. Your hash is recorded in Activity.",
+        "beforeReloadUiWaitingForFinality": true,
+        "hash": "0x526d6af039f53433acec0d5a1be4be509e44bfa97753e9fe60a6223607edcd63",
+        "afterReloadVerified": true,
+        "afterReloadUiStatus": "Submitted · pending",
+        "afterExplicitReadOnlyCheckUiStatus": "Execution succeeded and finalized",
+        "matchingCreationEntriesOnLoadedPage": 1,
+        "savedRequestsOnPage": 7,
+        "agentResubmittedTransaction": false,
+        "scope": "Reload while UI awaited finality; exact saved hash recovered and reconciled through Check execution & delivery. This proves saved-journal reload recovery, not an injected network outage or pre-hash crash."
+      },
+      "passed": false,
+      "note": "All wallet approvals remain with the user. Planned checks are not results. The one-hour expiry must not be shortened by changing the deployed contract or inferred solely from the local clock. Live v4 and production are unchanged."
+    },
+    "guard-creation-verification.json": {
+      "hash": "0x526d6af039f53433acec0d5a1be4be509e44bfa97753e9fe60a6223607edcd63",
+      "lifecycle": "FINALIZED",
+      "execution": "success",
+      "chainId": 61999,
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "agreementId": "court-v5-guards-20260920-02",
+      "partiesAndTermsMatchDraft": true,
+      "amountWei": "1000",
+      "status": "awaiting_acceptance",
+      "createdAt": "2026-09-21T00:07:30.969193+00:00",
+      "acceptanceDeadline": 1790035650,
+      "termsHash": "c52f936eb409d63a6752d93b1740621b35f0ac131b80e93147262037a07ad608",
+      "windowSeconds": 86400,
+      "feeBps": 200,
+      "negotiationFeeBps": 0,
+      "note": "Stored contract timestamps; no local-clock eligibility assumption. This is a finalized state read, not the transaction return payload."
+    },
+    "guard-creation-payload.json": {
+      "sourceCommit": "51cbb8805887167cbe4b435fcdb705b01e1c7387",
+      "chainId": 61999,
+      "transactions": [
+        {
+          "hash": "0x526d6af039f53433acec0d5a1be4be509e44bfa97753e9fe60a6223607edcd63",
+          "method": "create_agreement",
+          "sender": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+          "contract": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+          "valueWei": "0",
+          "decodedInputs": [
+            "court-v5-guards-20260920-02",
+            "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "v5 rejection, cancellation and expiry test",
+            "Studionet-only public QA fixture controlled by the tester. No real goods or services. Fund exactly 1000 wei to verify recipient rejection, proposer cancellation, offer expiry and recovery without duplicate transactions. After testing, Party B voluntarily refunds all escrow to Party A, who withdraws the resulting credit.",
+            "Fictional checklist: none means no test outcomes recorded; partial means some outcomes recorded; full means rejection, cancellation, expiry and recovery outcomes recorded with public transaction evidence. No confidential data. A voluntary refund or negotiated split does not assert an AI performance finding.",
+            "1000",
+            "86400",
+            "86400",
+            "86400",
+            "86400",
+            "86400"
+          ],
+          "lifecycle": "FINALIZED",
+          "execution": "success",
+          "decodedOutput": {
+            "acceptance_deadline": "1790035650",
+            "amount_wei": "1000",
+            "fee_bps": "200",
+            "funding_deadline": "0",
+            "id": "court-v5-guards-20260920-02",
+            "party_a": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+            "party_b": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "performance_due_at": "0",
+            "status": "awaiting_acceptance",
+            "terms_hash": "c52f936eb409d63a6752d93b1740621b35f0ac131b80e93147262037a07ad608",
+            "title": "v5 rejection, cancellation and expiry test"
+          }
+        }
+      ]
+    },
+    "guard-acceptance-verification.json": {
+      "hash": "0x694406ba83499041ca56c2e2c9e05ebf3a59751f8f0505f5696de2d6877d9b1e",
+      "lifecycle": "FINALIZED",
+      "execution": "success",
+      "chainId": 61999,
+      "action": "accept_agreement",
+      "inputs": [
+        "court-v5-guards-20260920-02"
+      ],
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "partyB": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+      "status": "awaiting_funding",
+      "termsHashUnchanged": true,
+      "amountWei": "1000",
+      "acceptedAt": "2026-09-21T00:11:46.460101+00:00",
+      "fundingDeadline": 1790035906,
+      "funded": false,
+      "note": "Finalized state read using stored chain timestamps. Transaction return payload not captured here."
+    },
+    "guard-acceptance-payload.json": {
+      "sourceCommit": "51cbb8805887167cbe4b435fcdb705b01e1c7387",
+      "chainId": 61999,
+      "transactions": [
+        {
+          "hash": "0x694406ba83499041ca56c2e2c9e05ebf3a59751f8f0505f5696de2d6877d9b1e",
+          "method": "accept_agreement",
+          "sender": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+          "contract": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+          "valueWei": "0",
+          "decodedInputs": [
+            "court-v5-guards-20260920-02"
+          ],
+          "lifecycle": "FINALIZED",
+          "execution": "success",
+          "decodedOutput": {
+            "acceptance_deadline": "1790035650",
+            "amount_wei": "1000",
+            "fee_bps": "200",
+            "funding_deadline": "1790035906",
+            "id": "court-v5-guards-20260920-02",
+            "party_a": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+            "party_b": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "performance_due_at": "0",
+            "status": "awaiting_funding",
+            "terms_hash": "c52f936eb409d63a6752d93b1740621b35f0ac131b80e93147262037a07ad608",
+            "title": "v5 rejection, cancellation and expiry test"
+          }
+        }
+      ]
+    },
+    "guard-credit-baseline.json": {
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "agreementId": "court-v5-guards-20260920-02",
+      "stage": "before funding",
+      "credits": [
+        {
+          "account": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+          "creditWei": "0"
+        },
+        {
+          "account": "0x29b8b7d7cbf534eba01e56919de19d79d1509360",
+          "creditWei": "0"
+        }
+      ]
+    },
+    "guard-funding-verification.json": {
+      "hash": "0x5381b4121bd8feec526f2387ae08aa7194236202971d28b0ae62679fad0a57a4",
+      "lifecycle": "FINALIZED",
+      "execution": "success",
+      "chainId": 61999,
+      "action": "fund_agreement",
+      "inputs": [
+        "court-v5-guards-20260920-02"
+      ],
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "amountWei": "1000",
+      "status": "funded",
+      "fundedAt": "2026-09-21T00:15:25.328848+00:00",
+      "performanceDueAt": 1790036125,
+      "termsHashUnchanged": true,
+      "settlementOfferCount": 0,
+      "amountProof": "The source-verified payable fund method requires message.value to equal the immutable 1000-wei amount before recording funded state.",
+      "note": "Finalized state read; stored chain timestamps. Transaction return payload is not captured here."
+    },
+    "guard-funding-payload.json": {
+      "sourceCommit": "51cbb8805887167cbe4b435fcdb705b01e1c7387",
+      "chainId": 61999,
+      "transactions": [
+        {
+          "hash": "0x5381b4121bd8feec526f2387ae08aa7194236202971d28b0ae62679fad0a57a4",
+          "method": "fund_agreement",
+          "sender": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+          "contract": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+          "valueWei": "1000",
+          "decodedInputs": [
+            "court-v5-guards-20260920-02"
+          ],
+          "lifecycle": "FINALIZED",
+          "execution": "success",
+          "decodedOutput": {
+            "acceptance_deadline": "1790035650",
+            "amount_wei": "1000",
+            "fee_bps": "200",
+            "funding_deadline": "1790035906",
+            "id": "court-v5-guards-20260920-02",
+            "party_a": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+            "party_b": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "performance_due_at": "1790036125",
+            "status": "funded",
+            "terms_hash": "c52f936eb409d63a6752d93b1740621b35f0ac131b80e93147262037a07ad608",
+            "title": "v5 rejection, cancellation and expiry test"
+          }
+        }
+      ]
+    },
+    "guard-offer-1-verification.json": {
+      "hash": "0x174ee1178cf10e59212262ed7c6718e4f9c3e40b1a8450394097e1dbf29b1aed",
+      "lifecycle": "FINALIZED",
+      "execution": "success",
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "action": "propose_settlement",
+      "inputs": [
+        "court-v5-guards-20260920-02",
+        60,
+        3600,
+        0
+      ],
+      "offer": {
+        "number": 1,
+        "proposer": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+        "recipient": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+        "partyAPct": 40,
+        "partyBPct": 60,
+        "partyAWei": "400",
+        "partyBWei": "600",
+        "feeWei": "0",
+        "status": "pending",
+        "reasonCode": "OFFER_PROPOSED",
+        "createdAt": 1789949890,
+        "expiresAt": 1789953490,
+        "effectiveExpiresAt": 1789953490
+      },
+      "agreementStatus": "funded",
+      "performanceDeadlineUnchanged": true,
+      "offerCount": 1,
+      "partyAOfferCount": 1,
+      "partyBOfferCount": 0,
+      "note": "Finalized contract view; stored chain timestamps. Proposal is not yet accepted and pays neither party."
+    },
+    "guard-offer-1-payload.json": {
+      "sourceCommit": "51cbb8805887167cbe4b435fcdb705b01e1c7387",
+      "chainId": 61999,
+      "transactions": [
+        {
+          "hash": "0x174ee1178cf10e59212262ed7c6718e4f9c3e40b1a8450394097e1dbf29b1aed",
+          "method": "propose_settlement",
+          "sender": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+          "contract": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+          "valueWei": "0",
+          "decodedInputs": [
+            "court-v5-guards-20260920-02",
+            "60",
+            "3600",
+            "0"
+          ],
+          "lifecycle": "FINALIZED",
+          "execution": "success",
+          "decodedOutput": {
+            "agreement_id": "court-v5-guards-20260920-02",
+            "closed_at": "0",
+            "closed_by": "",
+            "created_at": "1789949890",
+            "effective_expires_at": "1789953490",
+            "expires_at": "1789953490",
+            "fee_wei": "0",
+            "number": "1",
+            "party_a_pct": "40",
+            "party_a_wei": "400",
+            "party_b_pct": "60",
+            "party_b_wei": "600",
+            "proposer": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+            "reason_code": "OFFER_PROPOSED",
+            "recipient": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "status": "pending",
+            "terms_hash": "c52f936eb409d63a6752d93b1740621b35f0ac131b80e93147262037a07ad608"
+          }
+        }
+      ]
+    },
+    "guard-rejection-verification.json": {
+      "hash": "0xcd4e5d91021049966ea52c8e41290589ce27bd4f8a249eee20ba08d44a299023",
+      "lifecycle": "FINALIZED",
+      "execution": "success",
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "action": "reject_settlement",
+      "inputs": [
+        "court-v5-guards-20260920-02",
+        1
+      ],
+      "offer": {
+        "number": 1,
+        "proposer": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+        "recipient": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+        "partyAPct": 40,
+        "partyBPct": 60,
+        "partyAWei": "400",
+        "partyBWei": "600",
+        "feeWei": "0",
+        "status": "rejected",
+        "reasonCode": "OFFER_REJECTED",
+        "createdAt": 1789949890,
+        "expiresAt": 1789953490,
+        "effectiveExpiresAt": 1789953490
+      },
+      "agreementStatus": "funded",
+      "performanceDeadlineUnchanged": true,
+      "offerCount": 1,
+      "partyAOfferCount": 1,
+      "partyBOfferCount": 0,
+      "note": "Recipient rejection finalized before stored expiry. Agreement stays funded, original deadlines and credits unchanged; no payout.",
+      "creditsUnchanged": true,
+      "credits": [
+        {
+          "account": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+          "creditWei": "0"
+        },
+        {
+          "account": "0x29b8b7d7cbf534eba01e56919de19d79d1509360",
+          "creditWei": "0"
+        }
+      ],
+      "closedAt": 1789950118,
+      "closedBy": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360"
+    },
+    "guard-rejection-payload.json": {
+      "sourceCommit": "51cbb8805887167cbe4b435fcdb705b01e1c7387",
+      "chainId": 61999,
+      "transactions": [
+        {
+          "hash": "0xcd4e5d91021049966ea52c8e41290589ce27bd4f8a249eee20ba08d44a299023",
+          "method": "reject_settlement",
+          "sender": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+          "contract": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+          "valueWei": "0",
+          "decodedInputs": [
+            "court-v5-guards-20260920-02",
+            "1"
+          ],
+          "lifecycle": "FINALIZED",
+          "execution": "success",
+          "decodedOutput": {
+            "agreement_id": "court-v5-guards-20260920-02",
+            "closed_at": "1789950118",
+            "closed_by": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "created_at": "1789949890",
+            "effective_expires_at": "1789953490",
+            "expires_at": "1789953490",
+            "fee_wei": "0",
+            "number": "1",
+            "party_a_pct": "40",
+            "party_a_wei": "400",
+            "party_b_pct": "60",
+            "party_b_wei": "600",
+            "proposer": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+            "reason_code": "OFFER_REJECTED",
+            "recipient": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "status": "rejected",
+            "terms_hash": "c52f936eb409d63a6752d93b1740621b35f0ac131b80e93147262037a07ad608"
+          }
+        }
+      ]
+    },
+    "guard-offer-2-verification.json": {
+      "hash": "0xb1629384b92c0c7ac26fb94476c297ea8f1b5c1bb47388abec9b564f1f116c06",
+      "lifecycle": "FINALIZED",
+      "execution": "success",
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "action": "propose_settlement",
+      "inputs": [
+        "court-v5-guards-20260920-02",
+        67,
+        3600,
+        1
+      ],
+      "offer": {
+        "number": 2,
+        "proposer": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+        "recipient": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+        "partyAPct": 33,
+        "partyBPct": 67,
+        "partyAWei": "330",
+        "partyBWei": "670",
+        "feeWei": "0",
+        "status": "pending",
+        "reasonCode": "OFFER_PROPOSED",
+        "createdAt": 1789950282,
+        "expiresAt": 1789953882,
+        "effectiveExpiresAt": 1789953882
+      },
+      "previousOffer": {
+        "number": 1,
+        "status": "rejected",
+        "reasonCode": "OFFER_REJECTED",
+        "closedAt": 1789950118,
+        "closedBy": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360"
+      },
+      "agreementStatus": "funded",
+      "performanceDeadlineUnchanged": true,
+      "noSettlementAllocationYet": true,
+      "offerCount": 2,
+      "partyAOfferCount": 1,
+      "partyBOfferCount": 1,
+      "note": "Finalized contract views; stored chain timestamps. New offer is pending; original offer remains rejected at its original closure time."
+    },
+    "guard-offer-2-payload.json": {
+      "sourceCommit": "51cbb8805887167cbe4b435fcdb705b01e1c7387",
+      "chainId": 61999,
+      "transactions": [
+        {
+          "hash": "0xb1629384b92c0c7ac26fb94476c297ea8f1b5c1bb47388abec9b564f1f116c06",
+          "method": "propose_settlement",
+          "sender": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+          "contract": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+          "valueWei": "0",
+          "decodedInputs": [
+            "court-v5-guards-20260920-02",
+            "67",
+            "3600",
+            "1"
+          ],
+          "lifecycle": "FINALIZED",
+          "execution": "success",
+          "decodedOutput": {
+            "agreement_id": "court-v5-guards-20260920-02",
+            "closed_at": "0",
+            "closed_by": "",
+            "created_at": "1789950282",
+            "effective_expires_at": "1789953882",
+            "expires_at": "1789953882",
+            "fee_wei": "0",
+            "number": "2",
+            "party_a_pct": "33",
+            "party_a_wei": "330",
+            "party_b_pct": "67",
+            "party_b_wei": "670",
+            "proposer": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "reason_code": "OFFER_PROPOSED",
+            "recipient": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+            "status": "pending",
+            "terms_hash": "c52f936eb409d63a6752d93b1740621b35f0ac131b80e93147262037a07ad608"
+          }
+        }
+      ]
+    },
+    "guard-cancellation-verification.json": {
+      "creditsUnchanged": true,
+      "credits": [
+        {
+          "account": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+          "creditWei": "0"
+        },
+        {
+          "account": "0x29b8b7d7cbf534eba01e56919de19d79d1509360",
+          "creditWei": "0"
+        }
+      ],
+      "closedAt": 1789950391,
+      "closedBy": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+      "hash": "0xc2c4c31abc5f80cf9ceaf1b172d267215bf77246b276e9fa90a2fc706b80afed",
+      "lifecycle": "FINALIZED",
+      "execution": "success",
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "action": "cancel_settlement",
+      "inputs": [
+        "court-v5-guards-20260920-02",
+        2
+      ],
+      "offer": {
+        "number": 2,
+        "proposer": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+        "recipient": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+        "partyAPct": 33,
+        "partyBPct": 67,
+        "partyAWei": "330",
+        "partyBWei": "670",
+        "feeWei": "0",
+        "status": "cancelled",
+        "reasonCode": "OFFER_CANCELLED",
+        "createdAt": 1789950282,
+        "expiresAt": 1789953882,
+        "effectiveExpiresAt": 1789953882
+      },
+      "previousOffer": {
+        "number": 1,
+        "status": "rejected",
+        "reasonCode": "OFFER_REJECTED",
+        "closedAt": 1789950118,
+        "closedBy": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360"
+      },
+      "agreementStatus": "funded",
+      "performanceDeadlineUnchanged": true,
+      "noSettlementAllocationYet": true,
+      "offerCount": 2,
+      "partyAOfferCount": 1,
+      "partyBOfferCount": 1,
+      "note": "Finalized contract views; stored chain timestamps. Proposer cancellation finalized; no credits or deadlines changed. Earlier rejection remains unchanged."
+    },
+    "guard-cancellation-payload.json": {
+      "sourceCommit": "51cbb8805887167cbe4b435fcdb705b01e1c7387",
+      "chainId": 61999,
+      "transactions": [
+        {
+          "hash": "0xc2c4c31abc5f80cf9ceaf1b172d267215bf77246b276e9fa90a2fc706b80afed",
+          "method": "cancel_settlement",
+          "sender": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+          "contract": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+          "valueWei": "0",
+          "decodedInputs": [
+            "court-v5-guards-20260920-02",
+            "2"
+          ],
+          "lifecycle": "FINALIZED",
+          "execution": "success",
+          "decodedOutput": {
+            "agreement_id": "court-v5-guards-20260920-02",
+            "closed_at": "1789950391",
+            "closed_by": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "created_at": "1789950282",
+            "effective_expires_at": "1789953882",
+            "expires_at": "1789953882",
+            "fee_wei": "0",
+            "number": "2",
+            "party_a_pct": "33",
+            "party_a_wei": "330",
+            "party_b_pct": "67",
+            "party_b_wei": "670",
+            "proposer": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "reason_code": "OFFER_CANCELLED",
+            "recipient": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+            "status": "cancelled",
+            "terms_hash": "c52f936eb409d63a6752d93b1740621b35f0ac131b80e93147262037a07ad608"
+          }
+        }
+      ]
+    },
+    "guard-offer-3-verification.json": {
+      "previousCancellationUnchanged": true,
+      "hash": "0xc5dbb06f7331736b1afe072d82d8d6d7177f2d777c48858d68fabff3e27d6156",
+      "lifecycle": "FINALIZED",
+      "execution": "success",
+      "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "action": "propose_settlement",
+      "inputs": [
+        "court-v5-guards-20260920-02",
+        50,
+        3600,
+        2
+      ],
+      "offer": {
+        "number": 3,
+        "proposer": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+        "recipient": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+        "partyAPct": 50,
+        "partyBPct": 50,
+        "partyAWei": "500",
+        "partyBWei": "500",
+        "feeWei": "0",
+        "status": "pending",
+        "reasonCode": "OFFER_PROPOSED",
+        "createdAt": 1789950518,
+        "expiresAt": 1789954118,
+        "effectiveExpiresAt": 1789954118
+      },
+      "previousOffer": {
+        "number": 1,
+        "status": "rejected",
+        "reasonCode": "OFFER_REJECTED",
+        "closedAt": 1789950118,
+        "closedBy": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360"
+      },
+      "agreementStatus": "funded",
+      "performanceDeadlineUnchanged": true,
+      "noSettlementAllocationYet": true,
+      "offerCount": 3,
+      "partyAOfferCount": 1,
+      "partyBOfferCount": 2,
+      "note": "Finalized contract views; stored chain timestamps. New offer is pending; original offer remains rejected at its original closure time."
+    },
+    "guard-offer-3-payload.json": {
+      "sourceCommit": "51cbb8805887167cbe4b435fcdb705b01e1c7387",
+      "chainId": 61999,
+      "transactions": [
+        {
+          "hash": "0xc5dbb06f7331736b1afe072d82d8d6d7177f2d777c48858d68fabff3e27d6156",
+          "method": "propose_settlement",
+          "sender": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+          "contract": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+          "valueWei": "0",
+          "decodedInputs": [
+            "court-v5-guards-20260920-02",
+            "50",
+            "3600",
+            "2"
+          ],
+          "lifecycle": "FINALIZED",
+          "execution": "success",
+          "decodedOutput": {
+            "agreement_id": "court-v5-guards-20260920-02",
+            "closed_at": "0",
+            "closed_by": "",
+            "created_at": "1789950518",
+            "effective_expires_at": "1789954118",
+            "expires_at": "1789954118",
+            "fee_wei": "0",
+            "number": "3",
+            "party_a_pct": "50",
+            "party_a_wei": "500",
+            "party_b_pct": "50",
+            "party_b_wei": "500",
+            "proposer": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+            "reason_code": "OFFER_PROPOSED",
+            "recipient": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+            "status": "pending",
+            "terms_hash": "c52f936eb409d63a6752d93b1740621b35f0ac131b80e93147262037a07ad608"
+          }
+        }
+      ]
+    },
+    "local-release-storage-before.json": {
+      "scope": "Actual local-preview SQLite journals and indexed records only; not Neon or wallet session data",
+      "agreementId": "court-v5-guards-20260920-02",
+      "evidence": {
+        "v4": {
+          "recordCount": 0,
+          "intents": []
+        },
+        "v5": {
+          "recordCount": 1,
+          "intents": [
+            {
+              "method": "create_agreement",
+              "target": "0x369d8f95744c8eabcf50e8de009eb162248d1504",
+              "hash": "0x526d6af039f53433acec0d5a1be4be509e44bfa97753e9fe60a6223607edcd63",
+              "valueWei": "0"
+            },
+            {
+              "method": "accept_agreement",
+              "target": "0x369d8f95744c8eabcf50e8de009eb162248d1504",
+              "hash": "0x694406ba83499041ca56c2e2c9e05ebf3a59751f8f0505f5696de2d6877d9b1e",
+              "valueWei": "0"
+            },
+            {
+              "method": "fund_agreement",
+              "target": "0x369d8f95744c8eabcf50e8de009eb162248d1504",
+              "hash": "0x5381b4121bd8feec526f2387ae08aa7194236202971d28b0ae62679fad0a57a4",
+              "valueWei": "1000"
+            },
+            {
+              "method": "propose_settlement",
+              "target": "0x369d8f95744c8eabcf50e8de009eb162248d1504",
+              "hash": "0x174ee1178cf10e59212262ed7c6718e4f9c3e40b1a8450394097e1dbf29b1aed",
+              "valueWei": "0"
+            },
+            {
+              "method": "reject_settlement",
+              "target": "0x369d8f95744c8eabcf50e8de009eb162248d1504",
+              "hash": "0xcd4e5d91021049966ea52c8e41290589ce27bd4f8a249eee20ba08d44a299023",
+              "valueWei": "0"
+            },
+            {
+              "method": "propose_settlement",
+              "target": "0x369d8f95744c8eabcf50e8de009eb162248d1504",
+              "hash": "0xb1629384b92c0c7ac26fb94476c297ea8f1b5c1bb47388abec9b564f1f116c06",
+              "valueWei": "0"
+            },
+            {
+              "method": "cancel_settlement",
+              "target": "0x369d8f95744c8eabcf50e8de009eb162248d1504",
+              "hash": "0xc2c4c31abc5f80cf9ceaf1b172d267215bf77246b276e9fa90a2fc706b80afed",
+              "valueWei": "0"
+            },
+            {
+              "method": "propose_settlement",
+              "target": "0x369d8f95744c8eabcf50e8de009eb162248d1504",
+              "hash": "0xc5dbb06f7331736b1afe072d82d8d6d7177f2d777c48858d68fabff3e27d6156",
+              "valueWei": "0"
+            }
+          ]
+        }
+      },
+      "rollbackPreserved": false
+    },
+    "local-release-storage-after.json": {
+      "scope": "Actual local-preview SQLite journals and indexed records only; not Neon or wallet session data",
+      "agreementId": "court-v5-guards-20260920-02",
+      "evidence": {
+        "v4": {
+          "recordCount": 0,
+          "intents": []
+        },
+        "v5": {
+          "recordCount": 1,
+          "intents": [
+            {
+              "method": "create_agreement",
+              "target": "0x369d8f95744c8eabcf50e8de009eb162248d1504",
+              "hash": "0x526d6af039f53433acec0d5a1be4be509e44bfa97753e9fe60a6223607edcd63",
+              "valueWei": "0"
+            },
+            {
+              "method": "accept_agreement",
+              "target": "0x369d8f95744c8eabcf50e8de009eb162248d1504",
+              "hash": "0x694406ba83499041ca56c2e2c9e05ebf3a59751f8f0505f5696de2d6877d9b1e",
+              "valueWei": "0"
+            },
+            {
+              "method": "fund_agreement",
+              "target": "0x369d8f95744c8eabcf50e8de009eb162248d1504",
+              "hash": "0x5381b4121bd8feec526f2387ae08aa7194236202971d28b0ae62679fad0a57a4",
+              "valueWei": "1000"
+            },
+            {
+              "method": "propose_settlement",
+              "target": "0x369d8f95744c8eabcf50e8de009eb162248d1504",
+              "hash": "0x174ee1178cf10e59212262ed7c6718e4f9c3e40b1a8450394097e1dbf29b1aed",
+              "valueWei": "0"
+            },
+            {
+              "method": "reject_settlement",
+              "target": "0x369d8f95744c8eabcf50e8de009eb162248d1504",
+              "hash": "0xcd4e5d91021049966ea52c8e41290589ce27bd4f8a249eee20ba08d44a299023",
+              "valueWei": "0"
+            },
+            {
+              "method": "propose_settlement",
+              "target": "0x369d8f95744c8eabcf50e8de009eb162248d1504",
+              "hash": "0xb1629384b92c0c7ac26fb94476c297ea8f1b5c1bb47388abec9b564f1f116c06",
+              "valueWei": "0"
+            },
+            {
+              "method": "cancel_settlement",
+              "target": "0x369d8f95744c8eabcf50e8de009eb162248d1504",
+              "hash": "0xc2c4c31abc5f80cf9ceaf1b172d267215bf77246b276e9fa90a2fc706b80afed",
+              "valueWei": "0"
+            },
+            {
+              "method": "propose_settlement",
+              "target": "0x369d8f95744c8eabcf50e8de009eb162248d1504",
+              "hash": "0xc5dbb06f7331736b1afe072d82d8d6d7177f2d777c48858d68fabff3e27d6156",
+              "valueWei": "0"
+            }
+          ]
+        }
+      },
+      "rollbackPreserved": true
+    },
+    "local-rollback-verification.json": {
+      "scope": "Local Chrome preview with real Studionet reads and local SQLite only; not Vercel/Neon production",
+      "sourceCommit": "51cbb8805887167cbe4b435fcdb705b01e1c7387",
+      "initialDefault": "v5",
+      "rollbackDefault": "v4",
+      "retainedRelease": "v5",
+      "restoredDefault": "v5",
+      "v4Core": "0xC49ED63ddc1685850aAF5d5e85986c1bCedBe8b5",
+      "v5Core": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "walletSessionPreserved": true,
+      "v4OriginalAgreementAccessible": "human-wallet-v4-20260906-01",
+      "v5FundedAgreementAccessibleDuringRollback": "court-v5-guards-20260920-02",
+      "v5OfferDuringRollback": {
+        "number": 3,
+        "status": "pending",
+        "partyAPct": 50,
+        "partyBPct": 50
+      },
+      "v5CreationDisabledWhenNonDefault": true,
+      "v5RefundReviewAvailableWhenNonDefault": true,
+      "v5WithdrawalControlPresent": true,
+      "v5WithdrawableCreditWei": "0",
+      "walletBHistoryEmptyOnV4": true,
+      "sameV5IdOnV4FailsClosed": true,
+      "v4LookupErrorCopy": "Generic service error with paused actions, not an explicit wrong-release/not-found explanation",
+      "allEightV5JournalEntriesPreserved": true,
+      "storageReports": [
+        "local-release-storage-before.json",
+        "local-release-storage-after.json"
+      ],
+      "notes": [
+        "Changing manifests in the running dev server did not change its loaded default until restart. Both rollback and restoration were checked after clean preview restarts.",
+        "The first storage comparison failed because SQLite rows have null prototypes while parsed JSON rows do not. Normalizing selected public fields to plain objects made the exact comparison pass; no database data was changed.",
+        "No transaction was sent during this drill. Zero available credit means this is access/control evidence, not an executed legacy or retained-release withdrawal.",
+        "All transaction consent checkboxes were unchecked after full release navigation. No original consent was reused.",
+        "Primary checkout v4 manifests and production remain unchanged. Only the isolated local preview was toggled and restored."
+      ]
+    }
+  }
+}
