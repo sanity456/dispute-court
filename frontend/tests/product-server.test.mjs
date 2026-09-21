@@ -92,6 +92,7 @@ async function database(t) {
 }
 function network(transactions = new Map()) {
   return {
+    protocolVersion: 4,
     coreAddress: core,
     captureAddress: capture,
     ownerAddress: deployment.ownerAddress.toLowerCase(),

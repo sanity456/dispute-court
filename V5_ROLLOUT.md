@@ -1,6 +1,6 @@
 # v5 rollout — same app, separate immutable contract
 
-Rollout checklist, not proof that all gates passed. The separate v5 pair is now finalized and source-verified; see [V5_DEPLOYMENT_EVIDENCE.md](V5_DEPLOYMENT_EVIDENCE.md). Candidate manifests are isolated to staging and a local preview. The primary checkout still defaults to v4.
+Rollout checklist, not proof that all gates passed. The separate v5 pair is finalized and source-verified; see [V5_DEPLOYMENT_EVIDENCE.md](V5_DEPLOYMENT_EVIDENCE.md). The milestone candidate branch now selects that verified pair and retains both v4/v5 for an immutable preview build. The production app still runs the accepted v4 release; pushing this branch does not authorize merging to main or promoting production.
 
 ## What is implemented locally
 

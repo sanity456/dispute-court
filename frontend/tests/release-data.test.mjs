@@ -149,7 +149,7 @@ test("Browser and server share the verified manifest, and archived deployments r
   for (const name of ["deployment", "evidence-deployment"]) {
     const current = JSON.parse(read("../lib/" + name + ".json"));
     const archive = JSON.parse(read("../lib/" + name + "-v3.json"));
-    assert.equal(current.protocolVersion, 4);
+    assert.equal(current.protocolVersion, 5);
     assert.equal(current.chainId, 61999);
     assert.match(current.sourceSha256, /^[a-f0-9]{64}$/);
     assert.notEqual(

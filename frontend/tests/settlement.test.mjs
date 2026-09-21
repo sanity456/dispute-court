@@ -14,18 +14,26 @@ import {
 const a = "0x" + "aa".repeat(20),
   b = "0x" + "bb".repeat(20);
 
-test("candidate writes stay unavailable on the active v4 release", () => {
+test("candidate writes remain unavailable on retained v4; version matching stays explicit", () => {
   assert.equal(contractSurface(4).propose_settlement, undefined);
   assert.equal(contractSurface(5).propose_settlement.readonly, false);
   assert.equal(contractSurface(5).accept_settlement.params.length, 2);
   assert.throws(() => contractSurface(6));
   assert.equal(
-    isSecurityRelease({ protocol_version: 5, max_source_bytes: 6000 }),
+    isSecurityRelease({ protocol_version: 5, max_source_bytes: 6000 }, 4),
     false,
   );
   assert.equal(
-    isSecurityRelease({ protocol_version: 4, max_source_bytes: 6000 }),
+    isSecurityRelease({ protocol_version: 4, max_source_bytes: 6000 }, 4),
     true,
+  );
+  assert.equal(
+    isSecurityRelease({ protocol_version: 5, max_source_bytes: 6000 }),
+    true,
+  );
+  assert.equal(
+    isSecurityRelease({ protocol_version: 4, max_source_bytes: 6000 }),
+    false,
   );
 });
 function fixture() {

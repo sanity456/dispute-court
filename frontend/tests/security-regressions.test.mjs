@@ -270,6 +270,7 @@ test("new commitments fail closed on legacy contracts while existing-fund recove
     helperVersion = 4,
     linkedCore = core;
   const net = {
+    protocolVersion: 4,
     coreAddress: core,
     read: async (_method, _args, target = core) => ({
       protocol_version: target === core ? coreVersion : helperVersion,

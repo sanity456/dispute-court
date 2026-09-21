@@ -43,7 +43,7 @@ test("activation requires retained manifests; rollback retains both funded relea
   changed.core.sourceSha256 = "b".repeat(64);
   assert.throws(() => buildReleaseRegistry(changed, [next]));
 });
-test("accepted v4 identity and unversioned record links remain pinned; undeployed v5 is unavailable", () => {
+test("accepted v4 identity and unversioned links stay pinned while the verified v5 candidate is current", () => {
   assert.equal(
     legacyRelease.core.contractAddress,
     "0xC49ED63ddc1685850aAF5d5e85986c1bCedBe8b5",
@@ -52,7 +52,12 @@ test("accepted v4 identity and unversioned record links remain pinned; undeploye
     legacyRelease.core.sourceSha256,
     "be5138c48da9360e853a4bc4923fd7cab64615b13c2b8d6a8ab91b0bd9baade9",
   );
-  assert.equal(currentRelease.id, "v4");
+  assert.equal(currentRelease.id, "v5");
+  assert.equal(
+    currentRelease.core.contractAddress,
+    "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+  );
+  assert.deepEqual(releaseById("v5"), currentRelease);
   for (const [filename, manifest] of [
     ["dispute_court_v4.py", legacyRelease.core],
     ["evidence_capture_v4.py", legacyRelease.helper],
@@ -67,7 +72,7 @@ test("accepted v4 identity and unversioned record links remain pinned; undeploye
     );
   assert.equal(releaseById("v4"), legacyRelease);
   assert.equal(recordPath("same case"), "/agreements/same%20case?release=v4");
-  for (const invalid of ["v5", "v3", "../v4", "", "0x" + "11".repeat(20)])
+  for (const invalid of ["v6", "v3", "../v4", "", "0x" + "11".repeat(20)])
     assert.throws(() => releaseById(invalid));
 });
 test("release manifests fail closed before arbitrary addresses, endpoints or versions reach a client", () => {
@@ -97,7 +102,7 @@ test("release manifests fail closed before arbitrary addresses, endpoints or ver
   }
 });
 test("network allowlists, read targets and durable schemas are isolated by core", async () => {
-  const v4 = createNetwork({}),
+  const v4 = createNetwork({}, legacyRelease),
     v5Release = candidate(),
     v5 = createNetwork({}, v5Release);
   assert.equal(v4.protocolVersion, 4);
@@ -161,7 +166,7 @@ test("security checks use the selected release and reject cross-version or cross
 });
 test("product requests include the immutable document release selection", async () => {
   initializeClientRelease("v4");
-  assert.throws(() => initializeClientRelease("v5"));
+  assert.throws(() => initializeClientRelease("v6"));
   const previous = globalThis.fetch;
   try {
     globalThis.fetch = async (_url, options) => {
@@ -200,7 +205,7 @@ test("same wallet and case ID keep separate journals and cannot reuse an intent 
   const wallet = "0x" + "aa".repeat(20),
     user = "wallet:" + wallet;
   const networks = [
-    createNetwork(databases[0]),
+    createNetwork(databases[0], legacyRelease),
     createNetwork(databases[1], candidate()),
   ].map((network) => ({
     ...network,

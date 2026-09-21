@@ -1,8 +1,8 @@
 # Milestone v1 — Negotiated Settlements (development candidate)
 
-Date: 2026-09-20. **Separate v5 candidate deployed and source-verified. Not pushed, production-activated, or submission-ready.**
+Date: 2026-09-21. **Separate v5 candidate deployed and source-verified. Candidate branch prepared for public CI and Vercel preview; not production-activated or submission-ready.**
 
-Same Dispute Court app and repository. The public v4 app, manifests, source and existing agreements are unchanged. The portal's milestone number (v1) is different from the proposed contract version (v5).
+Same Dispute Court app and repository. The public v4 app, archived manifests, source and existing agreements are unchanged. The milestone candidate branch selects the verified v5 pair as its default and retains both versions; this does not promote a Vercel production deployment. The portal's milestone number (v1) is different from the proposed contract version (v5).
 
 ## Baseline and real delta
 
@@ -10,7 +10,7 @@ Pre-development repository baseline: `1e3263ab8783877bb3927762809c077840ceb8d4`.
 
 Previously, cooperative settlement meant full release or full refund. The local v5 core adds fee-free whole-percentage splits, numbered offers and counteroffers, recipient-only acceptance/rejection, proposer-only cancellation, deadline-bounded expiry, separate per-party quotas, paginated on-chain history and negotiated-settlement totals. Credits use the existing withdrawal machinery. Arbitration rules and fixed dispute deadlines remain in force.
 
-The same app now contains a version-gated settlement panel, exact GEN/wei previews, consent tied to wallet/case/offer state, history export and read-only owner statistics. The backend selects its callable methods from the checked-in deployment version. With the unchanged v4 manifest, v5 actions remain disabled, not silently routed to v4.
+The same app now contains a version-gated settlement panel, exact GEN/wei previews, consent tied to wallet/case/offer state, history export and read-only owner statistics. The backend selects its callable methods from the checked-in deployment version. V5 actions remain disabled on retained v4, never silently routed to it.
 
 Design and constraints: [ARCHITECTURE_V5.md](ARCHITECTURE_V5.md).
 
@@ -28,7 +28,7 @@ Local environment: Windows, Node 24.18.0, pnpm 11.19.0, Python 3.12.14. The requ
 
 ## Release preparation implemented locally
 
-The v5 evidence helper, protocol-selected source verifier and candidate-manifest verification are now implemented. V4 source and live manifests remain byte-identical to the baseline. The app has a checked-in release registry, immutable v4 archives, versioned share links, a full-navigation version selector, and release-scoped API/database access. Unversioned old record links stay on v4. Non-default releases permit existing-agreement operations but block new agreement creation. Activation requires a retained v5 entry so rollback can preserve access to both contracts.
+The v5 evidence helper, protocol-selected source verifier and candidate-manifest verification are now implemented. V4 source and archived manifests remain byte-identical to the baseline. The candidate branch registers verified v5 as default with its retained entry; v4 remains available. The app has a checked-in release registry, immutable v4 archives, versioned share links, a full-navigation version selector, and release-scoped API/database access. Unversioned old record links stay on v4. Non-default releases permit existing-agreement operations but block new agreement creation. Production activation still requires separate approval.
 
 The initial local app was opened signed out: current v4 rendered, an unversioned record route stayed on v4, and unregistered v5 was blocked without falling back. The separate v5 preview has since passed the funded two-wallet happy-path cycle, including exact native deliveries. See [V5_HUMAN_WALLET_EVIDENCE.md](V5_HUMAN_WALLET_EVIDENCE.md). The full two-release/rollback checks remain open.
 

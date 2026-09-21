@@ -6,6 +6,7 @@ import { product } from "../lib/product.ts";
 export const alice = privateKeyToAccount("0x" + "31".repeat(32));
 export const bob = privateKeyToAccount("0x" + "42".repeat(32));
 export const net = {
+  protocolVersion: 4,
   coreAddress: "0x" + "11".repeat(20),
   captureAddress: "0x" + "22".repeat(20),
   ownerAddress: alice.address.toLowerCase(),
