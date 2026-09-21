@@ -10,10 +10,12 @@ Agreement `court-v5-guards-20260920-02` uses the same A/B test wallets as [the c
 - Reloaded while the creation UI awaited finality. Activity retained the exact hash and reconciled it to finalized successful execution without resubmission. This is saved-journal recovery, not an injected network outage or pre-hash crash test.
 - A offer 1: 40/60, 3,600 seconds. B rejected it with `OFFER_REJECTED` at stored timestamp `1789950118`. Escrow, credits and original deadlines were unchanged.
 - B offer 2: 33/67, 3,600 seconds. B cancelled it with `OFFER_CANCELLED` at stored timestamp `1789950391`. Offer 1 retained its rejection and original closure time; no credits were allocated.
-- B offer 3: 50/50, created `1789950518`, effective expiry `1789954118` (`2026-09-21T01:28:38Z`). Both earlier closures remain unchanged. **Expiry has not yet been verified in this checkpoint.** Leave this offer untouched until the read-only expiry check.
+- B offer 3: 50/50, created `1789950518`, effective expiry `1789954118` (`2026-09-21T01:28:38Z`). Read-only finalized-state contract view returned `OFFER_EXPIRED`; escrow, credits, original deadlines and earlier closures were unchanged. Observation label `2026-09-21T01:31:20.804Z` is not the eligibility proof; no expiry transaction was sent.
+- B's full refund finalized with `PARTY_B_AUTHORIZED_REFUND`, allocating exactly 1,000 wei to A and zero to B/fees. Exact decoded inputs/output matched the cooperative-refund rule. Parent: `0x4adb0b542dc6a24479e04947b7c026aefc5895b44286107d39dcf16437218bb3`.
+- A's withdrawal finalized successfully, emitting payout `payout-00000003` at stored timestamp `2026-09-21T01:51:42.522408+00:00`. Parent `0x25027dcbd2c7f3fdb761bafdccaf95e7315244007f9620a211a08aae501468ba` references exactly one native child: `0x2147316e839c57af62e3b50011339d8745078639f72cff977cf762257fda7bf2`. That child finalized with `value_credited=true`, type 0, exact core sender, A recipient and 1,000 wei value. Both final contract credits are zero.
 - Complete local contract regression rerun: **551 passed, 5 integration tests deselected**. Complete frontend suite: **125 passed**. Local results do not replace the required public Ubuntu workflow.
 
-Exact public transaction payloads, state reports and local rollback observations are in [the guard-test evidence bundle](evidence/milestone-v1/guard-tests-in-progress.json). This is an explicitly incomplete snapshot, not proof of submission readiness.
+Exact public transaction payloads, state reports and local rollback observations are in [the original guard-test checkpoint](evidence/milestone-v1/guard-tests-in-progress.json), preserved unchanged. [Completion evidence](evidence/milestone-v1/guard-tests-completion.json) adds expiry, refund and native-withdrawal verification. This wallet cycle is complete; it does not establish overall submission readiness.
 
 ## Local release/rollback drill
 
@@ -25,8 +27,7 @@ This uses actual local SQLite files, not Neon. With both available credits at ze
 
 ## Still open
 
-- Observe `OFFER_EXPIRED` through the contract view using the stored effective expiry; then return escrow through B's voluntary refund and verify A's separate native withdrawal.
 - Live failed-acceptance reason-code evidence (`STALE_OFFER`, `ONLY_OFFER_RECIPIENT`, `OFFER_NOT_ACTIVE`) remains separate from passing direct tests and visible UI restrictions. No such failed live transaction is claimed here.
-- Production-style Neon isolation/rollback and withdrawal recovery; exact browser/MetaMask environment evidence; final clean public Ubuntu CI; authorized publication and Vercel rollout; signed-out immutable evidence links and final milestone notes.
+- Temporary-schema real Neon isolation/SQL rollback/saved-hash recovery passed; see [its scoped evidence](V5_RECOVERY_EVIDENCE.md). Actual Vercel rollback and legacy/retained withdrawal recovery remain, along with exact browser/MetaMask environment evidence, final clean public Ubuntu CI, authorized publication/rollout, signed-out immutable evidence links and final milestone notes.
 
-No wallet approvals are automated. A read-only scheduled expiry check was requested by the user; it cannot refund, withdraw or accept an offer.
+No wallet approvals are automated. The requested scheduled check was paused to conserve usage and remains paused; expiry was verified read-only when the user returned. Refund and withdrawal were separately approved by the user.

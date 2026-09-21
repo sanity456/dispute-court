@@ -1,6 +1,6 @@
 # Dispute Court v5: negotiated settlements
 
-Status: local development, not deployed or submitted. The live v4 manifests remain unchanged.
+Status: separate Studionet v5 candidate deployed and source-verified; happy-path and guard wallet cycles complete. Production activation and milestone submission remain gated. The live v4 manifests remain unchanged.
 
 Baseline for the milestone diff: `1e3263ab8783877bb3927762809c077840ceb8d4`.
 This is the pre-development repository baseline; link the portal's accepted submission when preparing the final evidence.
@@ -32,7 +32,7 @@ The browser owns presentation, wallet authentication, previews, consent and tran
 
 No new deployment, wallet transaction, GitHub push or submission is authorized merely by this development note.
 
-Release plumbing is implemented locally: a matching v5 evidence helper, source verifier with candidate-directory and registered-release selection, immutable v4 archives, release-scoped API/database bindings, versioned links and a full-navigation selector. The registry requires retaining a v5 manifest before making it the default. Previous versions remain accessible for existing agreement operations and withdrawals, while new agreements are reserved for the default version. See `V5_ROLLOUT.md`; none of this is proof of a deployed v5 release or a completed two-wallet test.
+Release plumbing is implemented locally: a matching v5 evidence helper, source verifier with candidate-directory and registered-release selection, immutable v4 archives, release-scoped API/database bindings, versioned links and a full-navigation selector. The registry requires retaining a v5 manifest before making it the default. Previous versions remain accessible for existing agreement operations and withdrawals, while new agreements are reserved for the default version. See `V5_ROLLOUT.md` for gates, `V5_HUMAN_WALLET_EVIDENCE.md` and `V5_GUARD_TEST_EVIDENCE.md` for completed wallet cycles, and `V5_RECOVERY_EVIDENCE.md` for the bounded Neon recovery test. None of these is proof of production activation.
 
 Development harness: `gltest` deletes its configured output directory at startup. Its output is isolated to `work/gltest-artifacts`; keep environments and release evidence elsewhere. The first Windows consensus attempt used the old broad `artifacts` setting and partially removed the disposable test environment before a locked module stopped cleanup. Tracked source and evidence were unchanged. The replacement environment lives at `work/milestone-venv`.
 

@@ -1,0 +1,15 @@
+{
+  "scope": "Real Neon SQL using temporary synthetic release schemas and simulated chain transport. Not deployed Vercel recovery or a real legacy withdrawal.",
+  "passed": true,
+  "checks": [
+    "two isolated release schemas; idempotent table initialization",
+    "failed SQL batch rolls back all writes",
+    "same wallet and case ID remain isolated; cross-release intents and targets rejected",
+    "concurrent connections preserve scoped search paths; mixed batches rejected",
+    "simulated RPC failure retains withdrawal hash across new connections; duplicate and replacement blocked",
+    "default registry rollback retains both versions; existing recovery stays accessible while new creation is closed"
+  ],
+  "temporarySchemasRemoved": true,
+  "protectedRecordJournalTransactionCountsUnchanged": true,
+  "observedAtUtc": "2026-09-21T01:58:23.332Z"
+}

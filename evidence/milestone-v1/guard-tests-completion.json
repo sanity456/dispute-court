@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "scope": "Completion of the guard wallet cycle only; not overall milestone or submission readiness",
+  "sourceCommit": "51cbb8805887167cbe4b435fcdb705b01e1c7387",
+  "priorCheckpoint": "guard-tests-in-progress.json",
+  "expiry": {
+    "sourceCommit": "51cbb8805887167cbe4b435fcdb705b01e1c7387",
+    "chainId": 61999,
+    "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+    "agreementId": "court-v5-guards-20260920-02",
+    "offerNumber": 3,
+    "proposalHash": "0xc5dbb06f7331736b1afe072d82d8d6d7177f2d777c48858d68fabff3e27d6156",
+    "status": "expired",
+    "reasonCode": "OFFER_EXPIRED",
+    "createdAt": 1789950518,
+    "expiresAt": 1789954118,
+    "effectiveExpiresAt": 1789954118,
+    "agreementStatus": "funded",
+    "amountWei": "1000",
+    "credits": [
+      {
+        "account": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+        "creditWei": "0"
+      },
+      {
+        "account": "0x29b8b7d7cbf534eba01e56919de19d79d1509360",
+        "creditWei": "0"
+      }
+    ],
+    "deadlinesUnchanged": true,
+    "previousRejectionAndCancellationUnchanged": true,
+    "observationTimeUtc": "2026-09-21T01:31:20.804Z",
+    "note": "Expired is computed by the contract view over finalized state; no expiry transaction exists. Local time is an observation label only, not the eligibility assertion. No acceptance attempt or OFFER_NOT_ACTIVE revert is claimed by this read-only check."
+  },
+  "refund": {
+    "sourceCommit": "51cbb8805887167cbe4b435fcdb705b01e1c7387",
+    "chainId": 61999,
+    "hash": "0x4adb0b542dc6a24479e04947b7c026aefc5895b44286107d39dcf16437218bb3",
+    "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+    "agreementId": "court-v5-guards-20260920-02",
+    "action": "refund_to_party_a",
+    "sender": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+    "valueWei": "0",
+    "decodedInputs": [
+      "court-v5-guards-20260920-02"
+    ],
+    "lifecycle": "FINALIZED",
+    "execution": "success",
+    "decodedOutput": {
+      "agreement_id": "court-v5-guards-20260920-02",
+      "paid": {
+        "conservation_wei": "1000",
+        "fee_wei": "0",
+        "party_a_wei": "1000",
+        "party_b_wei": "0"
+      },
+      "status": "resolved",
+      "verdict": {
+        "evidence_refs": [],
+        "party_a_pct": "100",
+        "party_b_pct": "0",
+        "party_b_performance_pct": null,
+        "performance_level": "not_evaluated",
+        "reason_code": "PARTY_B_AUTHORIZED_REFUND",
+        "reasoning": "Party B returned the full escrow to Party A.",
+        "reasoning_provenance": "deterministic_contract_rule",
+        "resolution_type": "cooperative_refund"
+      }
+    },
+    "resolvedAt": "2026-09-21T01:41:52.878713+00:00",
+    "credits": [
+      {
+        "account": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+        "creditWei": "1000"
+      },
+      {
+        "account": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+        "creditWei": "0"
+      }
+    ],
+    "deadlinesUnchanged": true,
+    "refundAfterStoredOfferExpiry": true,
+    "note": "Refund allocated contract credit only. Native wallet delivery still requires Party A withdrawal and finalized child-transfer verification."
+  },
+  "withdrawal": {
+    "sourceCommit": "51cbb8805887167cbe4b435fcdb705b01e1c7387",
+    "chainId": 61999,
+    "agreementId": "court-v5-guards-20260920-02",
+    "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+    "hash": "0x25027dcbd2c7f3fdb761bafdccaf95e7315244007f9620a211a08aae501468ba",
+    "sender": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+    "action": "withdraw",
+    "valueWei": "0",
+    "decodedInputs": [],
+    "decodedOutput": {
+      "amount_wei": "1000",
+      "delivery_note": "Emission is not confirmation; verify the finalized child transaction.",
+      "emitted_at": "2026-09-21T01:51:42.522408+00:00",
+      "id": "payout-00000003",
+      "recipient": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+      "status": "emitted_for_finalization"
+    },
+    "lifecycle": "FINALIZED",
+    "execution": "success",
+    "nativeTransfer": {
+      "hash": "0x2147316e839c57af62e3b50011339d8745078639f72cff977cf762257fda7bf2",
+      "lifecycle": "FINALIZED",
+      "type": 0,
+      "valueCredited": true,
+      "from": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+      "to": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+      "valueWei": "1000"
+    },
+    "deliveryVerified": true,
+    "credits": [
+      {
+        "account": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+        "creditWei": "0"
+      },
+      {
+        "account": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+        "creditWei": "0"
+      }
+    ],
+    "agreementStatus": "resolved",
+    "reasonCode": "PARTY_B_AUTHORIZED_REFUND",
+    "note": "Exact native child referenced by the finalized successful parent delivered 1000 wei to Party A; both remaining contract credits are zero. This is delivery proof, not just an escrow allocation or parent success."
+  }
+}
