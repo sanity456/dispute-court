@@ -1,6 +1,6 @@
 # v5 rejection, cancellation, recovery and expiry checks
 
-Source checkpoint: `51cbb8805887167cbe4b435fcdb705b01e1c7387`. Same app, separate Studionet v5 candidate; no milestone push or production activation.
+Source checkpoint: `51cbb8805887167cbe4b435fcdb705b01e1c7387`. Same app, separate Studionet v5 candidate. This document preserves the earlier test checkpoint; [later preview and live guard evidence](V5_PREVIEW_AND_GUARD_EVIDENCE.md) updates publication, recovery and negative-test status. Production has not been activated.
 
 Agreement `court-v5-guards-20260920-02` uses the same A/B test wallets as [the completed negotiation cycle](V5_HUMAN_WALLET_EVIDENCE.md). Exactly 1,000 wei is funded. These observations span September 20–21 UTC.
 
@@ -27,7 +27,7 @@ This uses actual local SQLite files, not Neon. With both available credits at ze
 
 ## Still open
 
-- Live failed-acceptance reason-code evidence (`STALE_OFFER`, `ONLY_OFFER_RECIPIENT`, `OFFER_NOT_ACTIVE`) remains separate from passing direct tests and visible UI restrictions. No such failed live transaction is claimed here.
-- Temporary-schema real Neon isolation/SQL rollback/saved-hash recovery passed; see [its scoped evidence](V5_RECOVERY_EVIDENCE.md). Actual Vercel rollback and legacy/retained withdrawal recovery remain, along with exact browser/MetaMask environment evidence, final clean public Ubuntu CI, authorized publication/rollout, signed-out immutable evidence links and final milestone notes.
+- Live `STALE_OFFER`, `ONLY_OFFER_RECIPIENT` and expired-offer `OFFER_NOT_ACTIVE` failed executions are now verified separately in [the later checkpoint](V5_PREVIEW_AND_GUARD_EVIDENCE.md). They remain distinct from this earlier read-only expiry observation and from passing direct tests.
+- Temporary-schema real Neon isolation/SQL rollback/saved-hash recovery passed; see [its scoped evidence](V5_RECOVERY_EVIDENCE.md). Later deployed preview recovery and a v4-default rollback-configuration rehearsal passed; see [the latest checkpoint](V5_PREVIEW_AND_GUARD_EVIDENCE.md). Fresh retained/legacy withdrawal execution is not claimed. Exact browser/MetaMask environment evidence, final evidence-commit public CI, authorized production rollout, signed-out immutable evidence links and final milestone notes remain.
 
 No wallet approvals are automated. The requested scheduled check was paused to conserve usage and remains paused; expiry was verified read-only when the user returned. Refund and withdrawal were separately approved by the user.

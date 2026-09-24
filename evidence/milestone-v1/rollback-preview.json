@@ -1,0 +1,48 @@
+{
+  "candidateSourceCommit": "b740c418154d45632a0407f73bcfb41c15f6ccc2",
+  "rollbackSourceCommit": "8bd910fb4b4483a73fd45620f7c018d36b6a726a",
+  "rollbackSourceCommitPublic": false,
+  "sourceChanges": [
+    "frontend/lib/deployment.json",
+    "frontend/lib/evidence-deployment.json"
+  ],
+  "sourceChangeDescription": "Only the two default manifests revert to the exact accepted v4 pair. All application code, archived manifests and retained-v5 identity stay byte-identical to the tested candidate.",
+  "previewUrl": "https://dispute-court-studionet-26nf47r9e-sanity3.vercel.app/",
+  "deploymentId": "dpl_Dq443cEKv86w6VznHfvsUbSnyffz",
+  "target": "preview",
+  "staticRegistryAssertionsPassed": true,
+  "deploymentReady": true,
+  "deploymentSourceMetadataMatches": true,
+  "deployedUiChecksPassed": true,
+  "deployedUiChecks": [
+    "Root opens on v4 with the accepted core address",
+    "Retained v5 remains selectable with its exact core address",
+    "New v5 agreement creation is disabled when v4 is default"
+  ],
+  "signedInRetainedRecoveryPassed": true,
+  "observedAtUtc": "2026-09-21T02:45:14Z",
+  "wallet": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+  "signedInChecks": {
+    "savedV5WithdrawalPresentWithoutReimport": true,
+    "savedRequestCountV5": 1,
+    "payoutStatus": "Payout delivered",
+    "nativeTransferStatus": "Credited & finalized",
+    "withdrawalParent": "0x25027dcbd2c7f3fdb761bafdccaf95e7315244007f9620a211a08aae501468ba",
+    "nativeTransferChild": "0x2147316e839c57af62e3b50011339d8745078639f72cff977cf762257fda7bf2",
+    "amountWei": "1000",
+    "recipient": "0x7cef5dbbd598ba74ef9c665c9853e573448d97d0",
+    "manualExecutionAndDeliveryRecheckPassed": true,
+    "sameLoginSurvivesV4Selection": true,
+    "savedRequestCountV4": 0,
+    "retainedV5DeepLink": "/agreements/court-v5-human-20260920-01?release=v5",
+    "deepLinkResolvedReason": "MUTUAL_SETTLEMENT_ACCEPTED",
+    "deepLinkPartyACreditWei": "330",
+    "deepLinkPartyBCreditWei": "670",
+    "deepLinkNewCreationDisabled": true
+  },
+  "productionPromoted": false,
+  "productionRollbackExecuted": false,
+  "newChainTransactions": 0,
+  "scope": "Separate deployed rollback-configuration rehearsal using the existing Neon data and actual finalized Studionet transaction. Saved v5 history was available without reimport after changing the deployed default to v4. No production alias switch, contract rollback, database rollback or fresh retained-version withdrawal was performed.",
+  "ciScope": "Public Ubuntu CI passed on the candidate parent, not this two-manifest rollback configuration. Do not claim the rollback commit has a green public CI run."
+}

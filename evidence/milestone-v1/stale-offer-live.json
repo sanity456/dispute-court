@@ -1,0 +1,64 @@
+{
+  "sourceCommit": "b740c418154d45632a0407f73bcfb41c15f6ccc2",
+  "chainId": 61999,
+  "hash": "0xa4288ff885eeb2168cdc0bb19d2720bd4a9c2892f58617faf39ad5aa8d319d69",
+  "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+  "sender": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+  "method": "accept_settlement",
+  "decodedInputs": [
+    "court-v5-guards-20260920-02",
+    "1"
+  ],
+  "valueWei": "0",
+  "lifecycle": "FINALIZED",
+  "execution": "error",
+  "expectedReasonCode": "STALE_OFFER",
+  "observedReasonCode": "STALE_OFFER",
+  "allowlistedErrorLiteral": "[EXPECTED] STALE_OFFER",
+  "rpcTimestamps": {
+    "created_at": "2026-09-21T02:58:49.995896+00:00"
+  },
+  "triggeredTransactionCount": 0,
+  "agreementStateAndBothCreditsUnchanged": true,
+  "before": {
+    "sourceCommit": "b740c418154d45632a0407f73bcfb41c15f6ccc2",
+    "chainId": 61999,
+    "coreAddress": "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
+    "agreementId": "court-v5-guards-20260920-02",
+    "method": "accept_settlement",
+    "inputs": [
+      "court-v5-guards-20260920-02",
+      1
+    ],
+    "sender": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+    "valueWei": "0",
+    "expectedReasonCode": "STALE_OFFER",
+    "agreementStatus": "resolved",
+    "termsHash": "c52f936eb409d63a6752d93b1740621b35f0ac131b80e93147262037a07ad608",
+    "offerCount": 3,
+    "acceptedOfferNumber": 0,
+    "paid": {
+      "party_a_wei": "1000",
+      "party_b_wei": "0",
+      "fee_wei": "0",
+      "conservation_wei": "1000"
+    },
+    "credits": [
+      {
+        "account": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+        "creditWei": "0"
+      },
+      {
+        "account": "0x29B8b7D7CBF534Eba01E56919dE19d79d1509360",
+        "creditWei": "0"
+      }
+    ]
+  },
+  "observationTimeUtc": "2026-09-21T03:00:05.097Z",
+  "harnessSha256": {
+    "stale-offer-browser.mjs": "3d06d48128049054e4ccd6a666adef270105f9bb8db5a7aa6ac222e3e07ed240",
+    "serve-stale-offer.mjs": "33765d088681c715a0efa06f027d84a3b0b5d32ea83df3e2da9ddd7640c04fc1",
+    "verify-stale-offer.mjs": "0a7df7ec6aff466ce9b6d4e4947eed90121c559ab72dac7bd299a8f78157a13e"
+  },
+  "scope": "Live stale-number guard only. Fixture was already resolved; stale check precedes negotiation-stage check. Not a live self-acceptance or expired-offer rejection. Error literal is an allowlisted extraction, not a raw error payload."
+}

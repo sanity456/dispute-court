@@ -1,0 +1,37 @@
+{
+  "observedDateUtc": "2026-09-21",
+  "sourceCommit": "b740c418154d45632a0407f73bcfb41c15f6ccc2",
+  "previewUrl": "https://dispute-court-studionet-2gzczm945-sanity3.vercel.app/",
+  "deploymentId": "dpl_CecG79Y6jJtyYcAX8Qj18bcFLGqF",
+  "method": "User-approved wallet sign-in followed by visible Chrome UI checks. Existing finalized transaction imported into preview Activity; no transaction broadcast.",
+  "wallet": "0x7Cef5DBbD598ba74EF9C665c9853E573448d97D0",
+  "withdrawalParent": "0x25027dcbd2c7f3fdb761bafdccaf95e7315244007f9620a211a08aae501468ba",
+  "nativeTransferChild": "0x2147316e839c57af62e3b50011339d8745078639f72cff977cf762257fda7bf2",
+  "amountWei": "1000",
+  "checks": {
+    "v5UserSignIn": true,
+    "guardCaseResolvedRefundVisible": true,
+    "zeroCreditAndWithdrawalDisabled": true,
+    "existingWithdrawalImportedWithoutResend": true,
+    "exactRecipientAndFinalizedNativeDeliveryShown": true,
+    "v4SameWalletSessionRetained": true,
+    "v4HistoryRemainsEmpty": true,
+    "v4RejectsV5Hash": true,
+    "unversionedLegacyRecordRemainsV4": true,
+    "nonparticipantLegacyRecordReadOnly": true,
+    "returnToV5RetainsOneRecoveredRequest": true,
+    "fullPageReloadPreservesSignInAndDeliveredPayout": true
+  },
+  "crossReleaseRejectionText": "This contract does not belong to this product.",
+  "legacyRecordId": "human-wallet-v4-20260906-01",
+  "navigationObservation": "Selecting Activity before wallet session initialization finished was followed by a reset to Case workspace. The workspace is keyed by session identity. Reopening Activity after sign-in completed showed the preserved request; a full reload and reopening Activity also passed. This was not evidence of lost history.",
+  "newChainTransactions": 0,
+  "productionPromoted": false,
+  "limitations": [
+    "This is a protected Vercel preview, not anonymous reviewer access or a production rollout.",
+    "Version selection is not a deployed rollback rehearsal.",
+    "Recovery verifies an existing v5 withdrawal; it is not a newly executed legacy v4 withdrawal.",
+    "Exact current Chrome and MetaMask version capture remains outstanding.",
+    "This evidence does not claim all submission gates passed."
+  ]
+}
