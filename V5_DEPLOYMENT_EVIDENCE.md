@@ -1,5 +1,7 @@
 # Dispute Court v5 — candidate deployment evidence
 
+Historical September 20 deployment checkpoint. Later human-wallet tests, public publication, final evidence-commit CI and reviewer preview access are recorded in [milestone status](MILESTONE_V1_STATUS.md); the historical outstanding-proof section below is not the current checklist.
+
 Verified on Studionet on 2026-09-20. **Candidate only; not a production rollout or a completed human-wallet test.**
 
 Source checkpoint (local, not yet pushed): `51cbb8805887167cbe4b435fcdb705b01e1c7387`.

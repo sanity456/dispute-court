@@ -1,5 +1,7 @@
 # v5 funded negotiation — human wallet evidence
 
+Historical September 20 checkpoint. Later guard tests, public publication, final evidence-commit CI and reviewer preview access are recorded in [milestone status](MILESTONE_V1_STATUS.md); the historical remaining-gates list below is not the current checklist.
+
 ## Result and scope
 
 **Passed on Studionet, 2026-09-20:** creation, counterparty acceptance, exact 1,000-wei funding, wallet cancellation, an offer and counteroffer, recipient settlement acceptance, and both native withdrawals. This is one completed happy-path cycle, **not completion of every milestone/submission gate**.

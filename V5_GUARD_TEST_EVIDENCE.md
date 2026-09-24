@@ -25,9 +25,9 @@ Temporarily changed **only** the isolated preview's default manifests back to v4
 
 This uses actual local SQLite files, not Neon. With both available credits at zero, the drill proves access and preservation—not an executed retained-release/legacy withdrawal. Dev-server manifest changes required restart. A test-harness comparison initially failed on SQLite row prototypes; normalizing the selected public fields fixed the comparison without changing data.
 
-## Still open
+## Later status and remaining limits
 
 - Live `STALE_OFFER`, `ONLY_OFFER_RECIPIENT` and expired-offer `OFFER_NOT_ACTIVE` failed executions are now verified separately in [the later checkpoint](V5_PREVIEW_AND_GUARD_EVIDENCE.md). They remain distinct from this earlier read-only expiry observation and from passing direct tests.
-- Temporary-schema real Neon isolation/SQL rollback/saved-hash recovery passed; see [its scoped evidence](V5_RECOVERY_EVIDENCE.md). Later deployed preview recovery and a v4-default rollback-configuration rehearsal passed; see [the latest checkpoint](V5_PREVIEW_AND_GUARD_EVIDENCE.md). Fresh retained/legacy withdrawal execution is not claimed. Exact browser/MetaMask environment evidence, final evidence-commit public CI, authorized production rollout, signed-out immutable evidence links and final milestone notes remain.
+- Temporary-schema real Neon isolation/SQL rollback/saved-hash recovery passed; see [its scoped evidence](V5_RECOVERY_EVIDENCE.md). Later deployed preview recovery and a v4-default rollback-configuration rehearsal passed; see [the latest checkpoint](V5_PREVIEW_AND_GUARD_EVIDENCE.md). Fresh retained/legacy withdrawal execution is not claimed. Final evidence-commit public CI and signed-out immutable evidence checks subsequently passed, as recorded in [milestone status](MILESTONE_V1_STATUS.md). Exact browser/MetaMask versions for the current run and authorized production rollout remain separate.
 
 No wallet approvals are automated. The requested scheduled check was paused to conserve usage and remains paused; expiry was verified read-only when the user returned. Refund and withdrawal were separately approved by the user.
