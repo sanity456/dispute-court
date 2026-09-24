@@ -4,11 +4,18 @@
 
 Dispute Court is an independent bilateral escrow-resolution product. Party B accepts Party A's immutable agreement before funding; cooperative settlement stays fee-free, while disputes follow a bounded evidence and exact-bucket procedure.
 
-The repository includes the contracts, their tests, and the complete app in `frontend/`. The public evaluator build is at [dispute-court-studionet.vercel.app](https://dispute-court-studionet.vercel.app/); deployment evidence and remaining acceptance checks are in [Release status](RELEASE_STATUS.md).
+The repository includes the contracts, their tests, and the complete app in `frontend/`. The accepted [public production app](https://dispute-court-studionet.vercel.app/) still runs **v4**. This repository's default manifests and `main` branch now contain the separately deployed **v5 milestone candidate**; merging the code did not promote the Vercel production alias.
 
-## Current v4 Studionet contracts
+For milestone reviewers: start with the [milestone v1 submission draft](MILESTONE_V1_SUBMISSION.md) for the substantive v4-to-v5 delta, immutable commit, public CI and transaction evidence. The working **v5 reviewer preview requires the deployment-specific share link supplied in the portal evidence field**; the plain preview URL is protected and the production URL above remains v4. [Milestone status](MILESTONE_V1_STATUS.md) separates completed tests from remaining release limits. Portal milestone `v1` and contract protocol `v5` are different version numbers.
 
-The [negotiated-settlement milestone](MILESTONE_V1_STATUS.md) is in local development. It is not activated on the public app; v4 remains the current release.
+## Release map on Studionet
+
+- **v5 milestone candidate on `main` and in the reviewer preview:** `contracts/dispute_court_v5.py`, `contracts/evidence_capture_v5.py`, core `0x369D8f95744C8eaBcF50E8De009Eb162248D1504`, helper `0x7547521fA84Df53f0C02BCdb9A60C323819F00b3`. The checked-in `frontend/lib/deployment.json` and `frontend/lib/evidence-deployment.json` select these verified v5 contracts. Negotiated settlements are available only for v5 agreements.
+- **Accepted v4 production release:** `contracts/dispute_court_v4.py`, `contracts/evidence_capture_v4.py`, core `0xC49ED63ddc1685850aAF5d5e85986c1bCedBe8b5`, helper `0x4E13Da8eF88E75Eb1a6c2A1BB4180b69f78a916f`. The immutable `frontend/lib/*-v4.json` manifests and unversioned old agreement links preserve v4 access. The current Vercel production deployment remains v4.
+
+V5 retains the original agreement, dispute and withdrawal paths and adds numbered, deadline-bound offers/counteroffers, role-checked settlement, fee-free percentage splits and offer history. Both versions are on Studionet chain 61999; neither is a mainnet deployment. See [v5 architecture](ARCHITECTURE_V5.md), [deployment/source verification](V5_DEPLOYMENT_EVIDENCE.md) and [human-wallet evidence](V5_HUMAN_WALLET_EVIDENCE.md).
+
+The v4 regression surface remains in the repository:
 
 - Contract: `contracts/dispute_court_v4.py`
 - Evidence helper: `contracts/evidence_capture_v4.py`
@@ -29,20 +36,20 @@ py -3.12 -m venv .venv
 .venv\Scripts\python.exe scripts/check_contracts.py
 ```
 
-On macOS/Linux, use `python3.12 -m venv .venv` and `.venv/bin/python` for the same install/check commands. No parent-workspace environment is required. The check script lints first, disables auto-loaded CLI plugins, and runs the complete mocked v4 suite. Add `--legacy` to include historical direct-mode regressions. It never sends transactions or clears artifact directories. Contract source is pinned to LF line endings by `.gitattributes` so byte-for-byte deployment verification survives a fresh checkout.
+On macOS/Linux, use `python3.12 -m venv .venv` and `.venv/bin/python` for the same install/check commands. No parent-workspace environment is required. The check script lints the current v4/v5 core and helper contracts, disables auto-loaded CLI plugins, and runs the current direct-mode suites. Add `--legacy` for the complete historical direct-mode regression suite. It never sends transactions or clears artifact directories. Contract source is pinned to LF line endings by `.gitattributes` so byte-for-byte deployment verification survives a fresh checkout.
 
-Public CI runs all three v2/v3/v4 opt-in integration cases against an isolated, deterministic five-validator GLSim instance on Ubuntu; it does not send a public-network transaction. A hosted Studionet smoke test is separate and requires explicit authorization to create new test contracts:
+Public Ubuntu CI runs the complete direct/frontend suites and opt-in consensus cases against an isolated five-validator GLSim instance; it does not send a public-network transaction. Four consensus cases pass. The funded v5 GLSim case is explicitly skipped because that runner drops native value; the separate funded human-wallet Studionet cycle is [documented here](V5_HUMAN_WALLET_EVIDENCE.md) and is not presented as a GLSim pass. A hosted v4 Studionet smoke test is separate and requires explicit authorization to create new test contracts:
 
 ```powershell
 $env:RUN_GENLAYER_V4_INTEGRATION='1'
 .venv\Scripts\gltest.exe tests/test_integration_v4.py --network studionet -v -s
 ```
 
-The hosted smoke test covers deployment, configuration and programmatic bilateral acceptance, not live AI adjudication or a human browser-wallet trial. Keep the hosted-network command out of ordinary CI; the isolated GLSim cases are already included there.
+That hosted smoke test covers v4 deployment, configuration and programmatic bilateral acceptance, not live AI adjudication or a human browser-wallet trial. Keep hosted-network commands out of ordinary CI; the isolated GLSim cases are already included there.
 
 ## Web app
 
-The verified **v4** Studionet core is configured in `frontend/lib/deployment.json`: `0xC49ED63ddc1685850aAF5d5e85986c1bCedBe8b5` on chain 61999, with its own verified v4 evidence helper `0x4E13Da8eF88E75Eb1a6c2A1BB4180b69f78a916f`. The RPC is `https://studio.genlayer.com/api`. Browser and server share these manifests; address/RPC environment overrides are not used. Vercel storage is bound to this product and core address in its own v4 Neon schema. Prior manifests and their records are preserved. Live read failures never substitute sample data.
+The checked-in default manifests select the verified **v5** Studionet core/helper listed above. The deployed v4 production build still uses its original v4 pair. The RPC is `https://studio.genlayer.com/api`. Browser and server use checked-in release manifests; arbitrary address/RPC environment overrides are not used. Vercel/Neon stores records in separate core-address-scoped schemas, preserving existing v4 records while the v5 preview uses its own schema. Live read failures never substitute sample data.
 
 For the current Vercel target, configure the server-only `DATABASE_URL` in an ignored `.env.local`, following [Vercel setup](frontend/docs/VERCEL.md). Use Node.js 24.18.0 and pnpm 11.19.0:
 
@@ -62,11 +69,11 @@ The app exposes distinct Case, Agreement, Agreement Builder, and Owner experienc
 
 ## Public-money warning
 
-v3 and earlier contracts are historical and have known limitations; do not create new agreements on them. v4 removes model-selected payout direction and derives money deterministically from Party B's named performance level. It is deployed and source-matched on Studionet, but has not been independently audited. Current evidence and the remaining acceptance, monitoring, key-custody and external-review gates are listed in [Release status](RELEASE_STATUS.md).
+v3 and earlier contracts are historical and have known limitations; do not create new agreements on them. V4 removes model-selected payout direction and derives money deterministically from Party B's named performance level. V5 preserves bounded adjudication while adding deterministic negotiated splits. Both deployed pairs are source-matched on Studionet, but neither has an independent security audit. The v4 [release status](RELEASE_STATUS.md) and [v5 milestone status](MILESTONE_V1_STATUS.md) distinguish completed evidence from remaining monitoring, key-custody and external-review gates.
 
 ## Live lifecycle verification
 
-The live scripts target the checked-in deployment manifest. Older v2 receipt files remain historical evidence only. From `frontend/`, using Node 24 and explicit authorization for new test records:
+The opt-in live scripts target the checked-in default deployment manifest, currently v5; they are not a substitute for the recorded v5 two-wallet milestone evidence. Older v2 receipt files remain historical evidence only. From `frontend/`, using Node 24 and explicit authorization for new test records:
 
 ```powershell
 $env:RUN_STUDIONET_LIFECYCLE='1'

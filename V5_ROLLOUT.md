@@ -1,8 +1,8 @@
 # v5 rollout — same app, separate immutable contract
 
-Rollout checklist, not proof that all gates passed. The separate v5 pair is finalized and source-verified; see [V5_DEPLOYMENT_EVIDENCE.md](V5_DEPLOYMENT_EVIDENCE.md). The milestone candidate branch now selects that verified pair and retains both v4/v5 for an immutable preview build. The production app still runs the accepted v4 release; pushing this branch does not authorize merging to main or promoting production.
+Rollout procedure and remaining production precautions, not proof that every release gate passed. The separate v5 pair is finalized and source-verified; see [V5_DEPLOYMENT_EVIDENCE.md](V5_DEPLOYMENT_EVIDENCE.md). The verified v5 pair and retained v4 entry are now on `main`, and v5 is available through a separate reviewer preview. The production alias still serves accepted v4. The owner authorized the `main` merge on 2026-09-24; **that did not authorize or perform a Vercel production promotion**. See [current milestone status](MILESTONE_V1_STATUS.md).
 
-## What is implemented locally
+## What is implemented
 
 - `evidence_capture_v5.py` retains v4 normalization, URL validation, limits and idempotency; its advertised protocol is 5. It must be deployed with the new core address. Old helper source is untouched.
 - The read-only release verifier selects the core/helper source by explicit protocol version, matches finalized deployment bytes and SHA-256, checks owner/fee/helper binding, and checks v5 negotiation policy and limits.
@@ -13,15 +13,15 @@ Rollout checklist, not proof that all gates passed. The separate v5 pair is fina
 - Previous releases retain all existing-agreement operations and withdrawal access. New agreement creation in a non-default release is blocked in both UI and journal reservation.
 - Vercel/Neon uses a separate address-scoped schema for each release. The alternate Worker target requires a separate `DB_V5` binding; it fails closed if absent, never reuses v4's `DB`.
 
-## Before activation
+## Candidate preparation procedure (completed for the reviewer preview)
 
-1. Review and freeze an immutable commit; run the complete clean Ubuntu workflow. The local Windows results are not a substitute. Existing tests that deliberately assert the default is still v4 must be updated explicitly at activation, without dropping v4 regression coverage.
+1. Review and freeze an immutable commit; run the complete clean Ubuntu workflow. The local Windows results are not a substitute. Tests that asserted the default was v4 were updated at candidate registration without dropping v4 regression coverage.
 2. With explicit authorization, deploy the candidate core and its matching helper on Studionet. Preserve v4 core/helper manifests and source bytes. Do not fund real-money/mainnet accounts or export wallet keys.
 3. Keep candidate `deployment.json` and `evidence-deployment.json` in a separate staging directory, with actual finalized addresses, hashes, source SHA-256 and owner. Never invent these values. The helper deployment tool accepts `--core-manifest <candidate deployment.json>` and still requires its existing explicit execution flag.
 4. From `frontend`, run `node scripts/verify-security-release.mjs --expected-fee-bps 200 --manifest-dir <candidate-directory>`. This command only reads the chain; it does not activate the candidate. Use `--release v4` to recheck the accepted archived release. Keep the public scalar verification output with immutable source evidence; do not dump full RPC errors.
 5. After successful source verification, retain the complete `{id: "v5", core: <core manifest>, helper: <helper manifest>}` in `frontend/lib/retained-releases.json` before changing the two default manifests. The app rejects a new default that was not retained. Keep the accepted `*-v4.json` files unchanged.
 6. Use a candidate preview deployment first. Verify isolated database initialization and existing v4 records/credit access. `check-release-data.mjs --release v5` performs scoped database writes and needs authorization; it is not a read-only diagnostic.
-7. Run the funded two-wallet test and recovery checks below. Only after passing them should the approved Vercel production rollout occur.
+7. Run the funded two-wallet test and recovery checks below. These candidate checks passed within their documented scope. A Vercel production rollout remains a separate, unapproved action.
 
 ## Minimum funded test evidence
 
