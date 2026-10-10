@@ -43,7 +43,7 @@ test("activation requires retained manifests; rollback retains both funded relea
   changed.core.sourceSha256 = "b".repeat(64);
   assert.throws(() => buildReleaseRegistry(changed, [next]));
 });
-test("accepted v4 identity and unversioned links stay pinned while the verified v5 candidate is current", () => {
+test("accepted v4 identity and unversioned links stay pinned while v5 remains retained and v6 is current", () => {
   assert.equal(
     legacyRelease.core.contractAddress,
     "0xC49ED63ddc1685850aAF5d5e85986c1bCedBe8b5",
@@ -52,12 +52,16 @@ test("accepted v4 identity and unversioned links stay pinned while the verified 
     legacyRelease.core.sourceSha256,
     "be5138c48da9360e853a4bc4923fd7cab64615b13c2b8d6a8ab91b0bd9baade9",
   );
-  assert.equal(currentRelease.id, "v5");
+  assert.equal(currentRelease.id, "v6");
   assert.equal(
     currentRelease.core.contractAddress,
+    "0x26d7236E84632FAA3C3A158A2c000D357f021986",
+  );
+  assert.deepEqual(releaseById("v6"), currentRelease);
+  assert.equal(
+    releaseById("v5").core.contractAddress,
     "0x369D8f95744C8eaBcF50E8De009Eb162248D1504",
   );
-  assert.deepEqual(releaseById("v5"), currentRelease);
   for (const [filename, manifest] of [
     ["dispute_court_v4.py", legacyRelease.core],
     ["evidence_capture_v4.py", legacyRelease.helper],
@@ -72,7 +76,7 @@ test("accepted v4 identity and unversioned links stay pinned while the verified 
     );
   assert.equal(releaseById("v4"), legacyRelease);
   assert.equal(recordPath("same case"), "/agreements/same%20case?release=v4");
-  for (const invalid of ["v6", "v3", "../v4", "", "0x" + "11".repeat(20)])
+  for (const invalid of ["v7", "v3", "../v4", "", "0x" + "11".repeat(20)])
     assert.throws(() => releaseById(invalid));
 });
 test("release manifests fail closed before arbitrary addresses, endpoints or versions reach a client", () => {

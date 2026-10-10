@@ -30,8 +30,16 @@ test("candidate writes remain unavailable on retained v4; version matching stays
     true,
   );
   assert.equal(
-    isSecurityRelease({ protocol_version: 5, max_source_bytes: 6000 }),
+    isSecurityRelease({ protocol_version: 5, max_source_bytes: 6000 }, 5),
     true,
+  );
+  assert.equal(
+    isSecurityRelease({ protocol_version: 6, max_source_bytes: 6000 }),
+    true,
+  );
+  assert.equal(
+    isSecurityRelease({ protocol_version: 5, max_source_bytes: 6000 }),
+    false,
   );
   assert.equal(
     isSecurityRelease({ protocol_version: 4, max_source_bytes: 6000 }),

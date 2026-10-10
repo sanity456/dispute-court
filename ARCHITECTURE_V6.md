@@ -1,6 +1,6 @@
 # Dispute Court v6: bounded reconsideration
 
-Status: design and local development. No v6 deployment, reviewer preview, or milestone v2 evidence is claimed by this document.
+Status: v6 core and helper deployed and source-verified on Studionet. A reviewer preview, funded appeal-path test, and milestone v2 submission are not yet claimed by this document.
 
 ## Authority and scope
 

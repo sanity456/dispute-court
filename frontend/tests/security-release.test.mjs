@@ -55,12 +55,21 @@ function fixture(version = 4) {
     decision_policy: "party_b_performance_level_v1",
     party_a_role: "funder_refund_side",
     party_b_role: "performer_payment_side",
-    ...(version === 5
+    ...(version >= 5
       ? {
           negotiation_policy: "bilateral_percentage_offers_v1",
           max_offers_per_party: 50,
           max_offer_window_seconds: 604800,
           fee_policy: "adjudicated_resolutions_only",
+        }
+      : {}),
+    ...(version === 6
+      ? {
+          appeal_policy: "one_challenge_before_credit_v1",
+          appeal_window_seconds: 172800,
+          appeal_evidence_window_seconds: 86400,
+          appeal_resolution_window_seconds: 172800,
+          max_appeal_evidence_per_party: 3,
         }
       : {}),
   };
@@ -140,6 +149,34 @@ test("v5 verifier binds the reviewed helper, offer policy and source version wit
     },
   ]) {
     const changed = fixture(5);
+    change(changed);
+    await assert.rejects(verifyRelease(changed));
+  }
+});
+test("v6 verifier requires bounded appeal policy and its exact source pair", async () => {
+  assert.deepEqual(releaseSources(6), {
+    core: "dispute_court_v6.py",
+    helper: "evidence_capture_v6.py",
+  });
+  assert.equal((await verifyRelease(fixture(6))).protocolVersion, 6);
+  for (const change of [
+    (f) => {
+      f.config.appeal_policy = "unbounded";
+    },
+    (f) => {
+      f.config.appeal_window_seconds = 0;
+    },
+    (f) => {
+      f.config.appeal_evidence_window_seconds = 172800;
+    },
+    (f) => {
+      f.config.appeal_resolution_window_seconds = 0;
+    },
+    (f) => {
+      f.config.max_appeal_evidence_per_party = 100;
+    },
+  ]) {
+    const changed = fixture(6);
     change(changed);
     await assert.rejects(verifyRelease(changed));
   }

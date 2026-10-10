@@ -15,6 +15,10 @@ test("invitations keep the preview origin and exact registered release", () => {
     origin + "/agreements/same%20case?release=v4",
   );
   assert.equal(
+    recordLink("same case", "v6", origin),
+    origin + "/agreements/same%20case?release=v6",
+  );
+  assert.equal(
     recordLink("id", "v5", "http://127.0.0.1:4211"),
     "http://127.0.0.1:4211/agreements/id?release=v5",
   );
@@ -26,7 +30,7 @@ test("invitations keep the preview origin and exact registered release", () => {
     "https://user:secret@candidate.example",
   ])
     assert.throws(() => recordLink("id", "v5", invalid));
-  assert.throws(() => recordLink("id", "v6", origin));
+  assert.throws(() => recordLink("id", "v7", origin));
 });
 
 test("calendar links and identities distinguish same-ID cases across retained versions", () => {
@@ -36,7 +40,7 @@ test("calendar links and identities distinguish same-ID cases across retained ve
     detail: "Test reminder",
   };
   const origin = "https://candidate.example";
-  const values = ["v4", "v5"].map((releaseId) =>
+  const values = ["v4", "v5", "v6"].map((releaseId) =>
     calendarFile("same-case", "Case", guide, 60, 1000, { origin, releaseId }),
   );
   for (let i = 0; i < values.length; i++) {
@@ -55,6 +59,7 @@ test("calendar links and identities distinguish same-ID cases across retained ve
     );
   }
   assert.notEqual(values[0], values[1]);
+  assert.notEqual(values[1], values[2]);
 });
 
 test("UI copy, export and calendar actions bind links to this document's origin and release", () => {

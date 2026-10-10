@@ -11,7 +11,7 @@ import { product } from "../lib/product.ts";
 import { validateRelease, releaseById } from "../lib/releases.ts";
 
 export function releaseSources(version) {
-  assert.ok([4, 5].includes(version), "Unsupported release source version");
+  assert.ok([4, 5, 6].includes(version), "Unsupported release source version");
   return {
     core: `dispute_court_v${version}.py`,
     helper: `evidence_capture_v${version}.py`,
@@ -123,11 +123,18 @@ export async function verifyRelease({
   );
   assert.equal(config.party_a_role, "funder_refund_side");
   assert.equal(config.party_b_role, "performer_payment_side");
-  if (version === 5) {
+  if (version >= 5) {
     assert.equal(config.negotiation_policy, "bilateral_percentage_offers_v1");
     assert.equal(config.max_offers_per_party, 50);
     assert.equal(config.max_offer_window_seconds, 604800);
     assert.equal(config.fee_policy, "adjudicated_resolutions_only");
+  }
+  if (version === 6) {
+    assert.equal(config.appeal_policy, "one_challenge_before_credit_v1");
+    assert.equal(config.appeal_window_seconds, 172800);
+    assert.equal(config.appeal_evidence_window_seconds, 86400);
+    assert.equal(config.appeal_resolution_window_seconds, 172800);
+    assert.equal(config.max_appeal_evidence_per_party, 3);
   }
   assert.equal(
     String(capture.product_contract).toLowerCase(),
@@ -151,7 +158,7 @@ export async function verifyRelease({
 async function main() {
   assert.ok(
     [4, 6].includes(process.argv.length),
-    "Usage: node scripts/verify-security-release.mjs --expected-fee-bps <integer> [--manifest-dir <directory> | --release v4|v5]",
+    "Usage: node scripts/verify-security-release.mjs --expected-fee-bps <integer> [--manifest-dir <directory> | --release v4|v5|v6]",
   );
   assert.equal(process.argv[2], "--expected-fee-bps");
   assert.match(process.argv[3], /^(0|[1-9][0-9]*)$/);

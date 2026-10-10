@@ -13,7 +13,7 @@ import { currentRelease, releaseById, releases } from "../lib/releases.ts";
 
 assert.ok(
   [2, 4].includes(process.argv.length),
-  "Usage: node scripts/check-release-data.mjs [--release v4|v5]",
+  "Usage: node scripts/check-release-data.mjs [--release v4|v5|v6]",
 );
 if (process.argv.length === 4) assert.equal(process.argv[2], "--release");
 const selected = releaseById(process.argv[3] ?? currentRelease.id);
