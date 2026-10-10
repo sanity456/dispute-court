@@ -12,7 +12,7 @@ export type Release = {
 export function validateRelease(release: Release): Release {
   const { core, helper } = release;
   if (
-    ![4, 5].includes(core.protocolVersion) ||
+    ![4, 5, 6].includes(core.protocolVersion) ||
     release.id !== `v${core.protocolVersion}` ||
     helper.protocolVersion !== core.protocolVersion
   )

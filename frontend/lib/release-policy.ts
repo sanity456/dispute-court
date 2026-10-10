@@ -12,6 +12,8 @@ const recoveryMethods = new Set([
   "release_to_party_b",
   "refund_to_party_a",
   "resolve_no_show",
+  "finalize_unappealed",
+  "finalize_appeal_timeout",
 ]);
 export function isRecoveryMethod(method: string) {
   return recoveryMethods.has(method);
@@ -26,7 +28,7 @@ export function isSecurityRelease(
       : (value as Record<string, unknown> | null);
   return Boolean(
     config &&
-    [4, 5].includes(expectedVersion) &&
+    [4, 5, 6].includes(expectedVersion) &&
     Number(config.protocol_version) === expectedVersion &&
     Number(config.max_source_bytes) === SECURITY_EVIDENCE_BYTES,
   );

@@ -26,6 +26,7 @@ import { RecordTools, SessionStrip } from "./RecordTools";
 import { HelpPanel } from "./HelpPanel";
 import { OwnerDesk } from "./OwnerDesk";
 import { SettlementPanel } from "./SettlementPanel";
+import { AppealPanel } from "./AppealPanel";
 import { PublishReview, type PublishDraft } from "./PublishReview";
 import { templates } from "../lib/templates";
 import { clientRelease } from "../lib/client-release";
@@ -299,11 +300,19 @@ function ProductWorkspace({
           ["Party B performance criteria", String(data.get("criteria"))],
           ["Test escrow", formatGen(amount.toString()) + " GEN"],
           ["Future adjudication fee", Number(config?.fee_bps ?? 0) / 100 + "%"],
-          ...(config?.protocol_version === 5
+          ...(Number(config?.protocol_version) >= 5
             ? [
                 [
                   "Negotiated settlement",
                   "Either party may propose a fee-free whole-percentage split. Only the other party can accept it. Offers expire, do not pause deadlines, and are limited to 50 per party.",
+                ] as [string, string],
+              ]
+            : []),
+          ...(config?.protocol_version === 6
+            ? [
+                [
+                  "Decision challenge",
+                  "An AI decision holds escrow for a 48-hour appeal window. Either party may file one appeal, add public evidence during a 24-hour window, and request a second consensus review before credits are issued.",
                 ] as [string, string],
               ]
             : []),
@@ -1103,6 +1112,12 @@ function ProductWorkspace({
                   </article>
                   <SettlementPanel
                     key={agreement.id}
+                    agreement={agreement}
+                    protocol={protocol}
+                    disabled={disabled}
+                  />
+                  <AppealPanel
+                    key={agreement.id + "|appeal"}
                     agreement={agreement}
                     protocol={protocol}
                     disabled={disabled}

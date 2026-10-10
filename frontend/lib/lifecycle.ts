@@ -13,6 +13,7 @@ export type Agreement = {
   response_deadline: number;
   evidence_deadline: number;
   resolution_deadline: number;
+  appeal_deadline: number;
   resolution_window_seconds: number;
   max_source_bytes: number;
   terms_hash: string;
@@ -33,11 +34,14 @@ export type Agreement = {
   evidence: Record<string, unknown>[];
   last_source_observations: Record<string, unknown>[];
   verdict: Record<string, unknown>;
+  provisional_verdict: Record<string, unknown>;
+  appeal: Record<string, unknown>;
   paid: Record<string, unknown>;
   response_window_seconds: number;
   evidence_window_seconds: number;
   funding_window_seconds: number;
   negotiation_policy: string;
+  appeal_policy: string;
   settlement_offer_count: number;
   party_a_offer_count: number;
   party_b_offer_count: number;
@@ -73,10 +77,12 @@ export function normalizeAgreement(value: unknown): Agreement {
     "resolved_at",
     "created_at",
     "negotiation_policy",
+    "appeal_policy",
   ];
   const numbers = [
     "protocol_version",
     "resolution_deadline",
+    "appeal_deadline",
     "resolution_window_seconds",
     "max_source_bytes",
     "fee_bps",
@@ -107,6 +113,8 @@ export function normalizeAgreement(value: unknown): Agreement {
     ? a.last_source_observations.map(record)
     : [];
   result.verdict = record(a.verdict);
+  result.provisional_verdict = record(a.provisional_verdict);
+  result.appeal = record(a.appeal);
   result.settlement_offer = a.settlement_offer
     ? record(a.settlement_offer)
     : null;
@@ -190,6 +198,11 @@ export function agreementDeadline(a: Agreement) {
   if (a.status === "awaiting_funding") return a.funding_deadline;
   if (a.status === "awaiting_response") return a.response_deadline;
   if (a.status === "evidence") return a.evidence_deadline;
+  if (a.status === "appeal_window") return a.appeal_deadline;
+  if (a.status === "appeal_evidence")
+    return Number(a.appeal.evidence_deadline ?? 0);
+  if (["appeal_ready", "appeal_stalled"].includes(a.status))
+    return Number(a.appeal.resolution_deadline ?? 0);
   if (a.status === "funded") return a.performance_due_at;
   if (["ready_for_resolution", "resolution_stalled"].includes(a.status))
     return a.resolution_deadline;

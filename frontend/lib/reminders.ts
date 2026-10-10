@@ -1,5 +1,6 @@
 import { product } from "./product.ts";
 import { recordLink } from "./record-link.ts";
+import { record } from "./lifecycle.ts";
 export type Guide = {
   title: string;
   detail: string;
@@ -175,6 +176,40 @@ export function nextStep(
         "The bounded evidence retries are exhausted. Either party may apply the agreed 50/50 split of net escrow.",
       deadline: resolutionDeadline,
       deadlineLabel: resolutionDeadline ? "Fee-free resolution timeout" : "",
+    },
+    appeal_window: {
+      title: party
+        ? "Review the provisional decision"
+        : "Appeal window is open",
+      detail:
+        "Either agreement party may file one reasoned appeal before the deadline. No payout credit exists yet; after the window, anyone may finalize the original decision.",
+      deadline: number(r.appeal_deadline),
+      deadlineLabel: "Appeal must finalize before",
+    },
+    appeal_evidence: {
+      title: party ? "Add public appeal evidence" : "Appeal evidence is open",
+      detail:
+        "Each party may add up to three captured public sources, then mark ready. If the evidence window expires, anyone may close it. Escrow remains locked.",
+      deadline: number(record(r.appeal).evidence_deadline),
+      deadlineLabel: "Appeal evidence deadline",
+    },
+    appeal_ready: {
+      title: party
+        ? "Request appeal consensus review"
+        : "Appeal is ready for review",
+      detail:
+        "Either agreement party may request a second consensus decision before the fixed deadline. The initial ruling is still provisional.",
+      deadline: number(record(r.appeal).resolution_deadline),
+      deadlineLabel: "Appeal review deadline",
+    },
+    appeal_stalled: {
+      title: party
+        ? "Retry appeal review if evidence permits"
+        : "Appeal review is inconclusive",
+      detail:
+        "Either party may retry before the fixed deadline. If it remains unresolved, anyone may finalize the original ruling after the deadline.",
+      deadline: number(record(r.appeal).resolution_deadline),
+      deadlineLabel: "Appeal review deadline",
     },
     resolved: {
       title: "Review the result and withdraw your credit",

@@ -30,9 +30,9 @@ export function negotiationSupported(
   config: Record<string, unknown> | null,
 ) {
   return (
-    a.protocol_version === 5 &&
+    a.protocol_version >= 5 &&
     a.negotiation_policy === NEGOTIATION_POLICY &&
-    config?.protocol_version === 5 &&
+    config?.protocol_version === a.protocol_version &&
     config.negotiation_policy === NEGOTIATION_POLICY
   );
 }
@@ -45,7 +45,7 @@ export function settlementActions(a: Agreement, wallet: string, now: number) {
       ? a.response_deadline
       : a.resolution_deadline;
   const open =
-    a.protocol_version === 5 &&
+    a.protocol_version >= 5 &&
     a.negotiation_policy === NEGOTIATION_POLICY &&
     participant &&
     Number.isFinite(now) &&

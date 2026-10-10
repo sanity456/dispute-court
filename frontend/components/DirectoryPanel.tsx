@@ -117,6 +117,10 @@ export function DirectoryPanel({
           "evidence",
           "ready_for_resolution",
           "resolution_stalled",
+          "appeal_window",
+          "appeal_evidence",
+          "appeal_ready",
+          "appeal_stalled",
           "resolved",
           "cancelled",
         ];

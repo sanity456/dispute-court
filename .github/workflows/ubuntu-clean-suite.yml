@@ -68,6 +68,7 @@ jobs:
           RUN_GENLAYER_V3_INTEGRATION: "1"
           RUN_GENLAYER_V4_INTEGRATION: "1"
           RUN_GENLAYER_V5_INTEGRATION: "1"
+          RUN_GENLAYER_V6_INTEGRATION: "1"
         run: |
           glsim \
             --host 127.0.0.1 \
@@ -99,6 +100,7 @@ jobs:
               tests/test_integration_v3.py \
               tests/test_integration_v4.py \
               tests/test_integration_v5.py \
+              tests/test_integration_v6.py \
               --network localnet \
               -v -s; then
             cat /tmp/dispute-court-glsim.log

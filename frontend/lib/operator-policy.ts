@@ -61,6 +61,57 @@ export function operatorActions(
   )
     return [];
   if (
+    status === "appeal_window" &&
+    Number(record.appeal_deadline) > 0 &&
+    now >= Number(record.appeal_deadline)
+  )
+    return [
+      {
+        method: "finalize_unappealed",
+        args: [id],
+        reason: "The fixed appeal window expired without a challenge.",
+      },
+    ];
+  const appeal = record.appeal as Record<string, unknown> | undefined;
+  if (
+    status === "appeal_evidence" &&
+    Number(appeal?.resolution_deadline) > 0 &&
+    now >= Number(appeal?.resolution_deadline)
+  )
+    return [
+      {
+        method: "finalize_appeal_timeout",
+        args: [id],
+        reason:
+          "The fixed appeal review deadline expired; the original ruling stands.",
+      },
+    ];
+  if (
+    ["appeal_ready", "appeal_stalled"].includes(status) &&
+    Number(appeal?.resolution_deadline) > 0 &&
+    now >= Number(appeal?.resolution_deadline)
+  )
+    return [
+      {
+        method: "finalize_appeal_timeout",
+        args: [id],
+        reason:
+          "The fixed appeal review deadline expired; the original ruling stands.",
+      },
+    ];
+  if (
+    status === "appeal_evidence" &&
+    Number(appeal?.evidence_deadline) > 0 &&
+    now >= Number(appeal?.evidence_deadline)
+  )
+    return [
+      {
+        method: "close_appeal_evidence",
+        args: [id],
+        reason: "The appeal evidence window expired.",
+      },
+    ];
+  if (
     status === "awaiting_acceptance" &&
     Number(record.acceptance_deadline) > 0 &&
     now >= Number(record.acceptance_deadline)

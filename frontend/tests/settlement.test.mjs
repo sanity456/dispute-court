@@ -18,7 +18,9 @@ test("candidate writes remain unavailable on retained v4; version matching stays
   assert.equal(contractSurface(4).propose_settlement, undefined);
   assert.equal(contractSurface(5).propose_settlement.readonly, false);
   assert.equal(contractSurface(5).accept_settlement.params.length, 2);
-  assert.throws(() => contractSurface(6));
+  assert.equal(contractSurface(6).file_appeal.readonly, false);
+  assert.equal(contractSurface(6).finalize_appeal_timeout.params.length, 1);
+  assert.throws(() => contractSurface(7));
   assert.equal(
     isSecurityRelease({ protocol_version: 5, max_source_bytes: 6000 }, 4),
     false,

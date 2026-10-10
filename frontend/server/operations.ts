@@ -83,6 +83,24 @@ export async function ownerOverview(db: Database) {
         action = "Request validator resolution";
       if (r.status === "resolution_stalled")
         action = "Parties must review retry or fallback options";
+      const appeal = r.appeal && typeof r.appeal === "object" ? r.appeal : {};
+      if (r.status === "appeal_window")
+        action =
+          Number(r.appeal_deadline) <= now
+            ? "Finalize the unappealed decision"
+            : "Parties may challenge the provisional decision";
+      if (r.status === "appeal_evidence")
+        action =
+          Number(appeal.resolution_deadline) <= now
+            ? "Finalize the original decision after appeal timeout"
+            : Number(appeal.evidence_deadline) <= now
+              ? "Close expired appeal evidence"
+              : "Parties may add appeal evidence";
+      if (r.status === "appeal_ready" || r.status === "appeal_stalled")
+        action =
+          Number(appeal.resolution_deadline) <= now
+            ? "Finalize the original decision after appeal timeout"
+            : "Parties may request appeal consensus review";
     }
     return action
       ? [

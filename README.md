@@ -4,7 +4,7 @@
 
 Dispute Court is an independent bilateral escrow-resolution product. Party B accepts Party A's immutable agreement before funding; cooperative settlement stays fee-free, while disputes follow a bounded evidence and exact-bucket procedure.
 
-The repository includes the contracts, their tests, and the complete app in `frontend/`. The accepted [public production app](https://dispute-court-studionet.vercel.app/) still runs **v4**. This repository's default manifests and `main` branch now contain the separately deployed **v5 milestone candidate**; merging the code did not promote the Vercel production alias.
+The repository includes the contracts, their tests, and the complete app in `frontend/`. The accepted [public production app](https://dispute-court-studionet.vercel.app/) still runs **v4**. This repository's default manifests and `main` branch now contain the separately deployed **v5 milestone candidate**; merging the code did not promote the Vercel production alias. A new, undeployed v6 appeal candidate is tracked in [milestone v2 status](MILESTONE_V2_STATUS.md); its presence in source does not activate it.
 
 For milestone reviewers: start with the [milestone v1 submission draft](MILESTONE_V1_SUBMISSION.md) for the substantive v4-to-v5 delta, immutable commit, public CI and transaction evidence. The working **v5 reviewer preview requires the deployment-specific share link supplied in the portal evidence field**; the plain preview URL is protected and the production URL above remains v4. [Milestone status](MILESTONE_V1_STATUS.md) separates completed tests from remaining release limits. Portal milestone `v1` and contract protocol `v5` are different version numbers.
 
